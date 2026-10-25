@@ -38,3 +38,4 @@ def app(environ, start_response):
 
 # Also expose handler for AWS Lambda / Vercel Serverless style invocations
 handler = app
+application = app
