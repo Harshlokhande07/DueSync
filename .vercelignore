@@ -1,0 +1,3 @@
+# Ignore Python CLI package so Vercel doesn't invoke Python serverless builder
+cli/
+*.docx
