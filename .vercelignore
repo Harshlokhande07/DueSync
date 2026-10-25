@@ -1,3 +1,6 @@
-# Ignore Python CLI package so Vercel doesn't invoke Python serverless builder
-cli/
+# Exclude Python CLI package and dependencies from Vercel build
+cli
+cli/**
+**/pyproject.toml
+**/requirements.txt
 *.docx
