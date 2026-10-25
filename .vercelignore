@@ -1,6 +1,3 @@
-# Exclude Python CLI package and dependencies from Vercel build
-cli
-cli/**
-**/pyproject.toml
-**/requirements.txt
+# Exclude local CLI and docx reports from Vercel
+cli/
 *.docx
