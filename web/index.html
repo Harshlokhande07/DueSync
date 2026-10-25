@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>DueSync · Stay ahead of every deadline</title>
+  <meta name="description"
+    content="DueSync is a vibrant, organic pastel deadline tracker with live countdowns, visual progress insights, and smart urgency alerts.">
+  <link rel="icon" type="image/png" href="logo.png">
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            ink: '#1E1B2E',
+            'ink-muted': '#6A6682',
+            teal: {
+              DEFAULT: '#1F8A7D',
+              deep: '#14645B',
+              soft: '#EAFBF4'
+            },
+            sun: {
+              DEFAULT: '#FFC53D',
+              soft: '#FFF1C6',
+              deep: '#D49B0D'
+            },
+            coral: {
+              DEFAULT: '#F2546F',
+              soft: '#FFDDE3',
+              deep: '#9F1239'
+            },
+            amber: {
+              DEFAULT: '#F59E0B',
+              soft: '#FFE9BD',
+              deep: '#92400E'
+            },
+            mint: {
+              DEFAULT: '#2FC48D',
+              soft: '#D3F6E6',
+              deep: '#14645B'
+            },
+            violet: {
+              DEFAULT: '#7C6CF2',
+              soft: '#E5E0FF',
+              deep: '#5B4CC4'
+            },
+            'sky-soft': '#DAEEFF',
+            surface: '#FFFFFF',
+            border: '#ECE8F4',
+            'completed-bg': '#EEF0F6'
+          },
+          borderRadius: {
+            'card': '24px',
+            'panel': '28px',
+            'control': '16px',
+          },
+          boxShadow: {
+            'soft': '0 10px 30px -12px rgba(124, 108, 242, 0.16)',
+            'hover': '0 16px 36px -10px rgba(124, 108, 242, 0.22)',
+            'float': '0 14px 34px rgba(20, 100, 91, 0.18)',
+            'sun-glow': '0 8px 24px rgba(255, 197, 61, 0.40)',
+            'coral-glow': '0 8px 24px rgba(242, 84, 111, 0.35)',
+            'pill': '0 6px 20px rgba(30, 27, 46, 0.08)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* -------------------------------------------------------------
+       DueSync Color & Motion System (All design tokens centralized)
+       ------------------------------------------------------------- */
+    :root {
+      /* Brand & Status Tokens */
+      --ink: #1E1B2E;
+      --ink-muted: #6A6682;
+      --teal: #1F8A7D;
+      --teal-deep: #14645B;
+      --sun: #FFC53D;
+      --sun-soft: #FFF1C6;
+      --coral: #F2546F;
+      --coral-soft: #FFDDE3;
+      --amber: #F59E0B;
+      --amber-soft: #FFE9BD;
+      --mint: #2FC48D;
+      --mint-soft: #D3F6E6;
+      --violet: #7C6CF2;
+      --violet-soft: #E5E0FF;
+      --sky-soft: #DAEEFF;
+      --surface: #FFFFFF;
+      --border: #ECE8F4;
+      --completed-bg: #EEF0F6;
+
+      /* Motion Tokens */
+      --dur-fast: 150ms;
+      --dur-base: 250ms;
+      --dur-slow: 450ms;
+      --ease-out: cubic-bezier(.22, 1, .36, 1);
+      --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+
+      /* Shape & Depth Tokens */
+      --radius-card: 24px;
+      --radius-panel: 28px;
+      --radius-control: 16px;
+      --shadow-card: 0 10px 30px -12px rgba(124, 108, 242, 0.16);
+      --shadow-hover: 0 16px 36px -10px rgba(124, 108, 242, 0.22);
+      --shadow-float: 0 14px 34px rgba(20, 100, 91, 0.18);
+      --shadow-sun: 0 8px 24px rgba(255, 197, 61, 0.40);
+      --shadow-coral: 0 8px 24px rgba(242, 84, 111, 0.35);
+    }
+
+    body {
+      background: linear-gradient(135deg, #F7EEFF 0%, #FFF1EA 45%, #EAFBF4 100%) fixed;
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .touch-target {
+      min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Ambient Pastel Blobs */
+    .ambient-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      opacity: 0.45;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    .blob-1 {
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, #E5E0FF 0%, rgba(229, 224, 255, 0) 70%);
+      top: -100px;
+      left: -80px;
+      animation: driftOne 28s ease-in-out infinite alternate;
+    }
+
+    .blob-2 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #FFE9BD 0%, rgba(255, 233, 189, 0) 70%);
+      top: 30%;
+      right: -120px;
+      animation: driftTwo 32s ease-in-out infinite alternate;
+    }
+
+    .blob-3 {
+      width: 460px;
+      height: 460px;
+      background: radial-gradient(circle, #D3F6E6 0%, rgba(211, 246, 230, 0) 70%);
+      bottom: -80px;
+      left: 15%;
+      animation: driftThree 30s ease-in-out infinite alternate;
+    }
+
+    @keyframes driftOne {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(60px, 40px) scale(1.08); }
+      100% { transform: translate(-30px, 70px) scale(0.95); }
+    }
+
+    @keyframes driftTwo {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-50px, -50px) scale(1.05); }
+      100% { transform: translate(40px, 60px) scale(0.92); }
+    }
+
+    @keyframes driftThree {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(40px, -40px) scale(1.1); }
+      100% { transform: translate(-50px, 30px) scale(1); }
+    }
+
+    /* Press feedback */
+    .press-feedback {
+      transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+    }
+    .press-feedback:active {
+      transform: scale(0.98);
+    }
+
+    /* Primary CTA Button Shine & Rotate */
+    .btn-cta-shine {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-cta-shine::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -120%;
+      width: 65%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+      transform: rotate(25deg);
+      animation: btnShine 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      pointer-events: none;
+    }
+    .btn-cta-shine:hover::after {
+      animation-play-state: paused;
+    }
+    @keyframes btnShine {
+      0%, 75% { left: -120%; opacity: 0; }
+      80% { opacity: 1; }
+      100% { left: 220%; opacity: 0; }
+    }
+
+    .btn-cta-shine svg,
+    .btn-cta-shine i {
+      transition: transform var(--dur-base) var(--ease-spring);
+    }
+    .btn-cta-shine:hover svg,
+    .btn-cta-shine:hover i {
+      transform: rotate(90deg);
+    }
+
+    /* Micro-motion: Action buttons hover nudge */
+    .btn-action-edit:hover svg,
+    .btn-action-edit:hover i {
+      transform: rotate(-12deg) scale(1.15);
+      color: var(--violet);
+    }
+    .btn-action-delete:hover svg,
+    .btn-action-delete:hover i {
+      animation: quickWiggle 0.35s ease;
+      color: var(--coral);
+    }
+    @keyframes quickWiggle {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-3px) rotate(-6deg); }
+      75% { transform: translateX(3px) rotate(6deg); }
+    }
+
+    /* Progress Ring */
+    .progress-ring-circle {
+      transition: stroke-dashoffset 1s var(--ease-out);
+      transform: rotate(-90deg);
+      transform-origin: 50% 50%;
+    }
+
+    /* Pulse Breathing for Critical status */
+    @keyframes gentleCriticalPulse {
+      0%, 100% {
+        box-shadow: 0 0 0 0 rgba(242, 84, 111, 0.45);
+      }
+      50% {
+        box-shadow: 0 0 0 7px rgba(242, 84, 111, 0);
+      }
+    }
+    .pulse-critical {
+      animation: gentleCriticalPulse 2.4s infinite ease-in-out;
+    }
+
+    /* Pulse for Today chart node */
+    @keyframes chartPulse {
+      0%, 100% {
+        r: 7;
+        stroke-width: 3.5;
+        opacity: 1;
+      }
+      50% {
+        r: 9;
+        stroke-width: 5;
+        opacity: 0.8;
+      }
+    }
+    .chart-node-today {
+      animation: chartPulse 2.4s infinite ease-in-out;
+    }
+
+    /* Sparkle twinkle */
+    @keyframes sparkleTwinkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.85; }
+      50% { transform: scale(1.22) rotate(15deg); opacity: 1; }
+    }
+    .sparkle-twinkle {
+      animation: sparkleTwinkle 3s infinite ease-in-out;
+    }
+
+    /* Empty state floating */
+    @keyframes emptyFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .empty-floating {
+      animation: emptyFloat 4s ease-in-out infinite;
+    }
+
+    /* Staggered entrance animation */
+    .entrance-item {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: entranceFadeUp var(--dur-slow) var(--ease-out) forwards;
+    }
+    @keyframes entranceFadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Strikethrough sweep */
+    .strikethrough-sweep {
+      position: relative;
+      display: inline-block;
+    }
+    .strikethrough-sweep::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 100%;
+      height: 2px;
+      background-color: var(--ink-muted);
+      transform-origin: left;
+      transform: scaleX(1);
+      transition: transform 350ms var(--ease-out);
+    }
+    .strikethrough-sweep-anim::after {
+      animation: strikeThrough 350ms var(--ease-out) forwards;
+    }
+    @keyframes strikeThrough {
+      from { transform: scaleX(0); }
+      to { transform: scaleX(1); }
+    }
+
+    /* Modal dialog animations */
+    .modal-enter {
+      animation: modalScaleSpring var(--dur-base) var(--ease-spring) forwards;
+    }
+    @keyframes modalScaleSpring {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    @media (max-width: 639px) {
+      .modal-enter {
+        animation: sheetSlideUp var(--dur-base) var(--ease-out) forwards;
+      }
+    }
+    @keyframes sheetSlideUp {
+      from { opacity: 0; transform: translateY(100%); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Field shake on validation error */
+    .field-shake {
+      animation: shakeHoriz 300ms ease-in-out;
+    }
+    @keyframes shakeHoriz {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    .error-slide {
+      animation: errorSlideDown 200ms var(--ease-out) forwards;
+    }
+    @keyframes errorSlideDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scrollbar removal */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+
+    /* -------------------------------------------------------------
+       prefers-reduced-motion: reduce (Strict adherence)
+       ------------------------------------------------------------- */
+    @media (prefers-reduced-motion: reduce) {
+      .ambient-blob,
+      .btn-cta-shine::after,
+      .pulse-critical,
+      .chart-node-today,
+      .sparkle-twinkle,
+      .empty-floating,
+      .entrance-item,
+      .modal-enter,
+      .field-shake,
+      .error-slide {
+        animation: none !important;
+        transition: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
+
+      .btn-cta-shine svg,
+      .btn-cta-shine i,
+      .btn-action-edit svg,
+      .btn-action-edit i,
+      .press-feedback,
+      .progress-ring-circle {
+        transition: none !important;
+        transform: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body class="h-full flex flex-col antialiased selection:bg-amber-100 selection:text-amber-950 pb-28 sm:pb-12">
+
+  <!-- Ambient Blurred Pastel Drift Blobs (Pure CSS, pointer-events: none) -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+    <div class="ambient-blob blob-1"></div>
+    <div class="ambient-blob blob-2"></div>
+    <div class="ambient-blob blob-3"></div>
+  </div>
+
+  <!-- Sticky Header -->
+  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-[#ECE8F4] shadow-xs">
+    <div class="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between">
+      <!-- Brand & Tagline with Crisp Inline SVG Logo Mark -->
+      <div class="flex items-center space-x-3 entrance-item" style="animation-delay: 0ms;">
+        <svg class="w-10 h-10 sm:w-11 sm:h-11 shrink-0 rounded-[14px] shadow-sm press-feedback" viewBox="0 0 48 48"
+          fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="DueSync Logo">
+          <defs>
+            <linearGradient id="logoGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#1F8A7D" />
+              <stop offset="100%" stop-color="#7C6CF2" />
+            </linearGradient>
+          </defs>
+          <rect width="48" height="48" rx="14" fill="url(#logoGrad)" />
+          <circle cx="23" cy="24" r="11" stroke="#FFFFFF" stroke-width="2.8" fill="none" opacity="0.92" />
+          <polyline points="23 18 23 24 27 26" stroke="#FFFFFF" stroke-width="2.8" stroke-linecap="round"
+            stroke-linejoin="round" />
+          <circle cx="33" cy="15" r="3.5" fill="#FFC53D" stroke="#FFFFFF" stroke-width="1.5" />
+        </svg>
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="text-xl sm:text-2xl font-extrabold tracking-tight text-[#1E1B2E]">DueSync</span>
+            <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#E5E0FF] text-[#5B4CC4]">Planner</span>
+          </div>
+          <p class="text-xs text-[#6A6682] hidden sm:block font-medium">Stay ahead of every deadline.</p>
+        </div>
+      </div>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center space-x-3 sm:space-x-4 entrance-item" style="animation-delay: 60ms;">
+        <!-- Date Pill -->
+        <div
+          class="hidden md:flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white border border-[#ECE8F4] text-xs font-semibold text-[#6A6682] shadow-xs">
+          <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+          <span id="currentDateDisplay">Today</span>
+        </div>
+
+        <!-- + Add Deadline Primary CTA (Sunny Yellow with Shine & Rotate) -->
+        <button id="openAddModalBtn" type="button"
+          class="touch-target press-feedback btn-cta-shine inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-[16px] bg-[#FFC53D] hover:bg-[#F5B92B] active:bg-[#EAA814] text-[#1E1B2E] font-extrabold text-sm shadow-[0_8px_24px_rgba(255,197,61,0.40)] transition focus:outline-none focus:ring-2 focus:ring-[#FFC53D] focus:ring-offset-2">
+          <i data-lucide="plus" class="w-4 h-4 mr-1.5 stroke-[2.5]"></i>
+          <span>Add Deadline</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Canvas -->
+  <main class="relative z-10 flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+
+    <!-- Welcome Greeting Block -->
+    <section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 entrance-item"
+      style="animation-delay: 80ms;">
+      <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#1E1B2E] tracking-tight">
+          Your deadlines, under control.
+        </h1>
+        <p class="text-sm sm:text-base text-[#6A6682] mt-1 font-medium">
+          Track upcoming coursework, monitor pace, and plan ahead with ease.
+        </p>
+      </div>
+
+      <!-- Workload Summary Pill -->
+      <div id="workloadSummaryPill"
+        class="self-start sm:self-auto inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-white border border-[#ECE8F4] text-xs sm:text-sm font-semibold text-[#1F8A7D] shadow-soft">
+        <i data-lucide="sparkles" class="w-4 h-4 shrink-0 text-[#FFC53D] sparkle-twinkle"></i>
+        <span id="workloadSummaryText">Calculating schedule...</span>
+      </div>
+    </section>
+
+    <!-- Section 1: Bento Metrics (Vibrant Pastel System) -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 entrance-item" style="animation-delay: 140ms;"
+      aria-label="Workload Metrics">
+      <!-- Tile 1: Total Active (Violet Soft + Solid Violet Chip) -->
+      <div
+        class="bg-[#E5E0FF] rounded-[24px] p-4 sm:p-5 border border-[#D4CBF8] shadow-soft flex flex-col justify-between press-feedback hover:shadow-hover transition">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#7C6CF2] text-white flex items-center justify-center shadow-xs">
+            <i data-lucide="calendar" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+          </div>
+          <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#5B4CC4]">Active</span>
+        </div>
+        <div class="mt-4 sm:mt-5">
+          <div id="metricTotalActive"
+            class="text-3xl sm:text-4xl font-extrabold text-[#1E1B2E] tabular-nums leading-none">0</div>
+          <div class="text-xs font-bold text-[#5B4CC4] mt-1.5">Pending Coursework</div>
+        </div>
+      </div>
+
+      <!-- Tile 2: Approaching Soon (Warm Honey Amber Soft + Solid Amber Chip) -->
+      <div
+        class="bg-[#FFE9BD] rounded-[24px] p-4 sm:p-5 border border-[#FCE2B0] shadow-soft flex flex-col justify-between press-feedback hover:shadow-hover transition">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#F59E0B] text-white flex items-center justify-center shadow-xs">
+            <i data-lucide="hourglass" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+          </div>
+          <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#92400E]">1–5 Days</span>
+        </div>
+        <div class="mt-4 sm:mt-5">
+          <div id="metricApproaching"
+            class="text-3xl sm:text-4xl font-extrabold text-[#1E1B2E] tabular-nums leading-none">0</div>
+          <div class="text-xs font-bold text-[#92400E] mt-1.5">Approaching Soon</div>
+        </div>
+      </div>
+
+      <!-- Tile 3: Urgent / Overdue (Watermelon Coral Soft + Solid Coral Chip with Subtle Pulse) -->
+      <div
+        class="bg-[#FFDDE3] rounded-[24px] p-4 sm:p-5 border border-[#FFBFCB] shadow-soft flex flex-col justify-between press-feedback hover:shadow-hover transition">
+        <div class="flex items-center justify-between">
+          <div
+            class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#F2546F] text-white flex items-center justify-center shadow-xs pulse-critical">
+            <i data-lucide="alert-triangle" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+          </div>
+          <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#9F1239]">Critical</span>
+        </div>
+        <div class="mt-4 sm:mt-5">
+          <div id="metricUrgent" class="text-3xl sm:text-4xl font-extrabold text-[#1E1B2E] tabular-nums leading-none">0
+          </div>
+          <div class="text-xs font-bold text-[#9F1239] mt-1.5">&le; 24h or Past Due</div>
+        </div>
+      </div>
+
+      <!-- Tile 4: Completed (Mint Soft + Solid Mint Chip) -->
+      <div
+        class="bg-[#D3F6E6] rounded-[24px] p-4 sm:p-5 border border-[#B9EDD4] shadow-soft flex flex-col justify-between press-feedback hover:shadow-hover transition">
+        <div class="flex items-center justify-between">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#2FC48D] text-white flex items-center justify-center shadow-xs">
+            <i data-lucide="check-circle-2" class="w-4 sm:w-5 h-4 sm:h-5"></i>
+          </div>
+          <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-[#14645B]">Finished</span>
+        </div>
+        <div class="mt-4 sm:mt-5">
+          <div id="metricCompleted"
+            class="text-3xl sm:text-4xl font-extrabold text-[#1E1B2E] tabular-nums leading-none">0</div>
+          <div class="text-xs font-bold text-[#14645B] mt-1.5">Submitted Tasks</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Visual Insights Row (Color-Blocked Teal Hero + Coral Wave + Leaderboard) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 entrance-item" style="animation-delay: 200ms;"
+      aria-label="Visual Insights">
+      <!-- 1. Hero Completion Card (Bold Color Block in Deep Teal with Sunny Yellow Ring) -->
+      <div
+        class="lg:col-span-4 rounded-[28px] p-5 sm:p-6 text-white shadow-float flex flex-col justify-between relative overflow-hidden"
+        style="background: linear-gradient(135deg, #14645B 0%, #1F8A7D 100%);">
+        <!-- Decorative corner circles (CSS only for depth) -->
+        <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 pointer-events-none blur-sm"
+          aria-hidden="true"></div>
+        <div class="absolute -bottom-10 -right-4 w-24 h-24 rounded-full bg-[#FFC53D]/15 pointer-events-none"
+          aria-hidden="true"></div>
+
+        <div class="relative z-10">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-emerald-100/90">Overall Completion</span>
+            <button id="viewCompletedFilterLink" type="button"
+              class="text-xs font-bold text-[#FFC53D] hover:underline flex items-center space-x-1 transition">
+              <span>View Done</span>
+              <i data-lucide="arrow-right" class="w-3 h-3"></i>
+            </button>
+          </div>
+
+          <!-- Circular Ring & Big Percentage -->
+          <div class="flex items-center space-x-5 mt-4 sm:mt-5">
+            <div class="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 flex items-center justify-center">
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <!-- Translucent white track -->
+                <circle cx="50" cy="50" r="42" stroke="rgba(255,255,255,0.18)" stroke-width="8" fill="none" />
+                <!-- Sunny yellow thick-stroke progress ring -->
+                <circle id="completionProgressRing" cx="50" cy="50" r="42" stroke="#FFC53D" stroke-width="8"
+                  stroke-linecap="round" fill="none" stroke-dasharray="264" stroke-dashoffset="264"
+                  class="progress-ring-circle" />
+              </svg>
+              <span id="heroProgressIcon" class="absolute text-[#FFC53D]">
+                <i data-lucide="check" class="w-6 h-6 stroke-[3]"></i>
+              </span>
+            </div>
+
+            <div>
+              <div class="flex items-baseline space-x-1">
+                <span id="heroProgressPercent"
+                  class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-none">0%</span>
+              </div>
+              <p id="heroProgressFraction" class="text-xs sm:text-sm font-semibold text-emerald-100/85 mt-1.5">0 of 0 done
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/15 relative z-10">
+          <p id="heroProgressMotivational" class="text-xs font-medium text-emerald-100/90">
+            Add deadlines to track your submission pace.
+          </p>
+        </div>
+      </div>
+
+      <!-- 2. Next 7 Days Workload Chart (Coral Wave + Gliding Dark Bubble Tooltip) -->
+      <div
+        class="lg:col-span-4 bg-white rounded-[28px] p-5 sm:p-6 border border-[#ECE8F4] shadow-soft flex flex-col justify-between">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-full bg-[#FFDDE3] text-[#F2546F] flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-bold text-[#1E1B2E]">Workload Schedule</h2>
+              <p class="text-xs text-[#6A6682]">Next 7 days volume</p>
+            </div>
+          </div>
+
+          <!-- Dynamic Dark Tooltip Bubble -->
+          <div id="chartTooltipBubble"
+            class="px-2.5 py-1 rounded-full bg-[#1E1B2E] text-white text-[11px] font-bold shadow-xs transition-all duration-150">
+            Hover to inspect
+          </div>
+        </div>
+
+        <!-- Inline SVG Interactive Workload Chart with Coral Stroke -->
+        <div class="mt-3 w-full h-28 sm:h-32 relative flex items-center">
+          <svg id="workloadSvgChart" class="w-full h-full overflow-visible" preserveAspectRatio="none"
+            viewBox="0 0 700 130">
+            <defs>
+              <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#F2546F" stop-opacity="0.32" />
+                <stop offset="100%" stop-color="#F2546F" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <path id="chartAreaPath" fill="url(#chartGradient)" d="" />
+            <path id="chartLinePath" fill="none" stroke="#F2546F" stroke-width="3.5" stroke-linecap="round" d="" />
+            <g id="chartNodesGroup"></g>
+          </svg>
+        </div>
+
+        <!-- Weekday Axis Labels -->
+        <div id="chartAxisLabels"
+          class="grid grid-cols-7 text-center pt-2 border-t border-[#ECE8F4] text-[10px] sm:text-[11px] font-bold text-[#6A6682]">
+          <!-- Injected via JavaScript -->
+        </div>
+      </div>
+
+      <!-- 3. Leaderboard Card (Deep Pine Teal + Ranked Coral, Sunny Yellow, Violet) -->
+      <div
+        class="lg:col-span-4 rounded-[28px] p-5 sm:p-6 text-white border border-[#14645B] shadow-soft flex flex-col justify-between space-y-3"
+        style="background: #14645B;">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="w-7 h-7 rounded-full bg-white/15 text-[#FFC53D] flex items-center justify-center">
+              <i data-lucide="trophy" class="w-4 h-4"></i>
+            </div>
+            <div>
+              <h2 class="text-sm font-extrabold text-white tracking-tight">Leaderboard</h2>
+              <p class="text-[11px] text-emerald-100/80">Priority coursework pace</p>
+            </div>
+          </div>
+          <div class="inline-flex rounded-full bg-black/20 p-0.5 text-[11px] font-bold">
+            <span class="px-2.5 py-0.5 rounded-full bg-white text-[#1E1B2E] shadow-xs">Weekly</span>
+            <span class="px-2 py-0.5 text-emerald-100/70">Month</span>
+          </div>
+        </div>
+
+        <!-- 3 Ranked Cards (#1 Coral, #2 Sunny Yellow, #3 Violet Soft) -->
+        <div id="leaderboardList" class="space-y-2 my-auto">
+          <!-- Injected via JavaScript -->
+        </div>
+
+        <!-- Bottom Pill chip bar -->
+        <div
+          class="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-emerald-100/80 font-semibold">
+          <span class="flex items-center space-x-1">
+            <i data-lucide="sparkles" class="w-3 h-3 text-[#FFC53D]"></i>
+            <span>Pace Radar</span>
+          </span>
+          <span class="px-2 py-0.5 rounded-full bg-white/15 text-white text-[10px] font-bold">Active Sprint</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Toolbar (Search, Filter Tabs, Sort) -->
+    <section class="bg-white rounded-[24px] p-3 sm:p-4 border border-[#ECE8F4] shadow-soft space-y-3 entrance-item"
+      style="animation-delay: 240ms;">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <!-- Search Field with Focus Glow -->
+        <div class="relative flex-1 max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#6A6682]">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </div>
+          <input id="searchInput" type="search" placeholder="Search tasks, subjects, or notes..."
+            class="touch-target w-full pl-10 pr-9 py-2 bg-[#F9F8FD] border border-[#ECE8F4] rounded-[16px] text-sm text-[#1E1B2E] placeholder-[#6A6682] focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+          <button id="clearSearchBtn" type="button"
+            class="hidden absolute inset-y-0 right-0 pr-3 flex items-center text-[#6A6682] hover:text-[#1E1B2E] transition"
+            aria-label="Clear search">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Sort Control -->
+        <div class="flex items-center space-x-2 self-end md:self-auto">
+          <label for="sortSelect" class="text-xs font-bold text-[#6A6682] whitespace-nowrap">Sort:</label>
+          <select id="sortSelect"
+            class="touch-target bg-[#F9F8FD] border border-[#ECE8F4] rounded-[16px] px-3.5 py-2 text-xs sm:text-sm text-[#1E1B2E] font-bold focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] cursor-pointer transition">
+            <option value="closest">Closest Deadline First</option>
+            <option value="furthest">Furthest Deadline First</option>
+            <option value="priority">Priority: High to Low</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Filter Tabs (Pill style with Deep Teal active fill and pop counts) -->
+      <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 no-scrollbar" role="tablist"
+        aria-label="Filter deadlines">
+        <button type="button" role="tab" data-filter="all"
+          class="filter-tab active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs">
+          All <span class="filter-count ml-1 opacity-80">(0)</span>
+        </button>
+        <button type="button" role="tab" data-filter="critical"
+          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFDDE3] hover:text-[#9F1239] border border-[#ECE8F4]">
+          Critical <span class="filter-count ml-1 opacity-80">(0)</span>
+        </button>
+        <button type="button" role="tab" data-filter="approaching"
+          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFE9BD] hover:text-[#92400E] border border-[#ECE8F4]">
+          Approaching <span class="filter-count ml-1 opacity-80">(0)</span>
+        </button>
+        <button type="button" role="tab" data-filter="safe"
+          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#D3F6E6] hover:text-[#14645B] border border-[#ECE8F4]">
+          Plenty of Time <span class="filter-count ml-1 opacity-80">(0)</span>
+        </button>
+        <button type="button" role="tab" data-filter="completed"
+          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#EEF0F6] hover:text-[#1E1B2E] border border-[#ECE8F4]">
+          Completed <span class="filter-count ml-1 opacity-80">(0)</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Section 4: Task Cards Grid (2 Columns on Desktop) -->
+    <section id="taskListContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-4" aria-label="Deadline cards">
+      <!-- Cards dynamically injected with FLIP animation -->
+    </section>
+
+    <!-- Empty State with Gentle Floating -->
+    <section id="emptyStateContainer"
+      class="hidden py-14 text-center bg-white rounded-[28px] border border-[#ECE8F4] p-8 shadow-soft empty-floating">
+      <div
+        class="w-14 h-14 mx-auto rounded-full bg-[#D3F6E6] text-[#2FC48D] flex items-center justify-center mb-4 shadow-xs">
+        <i data-lucide="clipboard-check" class="w-7 h-7"></i>
+      </div>
+      <h3 id="emptyStateTitle" class="text-lg font-extrabold text-[#1E1B2E]">No deadlines here</h3>
+      <p id="emptyStateMessage" class="mt-1 text-sm text-[#6A6682] max-w-sm mx-auto font-medium">Your schedule is
+        completely clear.</p>
+      <div id="emptyStateActionWrap" class="mt-5"></div>
+    </section>
+
+  </main>
+
+  <!-- Mobile Floating Bottom Navigation (Visible on screen < 640px) -->
+  <nav
+    class="sm:hidden fixed bottom-4 inset-x-4 z-40 bg-white/95 backdrop-blur-md border border-[#ECE8F4] rounded-full shadow-float px-3 py-2 flex items-center justify-around"
+    aria-label="Mobile Navigation">
+    <button id="mobileNavHome" type="button"
+      class="mobile-nav-item touch-target flex flex-col items-center justify-center text-[#14645B] text-[10px] font-bold"
+      aria-label="Home filter All">
+      <i data-lucide="home" class="w-5 h-5"></i>
+      <span>Home</span>
+    </button>
+
+    <button id="mobileNavUrgent" type="button"
+      class="mobile-nav-item touch-target flex flex-col items-center justify-center text-[#6A6682] text-[10px] font-bold"
+      aria-label="Filter Urgent">
+      <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+      <span>Urgent</span>
+    </button>
+
+    <!-- Center Floating Add Button (Sunny Yellow with Press Bounce) -->
+    <button id="mobileNavAddBtn" type="button"
+      class="touch-target -mt-6 w-12 h-12 rounded-full bg-[#FFC53D] hover:bg-[#F5B92B] text-[#1E1B2E] flex items-center justify-center shadow-[0_8px_20px_rgba(255,197,61,0.40)] press-feedback focus:outline-none focus:ring-2 focus:ring-[#FFC53D]"
+      aria-label="Add new deadline">
+      <i data-lucide="plus" class="w-6 h-6 stroke-[2.5]"></i>
+    </button>
+
+    <button id="mobileNavDone" type="button"
+      class="mobile-nav-item touch-target flex flex-col items-center justify-center text-[#6A6682] text-[10px] font-bold"
+      aria-label="Filter Completed">
+      <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+      <span>Done</span>
+    </button>
+  </nav>
+
+  <!-- Add / Edit Modal -->
+  <div id="taskModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="modalBackdrop" class="fixed inset-0 bg-[#1E1B2E]/50 backdrop-blur-sm transition-opacity"></div>
+
+    <div class="fixed inset-0 z-10 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+      <div id="modalContentCard"
+        class="bg-white w-full sm:max-w-lg rounded-t-[28px] sm:rounded-[28px] shadow-float border border-[#ECE8F4] p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto modal-enter">
+        <div class="sm:hidden w-12 h-1.5 rounded-full bg-[#ECE8F4] mx-auto -mt-1 mb-2"></div>
+
+        <div class="flex items-center justify-between pb-3 border-b border-[#ECE8F4]">
+          <div class="flex items-center space-x-2.5">
+            <div id="modalIconBox"
+              class="w-9 h-9 rounded-full bg-[#FFF1C6] text-[#92400E] flex items-center justify-center shadow-xs">
+              <i data-lucide="plus-circle" class="w-5 h-5"></i>
+            </div>
+            <h2 id="modalTitle" class="text-lg font-extrabold text-[#1E1B2E]">Add Deadline</h2>
+          </div>
+          <button id="closeModalBtn" type="button"
+            class="touch-target p-2 text-[#6A6682] hover:text-[#1E1B2E] rounded-full hover:bg-[#F9F8FD] transition"
+            aria-label="Close dialog">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <form id="taskForm" class="space-y-4" novalidate>
+          <input type="hidden" id="taskIdInput">
+
+          <div>
+            <label for="taskTitleInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Title <span class="text-[#F2546F]">*</span>
+            </label>
+            <input type="text" id="taskTitleInput" required placeholder="e.g. Data Structures Assignment 3"
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+            <p id="titleError"
+              class="hidden text-xs text-[#F2546F] mt-1 font-bold flex items-center space-x-1 error-slide">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+              <span>Please enter a deadline title.</span>
+            </p>
+          </div>
+
+          <div>
+            <label for="taskSubjectInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Subject / Course
+            </label>
+            <input type="text" id="taskSubjectInput" placeholder="e.g. Computer Science 101"
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label for="taskTypeSelect" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+                Type
+              </label>
+              <select id="taskTypeSelect"
+                class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] transition">
+                <option value="Assignment">Assignment</option>
+                <option value="Exam">Exam</option>
+                <option value="Project">Project</option>
+                <option value="Practical">Practical</option>
+                <option value="Presentation">Presentation</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1.5">
+                Priority
+              </label>
+              <div class="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Priority level">
+                <button type="button" data-priority-val="Low"
+                  class="priority-pill touch-target press-feedback px-3 py-2 rounded-[14px] border border-[#ECE8F4] bg-[#F9F8FD] text-xs font-bold text-[#6A6682] flex items-center justify-center space-x-1.5 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span>
+                  <span>Low</span>
+                </button>
+                <button type="button" data-priority-val="Medium"
+                  class="priority-pill active touch-target press-feedback px-3 py-2 rounded-[14px] border border-[#FCE2B0] bg-[#FFE9BD] text-xs font-bold text-[#92400E] flex items-center justify-center space-x-1.5 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B]"></span>
+                  <span>Medium</span>
+                </button>
+                <button type="button" data-priority-val="High"
+                  class="priority-pill touch-target press-feedback px-3 py-2 rounded-[14px] border border-[#ECE8F4] bg-[#F9F8FD] text-xs font-bold text-[#6A6682] flex items-center justify-center space-x-1.5 transition">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#F2546F]"></span>
+                  <span>High</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label for="taskDueDateInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Due Date & Time <span class="text-[#F2546F]">*</span>
+            </label>
+            <input type="datetime-local" id="taskDueDateInput" required
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] transition">
+            <p id="dueDateError"
+              class="hidden text-xs text-[#F2546F] mt-1 font-bold flex items-center space-x-1 error-slide">
+              <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+              <span>Please specify a valid deadline date and time.</span>
+            </p>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="taskNotesInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider">
+                Notes
+              </label>
+              <span id="notesCharCounter" class="text-xs font-semibold text-[#6A6682]">0/500</span>
+            </div>
+            <textarea id="taskNotesInput" rows="3" maxlength="500"
+              placeholder="Additional guidelines, rubric, or submission link..."
+              class="w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] transition resize-none"></textarea>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 pt-3 border-t border-[#ECE8F4]">
+            <button type="button" id="cancelModalBtn"
+              class="touch-target px-4 py-2.5 rounded-[14px] border border-[#ECE8F4] text-sm font-bold text-[#6A6682] hover:bg-[#F9F8FD] transition">
+              Cancel
+            </button>
+            <button type="submit" id="submitTaskBtn"
+              class="touch-target press-feedback btn-cta-shine px-5 py-2.5 rounded-[16px] bg-[#FFC53D] hover:bg-[#F5B92B] active:bg-[#EAA814] text-[#1E1B2E] text-sm font-extrabold shadow-[0_8px_20px_rgba(255,197,61,0.35)] transition flex items-center space-x-1.5">
+              <i data-lucide="check" class="w-4 h-4 stroke-[2.5]"></i>
+              <span id="submitBtnText">Save Deadline</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Dialog -->
+  <div id="deleteConfirmModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true"
+    aria-labelledby="deleteModalTitle">
+    <div id="deleteModalBackdrop" class="fixed inset-0 bg-[#1E1B2E]/50 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+      <div
+        class="bg-white w-full max-w-sm rounded-[24px] shadow-float border border-[#ECE8F4] p-5 sm:p-6 space-y-3 modal-enter">
+        <div
+          class="w-10 h-10 rounded-full bg-[#FFDDE3] text-[#F2546F] flex items-center justify-center shadow-[0_0_16px_rgba(242,84,111,0.30)]">
+          <i data-lucide="trash-2" class="w-5 h-5"></i>
+        </div>
+        <h3 id="deleteModalTitle" class="text-base font-extrabold text-[#1E1B2E]">Delete Deadline?</h3>
+        <p class="text-xs sm:text-sm text-[#6A6682] font-medium leading-relaxed">
+          Are you sure you want to delete "<span id="deleteTaskTitleSpan" class="font-bold text-[#1E1B2E]"></span>"?
+          This action cannot be undone.
+        </p>
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button id="cancelDeleteBtn" type="button"
+            class="touch-target px-4 py-2 rounded-[14px] border border-[#ECE8F4] text-xs sm:text-sm font-bold text-[#6A6682] hover:bg-[#F9F8FD] transition">
+            Cancel
+          </button>
+          <button id="confirmDeleteBtn" type="button"
+            class="touch-target press-feedback px-4 py-2 rounded-[14px] bg-[#F2546F] hover:bg-[#DE3F5A] text-white text-xs sm:text-sm font-bold shadow-xs transition">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification with Animated Progress Shrink -->
+  <div id="toastContainer"
+    class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm bg-[#1E1B2E] text-white text-xs sm:text-sm px-4 py-3 rounded-2xl shadow-pill border border-[#312C45] flex items-center space-x-2.5 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none overflow-hidden"
+    role="status" aria-live="polite">
+    <div id="toastProgressBar"
+      class="absolute bottom-0 left-0 h-1 bg-[#FFC53D] transition-all duration-[3200ms] ease-linear w-full"></div>
+    <span id="toastIconWrap" class="inline-flex items-center text-[#FFC53D] shrink-0">
+      <i data-lucide="check-circle-2" class="w-4 h-4"></i>
+    </span>
+    <span id="toastMessage" class="font-bold">Action completed</span>
+  </div>
+
+  <!-- Engine Script -->
+  <script>
+    (function () {
+      'use strict';
+
+      const STORAGE_KEY = 'dueSyncTasks';
+      const URGENCY = {
+        OVERDUE: 'Overdue',
+        DUE_TODAY: 'Due Today',
+        APPROACHING: 'Approaching Soon',
+        SAFE: 'Plenty of Time',
+        COMPLETED: 'Completed'
+      };
+
+      let tasks = [];
+      let currentFilter = 'all';
+      let currentSort = 'closest';
+      let searchQuery = '';
+      let selectedPriority = 'Medium';
+      let deletePendingId = null;
+      let modalFocusTrigger = null;
+
+      // Track previous values for smooth count-ups
+      let prevMetrics = { active: 0, approaching: 0, urgent: 0, completed: 0, percent: 0 };
+      let initialLoadDone = false;
+
+      function prefersReducedMotion() {
+        return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function getSeedTasks() {
+        const now = Date.now();
+        const hour = 3600 * 1000;
+        const day = 24 * hour;
+
+        return [
+          {
+            id: 'seed-1',
+            title: 'Data Structures Assignment',
+            subject: 'Computer Science',
+            type: 'Assignment',
+            dueDate: new Date(now + 8 * hour).toISOString(),
+            priority: 'High',
+            notes: 'Implement red-black tree rebalancing and pass all automated test suites.',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 'seed-2',
+            title: 'Engineering Physics Practical File',
+            subject: 'Engineering Physics',
+            type: 'Practical',
+            dueDate: new Date(now + 2 * day + 3 * hour).toISOString(),
+            priority: 'Medium',
+            notes: 'Complete circuit diagrams and write up spectrometer experiment error analysis.',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 'seed-3',
+            title: 'Mini Project Submission',
+            subject: 'Software Development',
+            type: 'Project',
+            dueDate: new Date(now + 8 * day).toISOString(),
+            priority: 'High',
+            notes: 'Prepare GitHub repository, demo video recording, and architecture documentation.',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          },
+          {
+            id: 'seed-4',
+            title: 'Mathematics Quiz',
+            subject: 'Mathematics',
+            type: 'Exam',
+            dueDate: new Date(now - 2 * day).toISOString(),
+            priority: 'Medium',
+            notes: 'Covers multivariable calculus, partial derivatives, and gradient vectors.',
+            completed: false,
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        ];
+      }
+
+      function loadTasks() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw === null) {
+            const initial = getSeedTasks();
+            saveTasks(initial);
+            return initial;
+          }
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+          console.warn('Storage read warning:', e);
+          return [];
+        }
+      }
+
+      function saveTasks(updatedList) {
+        tasks = updatedList;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        } catch (e) {
+          console.warn('Storage save warning:', e);
+        }
+      }
+
+      function calculateTimeRemaining(dueIsoString) {
+        const dueTs = new Date(dueIsoString).getTime();
+        const nowTs = Date.now();
+        const diffMs = dueTs - nowTs;
+        return {
+          diffMs,
+          isOverdue: diffMs <= 0,
+          totalSeconds: Math.floor(Math.abs(diffMs) / 1000)
+        };
+      }
+
+      /* -------------------------------------------------------------
+         Color-coded status mappings (Enhanced fresh pastel tokens)
+         ------------------------------------------------------------- */
+      function getUrgencyStatus(task) {
+        if (task.completed) {
+          return {
+            status: URGENCY.COMPLETED,
+            label: 'Completed',
+            accentColor: 'var(--ink-muted)',
+            chipFill: 'bg-[#D3F6E6]',
+            chipText: 'text-[#2FC48D]',
+            pillBorder: 'border-[#CBD5E1]',
+            pillBg: 'bg-[#EEF0F6]',
+            stripBg: 'bg-[#EEF0F6]',
+            stripBorder: 'border-[#E2E8F0]',
+            stripText: 'text-[#6A6682]',
+            cardBorder: 'border-[#E2E8F0]',
+            icon: 'check-check'
+          };
+        }
+
+        const { diffMs, isOverdue } = calculateTimeRemaining(task.dueDate);
+        const hourMs = 3600 * 1000;
+        const dayMs = 24 * hourMs;
+
+        if (isOverdue) {
+          return {
+            status: URGENCY.OVERDUE,
+            label: 'Overdue',
+            accentColor: 'var(--coral)',
+            chipFill: 'bg-[#FFDDE3]',
+            chipText: 'text-[#F2546F]',
+            pillBorder: 'border-[#FFBFCB]',
+            pillBg: 'bg-[#FFDDE3]',
+            stripBg: 'bg-[#FFF2F4]',
+            stripBorder: 'border-[#FFDDE3]',
+            stripText: 'text-[#9F1239]',
+            cardBorder: 'border-[#FFDDE3]',
+            icon: 'alert-triangle'
+          };
+        } else if (diffMs <= dayMs) {
+          return {
+            status: URGENCY.DUE_TODAY,
+            label: 'Due Today',
+            accentColor: 'var(--coral)',
+            chipFill: 'bg-[#FFDDE3]',
+            chipText: 'text-[#F2546F]',
+            pillBorder: 'border-[#FFBFCB]',
+            pillBg: 'bg-[#FFDDE3]',
+            stripBg: 'bg-[#FFF2F4]',
+            stripBorder: 'border-[#FFDDE3]',
+            stripText: 'text-[#9F1239]',
+            cardBorder: 'border-[#FFDDE3]',
+            icon: 'alert-circle'
+          };
+        } else if (diffMs <= 5 * dayMs) {
+          return {
+            status: URGENCY.APPROACHING,
+            label: 'Approaching Soon',
+            accentColor: 'var(--amber)',
+            chipFill: 'bg-[#FFE9BD]',
+            chipText: 'text-[#F59E0B]',
+            pillBorder: 'border-[#FCE2B0]',
+            pillBg: 'bg-[#FFE9BD]',
+            stripBg: 'bg-[#FFF9EE]',
+            stripBorder: 'border-[#FFE9BD]',
+            stripText: 'text-[#92400E]',
+            cardBorder: 'border-[#FFE9BD]',
+            icon: 'hourglass'
+          };
+        } else {
+          return {
+            status: URGENCY.SAFE,
+            label: 'Plenty of Time',
+            accentColor: 'var(--mint)',
+            chipFill: 'bg-[#D3F6E6]',
+            chipText: 'text-[#2FC48D]',
+            pillBorder: 'border-[#B9EDD4]',
+            pillBg: 'bg-[#D3F6E6]',
+            stripBg: 'bg-[#F2FCF7]',
+            stripBorder: 'border-[#D3F6E6]',
+            stripText: 'text-[#14645B]',
+            cardBorder: 'border-[#ECE8F4]',
+            icon: 'shield-check'
+          };
+        }
+      }
+
+      function formatCountdown(dueIsoString, completed) {
+        if (completed) return 'Task Completed';
+        const { isOverdue, totalSeconds } = calculateTimeRemaining(dueIsoString);
+        const days = Math.floor(totalSeconds / 86400);
+        const hours = Math.floor((totalSeconds % 86400) / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const pad = (n) => String(n).padStart(2, '0');
+
+        if (isOverdue) {
+          return days > 0 ? `Overdue by ${days}d ${pad(hours)}h` : `Overdue by ${pad(hours)}h ${pad(minutes)}m`;
+        }
+        if (days >= 1) {
+          return `${days}d ${pad(hours)}h ${pad(minutes)}m`;
+        }
+        return `${pad(hours)}h ${pad(minutes)}m`;
+      }
+
+      function formatDueDate(isoString) {
+        try {
+          const d = new Date(isoString);
+          return d.toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+        } catch (e) {
+          return isoString;
+        }
+      }
+
+      function getPriorityPill(priority) {
+        if (priority === 'High') {
+          return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FFDDE3] text-[#9F1239] border border-[#FFBFCB]"><i data-lucide="flag" class="w-3 h-3 mr-1 text-[#F2546F]"></i>High</span>';
+        }
+        if (priority === 'Low') {
+          return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#EEF0F6] text-[#6A6682] border border-[#E2E8F0]"><i data-lucide="flag" class="w-3 h-3 mr-1"></i>Low</span>';
+        }
+        return '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#FFE9BD] text-[#92400E] border border-[#FCE2B0]"><i data-lucide="flag" class="w-3 h-3 mr-1 text-[#F59E0B]"></i>Medium</span>';
+      }
+
+      /* -------------------------------------------------------------
+         Animation Helpers (Count-up, Confetti, FLIP transitions)
+         ------------------------------------------------------------- */
+      function animateCount(el, start, end, duration = 800) {
+        if (!el) return;
+        if (prefersReducedMotion() || start === end) {
+          el.textContent = end;
+          return;
+        }
+        const startTime = performance.now();
+        function update(now) {
+          const elapsed = now - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          // Ease out cubic
+          const ease = 1 - Math.pow(1 - progress, 3);
+          const current = Math.round(start + (end - start) * ease);
+          el.textContent = current;
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            el.textContent = end;
+          }
+        }
+        requestAnimationFrame(update);
+      }
+
+      function burstConfetti(originX, originY) {
+        if (prefersReducedMotion()) return;
+        const colors = ['#1F8A7D', '#FFC53D', '#F2546F', '#7C6CF2', '#2FC48D'];
+        const count = 14;
+        const container = document.createElement('div');
+        container.className = 'fixed inset-0 pointer-events-none z-50 overflow-hidden';
+        document.body.appendChild(container);
+
+        for (let i = 0; i < count; i++) {
+          const particle = document.createElement('div');
+          const color = colors[i % colors.length];
+          const size = 6 + Math.random() * 5;
+          const angle = (i / count) * 2 * Math.PI + (Math.random() - 0.5) * 0.5;
+          const dist = 40 + Math.random() * 60;
+          const destX = Math.cos(angle) * dist;
+          const destY = Math.sin(angle) * dist - 20;
+
+          particle.style.position = 'absolute';
+          particle.style.left = `${originX}px`;
+          particle.style.top = `${originY}px`;
+          particle.style.width = `${size}px`;
+          particle.style.height = `${size * (Math.random() > 0.5 ? 1 : 1.6)}px`;
+          particle.style.backgroundColor = color;
+          particle.style.borderRadius = Math.random() > 0.4 ? '50%' : '2px';
+          particle.style.transform = 'translate(-50%, -50%) scale(1)';
+          particle.style.transition = 'transform 850ms cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 850ms ease-out';
+          particle.style.opacity = '1';
+
+          container.appendChild(particle);
+
+          requestAnimationFrame(() => {
+            particle.style.transform = `translate(calc(-50% + ${destX}px), calc(-50% + ${destY}px)) rotate(${Math.random() * 360}deg) scale(${0.4 + Math.random() * 0.6})`;
+            particle.style.opacity = '0';
+          });
+        }
+
+        setTimeout(() => {
+          container.remove();
+        }, 950);
+      }
+
+      function renderLeaderboard() {
+        const container = document.getElementById('leaderboardList');
+        if (!container) return;
+
+        const activeTasks = tasks.filter(t => !t.completed).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+
+        if (activeTasks.length === 0) {
+          container.innerHTML = `
+            <div class="py-4 text-center text-xs text-emerald-100/90 font-medium bg-black/15 rounded-[18px]">
+              No pending deadlines. Excellent pace!
+            </div>
+          `;
+          return;
+        }
+
+        const items = activeTasks.slice(0, 3);
+        const rankStyles = [
+          { rank: '#1', bg: 'bg-[#F2546F]', text: 'text-white', badgeBg: 'bg-white text-[#F2546F]' },
+          { rank: '#2', bg: 'bg-[#FFF1C6]', text: 'text-[#1E1B2E]', badgeBg: 'bg-[#FFC53D] text-[#1E1B2E]' },
+          { rank: '#3', bg: 'bg-[#E5E0FF]', text: 'text-[#1E1B2E]', badgeBg: 'bg-[#7C6CF2] text-white' }
+        ];
+
+        container.innerHTML = items.map((t, idx) => {
+          const st = rankStyles[idx] || rankStyles[2];
+          const cd = formatCountdown(t.dueDate, false);
+          return `
+            <div class="${st.bg} ${st.text} rounded-[18px] p-2.5 sm:p-3 flex items-center justify-between shadow-xs press-feedback transition hover:scale-[1.01]">
+              <div class="flex items-center space-x-2.5 min-w-0">
+                <span class="w-6 h-6 rounded-full flex items-center justify-center font-black text-xs ${idx === 0 ? 'bg-white/20 text-white' : 'bg-black/10 text-current'}">
+                  ${st.rank}
+                </span>
+                <div class="min-w-0">
+                  <h4 class="text-xs sm:text-sm font-extrabold truncate leading-tight">${escapeHtml(t.title)}</h4>
+                  <p class="text-[10px] sm:text-xs opacity-80 truncate">${escapeHtml(t.subject || t.type || 'Coursework')}</p>
+                </div>
+              </div>
+              <span class="ml-2 shrink-0 px-2.5 py-0.5 rounded-full text-[11px] font-extrabold ${st.badgeBg} tabular-nums">
+                ${cd}
+              </span>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function updateInsights(completedCount, totalCount) {
+        const percent = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+        const percentEl = document.getElementById('heroProgressPercent');
+
+        animateCount(percentEl, prevMetrics.percent, percent, 800);
+        prevMetrics.percent = percent;
+
+        document.getElementById('heroProgressFraction').textContent = `${completedCount} of ${totalCount} deadlines done`;
+
+        const circle = document.getElementById('completionProgressRing');
+        if (circle) {
+          const circumference = 2 * Math.PI * 42;
+          const offset = circumference - (percent / 100) * circumference;
+          circle.style.strokeDasharray = `${circumference}`;
+          circle.style.strokeDashoffset = offset;
+        }
+
+        const motivEl = document.getElementById('heroProgressMotivational');
+        if (totalCount === 0) {
+          motivEl.textContent = 'Add your deadlines to build your completion streak.';
+        } else if (percent === 100) {
+          motivEl.textContent = 'Outstanding! All scheduled deadlines completed.';
+        } else if (percent >= 50) {
+          motivEl.textContent = 'Great momentum! More than halfway through your deadlines.';
+        } else {
+          motivEl.textContent = 'Stay steady! Tackle urgent tasks first to maintain balance.';
+        }
+
+        renderWorkloadChart();
+        renderLeaderboard();
+      }
+
+      function renderWorkloadChart() {
+        const labelsContainer = document.getElementById('chartAxisLabels');
+        const nodesGroup = document.getElementById('chartNodesGroup');
+        const areaPath = document.getElementById('chartAreaPath');
+        const linePath = document.getElementById('chartLinePath');
+        const tooltipBubble = document.getElementById('chartTooltipBubble');
+
+        const now = new Date();
+        const days = [];
+        const counts = [];
+
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+          days.push(d);
+          const dayStr = d.toISOString().split('T')[0];
+          const c = tasks.filter(t => !t.completed && t.dueDate && t.dueDate.startsWith(dayStr)).length;
+          counts.push(c);
+        }
+
+        labelsContainer.innerHTML = days.map((d, i) => {
+          const isToday = i === 0;
+          const dayName = isToday ? 'Today' : d.toLocaleDateString(undefined, { weekday: 'short' });
+          return `<div class="${isToday ? 'text-[#F2546F] font-extrabold' : ''}">${dayName}</div>`;
+        }).join('');
+
+        const maxVal = Math.max(...counts, 3);
+        const width = 700;
+        const height = 110;
+        const padX = 35;
+        const padY = 20;
+        const stepX = (width - 2 * padX) / 6;
+
+        const points = counts.map((val, i) => {
+          const x = padX + i * stepX;
+          const y = height - (val / maxVal) * (height - padY) + 10;
+          return { x, y, val, day: days[i] };
+        });
+
+        let dLine = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i];
+          const p1 = points[i + 1];
+          const cx = (p0.x + p1.x) / 2;
+          dLine += ` C ${cx} ${p0.y}, ${cx} ${p1.y}, ${p1.x} ${p1.y}`;
+        }
+        linePath.setAttribute('d', dLine);
+
+        // Animate SVG line draw on first load
+        if (!window.__chartLineAnimated && !prefersReducedMotion()) {
+          try {
+            const length = linePath.getTotalLength();
+            if (length > 0) {
+              linePath.style.strokeDasharray = length;
+              linePath.style.strokeDashoffset = length;
+              linePath.getBoundingClientRect();
+              linePath.style.transition = 'stroke-dashoffset 900ms var(--ease-out)';
+              linePath.style.strokeDashoffset = '0';
+              window.__chartLineAnimated = true;
+            }
+          } catch (e) {
+            // fallback gracefully
+          }
+        }
+
+        const dArea = `${dLine} L ${points[points.length - 1].x} ${height + 15} L ${points[0].x} ${height + 15} Z`;
+        areaPath.setAttribute('d', dArea);
+
+        nodesGroup.innerHTML = points.map((p, idx) => {
+          const isToday = idx === 0;
+          const dayName = isToday ? 'Today' : p.day.toLocaleDateString(undefined, { weekday: 'short' });
+          return `
+            <circle
+              cx="${p.x}"
+              cy="${p.y}"
+              r="${isToday ? '7' : '5'}"
+              fill="${isToday ? '#F2546F' : '#FFFFFF'}"
+              stroke="#F2546F"
+              stroke-width="3"
+              tabindex="0"
+              role="button"
+              aria-label="${dayName}: ${p.val} deadlines"
+              data-day="${dayName}"
+              data-count="${p.val}"
+              class="chart-node cursor-pointer transition hover:scale-150 focus:outline-none ${isToday ? 'chart-node-today' : ''}"
+            />
+          `;
+        }).join('');
+
+        document.querySelectorAll('.chart-node').forEach(node => {
+          const updateTip = () => {
+            const day = node.getAttribute('data-day');
+            const cnt = node.getAttribute('data-count');
+            tooltipBubble.textContent = `${cnt} deadline${cnt == 1 ? '' : 's'} on ${day}`;
+            tooltipBubble.classList.remove('bg-[#1E1B2E]');
+            tooltipBubble.classList.add('bg-[#F2546F]');
+          };
+          node.addEventListener('mouseenter', updateTip);
+          node.addEventListener('focus', updateTip);
+          node.addEventListener('mouseleave', () => {
+            tooltipBubble.textContent = 'Hover to inspect';
+            tooltipBubble.classList.add('bg-[#1E1B2E]');
+            tooltipBubble.classList.remove('bg-[#F2546F]');
+          });
+        });
+      }
+
+      function updateMetrics() {
+        let active = 0;
+        let approaching = 0;
+        let urgent = 0;
+        let completed = 0;
+
+        tasks.forEach(t => {
+          if (t.completed) {
+            completed++;
+          } else {
+            active++;
+            const { status } = getUrgencyStatus(t);
+            if (status === URGENCY.OVERDUE || status === URGENCY.DUE_TODAY) {
+              urgent++;
+            } else if (status === URGENCY.APPROACHING) {
+              approaching++;
+            }
+          }
+        });
+
+        // Animated count-up on metric numbers
+        animateCount(document.getElementById('metricTotalActive'), prevMetrics.active, active, 800);
+        animateCount(document.getElementById('metricApproaching'), prevMetrics.approaching, approaching, 800);
+        animateCount(document.getElementById('metricUrgent'), prevMetrics.urgent, urgent, 800);
+        animateCount(document.getElementById('metricCompleted'), prevMetrics.completed, completed, 800);
+
+        prevMetrics.active = active;
+        prevMetrics.approaching = approaching;
+        prevMetrics.urgent = urgent;
+        prevMetrics.completed = completed;
+
+        updateInsights(completed, tasks.length);
+
+        const pillText = document.getElementById('workloadSummaryText');
+        if (active === 0) {
+          pillText.textContent = 'All caught up! Zero active deadlines';
+        } else {
+          const next = tasks.filter(t => !t.completed).sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))[0];
+          pillText.textContent = `${active} active · next: ${next.title} (${formatCountdown(next.dueDate, false)})`;
+        }
+
+        const counts = {
+          all: tasks.length,
+          critical: urgent,
+          approaching: approaching,
+          safe: tasks.filter(t => !t.completed && getUrgencyStatus(t).status === URGENCY.SAFE).length,
+          completed: completed
+        };
+
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+          const filterKey = tab.getAttribute('data-filter');
+          const countSpan = tab.querySelector('.filter-count');
+          if (countSpan && counts[filterKey] !== undefined) {
+            countSpan.textContent = `(${counts[filterKey]})`;
+          }
+        });
+      }
+
+      function getFilteredAndSortedTasks() {
+        let result = tasks.slice();
+
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          result = result.filter(t => (
+            (t.title && t.title.toLowerCase().includes(q)) ||
+            (t.subject && t.subject.toLowerCase().includes(q)) ||
+            (t.type && t.type.toLowerCase().includes(q)) ||
+            (t.notes && t.notes.toLowerCase().includes(q))
+          ));
+        }
+
+        if (currentFilter !== 'all') {
+          result = result.filter(t => {
+            const urgency = getUrgencyStatus(t);
+            if (currentFilter === 'critical') {
+              return !t.completed && (urgency.status === URGENCY.OVERDUE || urgency.status === URGENCY.DUE_TODAY);
+            }
+            if (currentFilter === 'approaching') {
+              return !t.completed && urgency.status === URGENCY.APPROACHING;
+            }
+            if (currentFilter === 'safe') {
+              return !t.completed && urgency.status === URGENCY.SAFE;
+            }
+            if (currentFilter === 'completed') {
+              return t.completed;
+            }
+            return true;
+          });
+        }
+
+        result.sort((a, b) => {
+          const dateA = new Date(a.dueDate).getTime();
+          const dateB = new Date(b.dueDate).getTime();
+          if (currentSort === 'furthest') return dateB - dateA;
+          if (currentSort === 'priority') {
+            const pMap = { High: 3, Medium: 2, Low: 1 };
+            const diff = (pMap[b.priority] || 2) - (pMap[a.priority] || 2);
+            if (diff !== 0) return diff;
+            return dateA - dateB;
+          }
+          return dateA - dateB;
+        });
+
+        return result;
+      }
+
+      /* -------------------------------------------------------------
+         FLIP Animation Engine for Cards Grid
+         ------------------------------------------------------------- */
+      function renderDashboard(animateFLIP = false) {
+        updateMetrics();
+
+        const container = document.getElementById('taskListContainer');
+        const emptyState = document.getElementById('emptyStateContainer');
+        const emptyTitle = document.getElementById('emptyStateTitle');
+        const emptyMsg = document.getElementById('emptyStateMessage');
+        const emptyActionWrap = document.getElementById('emptyStateActionWrap');
+
+        // Record initial positions for FLIP
+        const firstPositions = new Map();
+        if (animateFLIP && !prefersReducedMotion() && container) {
+          container.querySelectorAll('article[data-id]').forEach(card => {
+            const id = card.getAttribute('data-id');
+            firstPositions.set(id, card.getBoundingClientRect());
+          });
+        }
+
+        const visibleTasks = getFilteredAndSortedTasks();
+
+        if (visibleTasks.length === 0) {
+          container.innerHTML = '';
+          emptyState.classList.remove('hidden');
+
+          if (tasks.length === 0) {
+            emptyTitle.textContent = 'Your schedule is clear';
+            emptyMsg.textContent = 'Add your first deadline to get started tracking your coursework.';
+            emptyActionWrap.innerHTML = `
+              <button type="button" onclick="document.getElementById('openAddModalBtn').click()" class="touch-target press-feedback btn-cta-shine px-5 py-2.5 rounded-[16px] bg-[#FFC53D] text-[#1E1B2E] text-sm font-extrabold shadow-sun-glow transition">
+                + Add your first deadline
+              </button>
+            `;
+          } else if (searchQuery.trim()) {
+            emptyTitle.textContent = 'No matching deadlines';
+            emptyMsg.textContent = `No tasks match "${escapeHtml(searchQuery)}". Try another keyword or clear search.`;
+            emptyActionWrap.innerHTML = `
+              <button type="button" id="resetSearchBtn" class="touch-target px-4 py-2 rounded-[14px] border border-[#ECE8F4] text-sm font-bold text-[#1E1B2E] hover:bg-[#F9F8FD] transition">
+                Clear search query
+              </button>
+            `;
+            const btn = document.getElementById('resetSearchBtn');
+            if (btn) {
+              btn.addEventListener('click', () => {
+                document.getElementById('searchInput').value = '';
+                searchQuery = '';
+                document.getElementById('clearSearchBtn').classList.add('hidden');
+                renderDashboard(true);
+              });
+            }
+          } else if (currentFilter === 'critical') {
+            emptyTitle.textContent = "You're all caught up!";
+            emptyMsg.textContent = 'No urgent or overdue deadlines right now.';
+            emptyActionWrap.innerHTML = '';
+          } else if (currentFilter === 'completed') {
+            emptyTitle.textContent = 'No completed tasks yet';
+            emptyMsg.textContent = 'Finished tasks will appear here once you mark them as completed.';
+            emptyActionWrap.innerHTML = '';
+          } else {
+            emptyTitle.textContent = 'No tasks in this category';
+            emptyMsg.textContent = 'Try choosing another filter tab above.';
+            emptyActionWrap.innerHTML = '';
+          }
+          if (window.lucide) lucide.createIcons();
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+
+        container.innerHTML = visibleTasks.map((t, index) => {
+          const urgency = getUrgencyStatus(t);
+          const countdown = formatCountdown(t.dueDate, t.completed);
+          const formattedDue = formatDueDate(t.dueDate);
+          const isDone = t.completed;
+          const staggerDelay = !initialLoadDone ? Math.min(280 + index * 40, 680) : 0;
+          const entranceClass = !initialLoadDone ? 'entrance-item' : '';
+
+          return `
+            <article class="bg-white rounded-[24px] p-4 sm:p-5 border ${urgency.cardBorder} shadow-soft hover:shadow-hover hover:-translate-y-[3px] transition-all duration-200 flex flex-col justify-between space-y-3.5 relative ${isDone ? 'opacity-85 bg-[#EEF0F6]/80' : ''} ${entranceClass}"
+              style="border-left: 6px solid ${urgency.accentColor}; ${staggerDelay ? `animation-delay: ${staggerDelay}ms;` : ''}"
+              data-id="${t.id}">
+              <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start space-x-3 min-w-0">
+                  <div class="w-10 h-10 rounded-full ${urgency.chipFill} ${urgency.chipText} flex items-center justify-center shrink-0 shadow-xs border ${urgency.pillBorder}">
+                    <i data-lucide="${urgency.icon}" class="w-5 h-5"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="text-base sm:text-lg font-bold text-[#1E1B2E] tracking-tight line-clamp-2 leading-snug ${isDone ? 'line-through text-[#6A6682] strikethrough-sweep' : ''}">
+                      ${escapeHtml(t.title)}
+                    </h3>
+                  </div>
+                </div>
+
+                <div class="shrink-0">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold border ${urgency.pillBorder} ${urgency.pillBg} ${urgency.chipText}">
+                    ${urgency.label}
+                  </span>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-1.5 pt-0.5">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#F9F8FD] text-[#1E1B2E] border border-[#ECE8F4]">
+                  ${escapeHtml(t.type || 'Assignment')}
+                </span>
+                ${t.subject ? `
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[#E5E0FF] text-[#5B4CC4] border border-[#D4CBF8]">
+                    ${escapeHtml(t.subject)}
+                  </span>
+                ` : ''}
+                ${getPriorityPill(t.priority)}
+              </div>
+
+              <div class="${urgency.stripBg} rounded-[18px] p-3 border ${urgency.stripBorder} flex items-center justify-between text-xs">
+                <div class="flex items-center space-x-2">
+                  <i data-lucide="timer" class="w-4 h-4 text-[#6A6682]"></i>
+                  <span class="font-extrabold text-sm sm:text-base tabular-nums ${urgency.stripText}">
+                    ${countdown}
+                  </span>
+                </div>
+                <div class="text-[#6A6682] font-semibold flex items-center space-x-1">
+                  <i data-lucide="calendar-days" class="w-3.5 h-3.5"></i>
+                  <span>${formattedDue}</span>
+                </div>
+              </div>
+
+              ${t.notes ? `
+                <p class="text-xs text-[#6A6682] bg-[#F9F8FD] p-2.5 rounded-[14px] border border-[#ECE8F4] line-clamp-2 font-medium">
+                  ${escapeHtml(t.notes)}
+                </p>
+              ` : ''}
+
+              <div class="flex items-center justify-between pt-2 border-t border-[#ECE8F4] mt-auto">
+                <button
+                  type="button"
+                  class="toggle-complete-btn touch-target press-feedback inline-flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-full border transition ${isDone ? 'border-[#FCE2B0] bg-[#FFF1C6] text-[#92400E] hover:bg-[#FCE2B0]' : 'border-[#B9EDD4] bg-[#D3F6E6] text-[#14645B] hover:bg-[#B9EDD4]'}"
+                  data-action="toggle"
+                  aria-label="${isDone ? 'Restore deadline' : 'Mark deadline complete'}"
+                >
+                  <i data-lucide="${isDone ? 'rotate-ccw' : 'check'}" class="w-4 h-4"></i>
+                  <span>${isDone ? 'Restore' : 'Complete'}</span>
+                </button>
+
+                <div class="flex items-center space-x-1">
+                  <button
+                    type="button"
+                    class="btn-action-edit touch-target press-feedback p-2 text-[#6A6682] hover:bg-[#E5E0FF] rounded-full transition"
+                    data-action="edit"
+                    aria-label="Edit deadline"
+                  >
+                    <i data-lucide="pencil" class="w-4 h-4"></i>
+                  </button>
+                  <button
+                    type="button"
+                    class="btn-action-delete touch-target press-feedback p-2 text-[#6A6682] hover:bg-[#FFDDE3] rounded-full transition"
+                    data-action="delete"
+                    aria-label="Delete deadline"
+                  >
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                  </button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join('');
+
+        // Apply FLIP motion on reorder
+        if (animateFLIP && !prefersReducedMotion() && container) {
+          container.querySelectorAll('article[data-id]').forEach(card => {
+            const id = card.getAttribute('data-id');
+            const first = firstPositions.get(id);
+            const last = card.getBoundingClientRect();
+
+            if (first) {
+              const deltaX = first.left - last.left;
+              const deltaY = first.top - last.top;
+              if (deltaX !== 0 || deltaY !== 0) {
+                card.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                card.style.transition = 'transform 0s';
+                requestAnimationFrame(() => {
+                  card.style.transition = 'transform 250ms var(--ease-out)';
+                  card.style.transform = '';
+                });
+              }
+            } else {
+              // Fade/scale in for newly matching or added cards
+              card.style.opacity = '0';
+              card.style.transform = 'scale(0.96) translateY(-8px)';
+              requestAnimationFrame(() => {
+                card.style.transition = 'opacity 250ms ease-out, transform 250ms var(--ease-spring)';
+                card.style.opacity = '1';
+                card.style.transform = '';
+              });
+            }
+          });
+        }
+
+        if (window.lucide) lucide.createIcons();
+      }
+
+      /* -------------------------------------------------------------
+         Toast System with Smooth Progress Bar
+         ------------------------------------------------------------- */
+      let toastTimer = null;
+      function showToast(msg, isSuccess = true) {
+        const container = document.getElementById('toastContainer');
+        const text = document.getElementById('toastMessage');
+        const iconWrap = document.getElementById('toastIconWrap');
+        const progressBar = document.getElementById('toastProgressBar');
+
+        if (text) text.textContent = msg;
+        if (iconWrap) {
+          iconWrap.setAttribute('class', isSuccess ? 'inline-flex items-center text-[#FFC53D] shrink-0' : 'inline-flex items-center text-[#F2546F] shrink-0');
+          iconWrap.innerHTML = isSuccess ? '<i data-lucide="check-circle-2" class="w-4 h-4"></i>' : '<i data-lucide="alert-circle" class="w-4 h-4"></i>';
+        }
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+          lucide.createIcons();
+        }
+
+        if (container) {
+          if (progressBar) {
+            progressBar.style.transition = 'none';
+            progressBar.style.width = '100%';
+            progressBar.style.backgroundColor = isSuccess ? '#FFC53D' : '#F2546F';
+          }
+
+          container.classList.remove('translate-y-16', 'opacity-0');
+          container.classList.add('translate-y-0', 'opacity-100');
+
+          requestAnimationFrame(() => {
+            if (progressBar && !prefersReducedMotion()) {
+              progressBar.style.transition = 'width 3200ms linear';
+              progressBar.style.width = '0%';
+            }
+          });
+
+          if (toastTimer) clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => {
+            container.classList.remove('translate-y-0', 'opacity-100');
+            container.classList.add('translate-y-16', 'opacity-0');
+          }, 3200);
+        }
+      }
+
+      const modal = document.getElementById('taskModal');
+      const taskForm = document.getElementById('taskForm');
+      const modalTitle = document.getElementById('modalTitle');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const titleInput = document.getElementById('taskTitleInput');
+      const subjectInput = document.getElementById('taskSubjectInput');
+      const typeSelect = document.getElementById('taskTypeSelect');
+      const dueDateInput = document.getElementById('taskDueDateInput');
+      const notesInput = document.getElementById('taskNotesInput');
+      const notesCounter = document.getElementById('notesCharCounter');
+      const titleError = document.getElementById('titleError');
+      const dueDateError = document.getElementById('dueDateError');
+
+      document.querySelectorAll('.priority-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.priority-pill').forEach(b => {
+            b.classList.remove('active', 'border-[#FCE2B0]', 'bg-[#FFE9BD]', 'text-[#92400E]', 'border-[#FFBFCB]', 'bg-[#FFDDE3]', 'text-[#9F1239]', 'border-[#CBD5E1]', 'bg-[#EEF0F6]', 'text-[#1E1B2E]');
+            b.classList.add('border-[#ECE8F4]', 'bg-[#F9F8FD]', 'text-[#6A6682]');
+          });
+
+          selectedPriority = btn.getAttribute('data-priority-val');
+          btn.classList.add('active');
+          btn.classList.remove('border-[#ECE8F4]', 'bg-[#F9F8FD]', 'text-[#6A6682]');
+
+          if (selectedPriority === 'High') {
+            btn.classList.add('border-[#FFBFCB]', 'bg-[#FFDDE3]', 'text-[#9F1239]');
+          } else if (selectedPriority === 'Low') {
+            btn.classList.add('border-[#CBD5E1]', 'bg-[#EEF0F6]', 'text-[#1E1B2E]');
+          } else {
+            btn.classList.add('border-[#FCE2B0]', 'bg-[#FFE9BD]', 'text-[#92400E]');
+          }
+        });
+      });
+
+      function setPriorityPillState(pVal) {
+        selectedPriority = pVal || 'Medium';
+        document.querySelectorAll('.priority-pill').forEach(b => {
+          const val = b.getAttribute('data-priority-val');
+          if (val === selectedPriority) b.click();
+        });
+      }
+
+      function openModal(editingTask = null, triggerEl = null) {
+        modalFocusTrigger = triggerEl;
+        taskForm.reset();
+        titleError.classList.add('hidden');
+        dueDateError.classList.add('hidden');
+        titleInput.classList.remove('field-shake');
+        dueDateInput.classList.remove('field-shake');
+
+        if (editingTask) {
+          modalTitle.textContent = 'Update Deadline';
+          submitBtnText.textContent = 'Save Changes';
+          document.getElementById('taskIdInput').value = editingTask.id;
+          titleInput.value = editingTask.title;
+          subjectInput.value = editingTask.subject || '';
+          typeSelect.value = editingTask.type || 'Assignment';
+          setPriorityPillState(editingTask.priority || 'Medium');
+
+          if (editingTask.dueDate) {
+            const dt = new Date(editingTask.dueDate);
+            const yyyy = dt.getFullYear();
+            const mm = String(dt.getMonth() + 1).padStart(2, '0');
+            const dd = String(dt.getDate()).padStart(2, '0');
+            const hh = String(dt.getHours()).padStart(2, '0');
+            const min = String(dt.getMinutes()).padStart(2, '0');
+            dueDateInput.value = `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+          }
+          notesInput.value = editingTask.notes || '';
+          notesCounter.textContent = `${notesInput.value.length}/500`;
+        } else {
+          modalTitle.textContent = 'Add Deadline';
+          submitBtnText.textContent = 'Add Deadline';
+          document.getElementById('taskIdInput').value = '';
+          setPriorityPillState('Medium');
+
+          const tmrw = new Date();
+          tmrw.setDate(tmrw.getDate() + 1);
+          tmrw.setHours(23, 59, 0, 0);
+          const yyyy = tmrw.getFullYear();
+          const mm = String(tmrw.getMonth() + 1).padStart(2, '0');
+          const dd = String(tmrw.getDate()).padStart(2, '0');
+          dueDateInput.value = `${yyyy}-${mm}-${dd}T23:59`;
+          notesCounter.textContent = '0/500';
+        }
+
+        modal.classList.remove('hidden');
+        setTimeout(() => titleInput.focus(), 60);
+      }
+
+      function closeModal() {
+        modal.classList.add('hidden');
+        if (modalFocusTrigger) modalFocusTrigger.focus();
+      }
+
+      notesInput.addEventListener('input', () => {
+        notesCounter.textContent = `${notesInput.value.length}/500`;
+      });
+
+      taskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const cleanTitle = titleInput.value.trim();
+        const rawDueDate = dueDateInput.value;
+
+        let hasError = false;
+        if (!cleanTitle) {
+          titleError.classList.remove('hidden');
+          titleInput.classList.remove('field-shake');
+          void titleInput.offsetWidth; // trigger reflow
+          titleInput.classList.add('field-shake');
+          hasError = true;
+        } else {
+          titleError.classList.add('hidden');
+        }
+
+        if (!rawDueDate || isNaN(new Date(rawDueDate).getTime())) {
+          dueDateError.classList.remove('hidden');
+          dueDateInput.classList.remove('field-shake');
+          void dueDateInput.offsetWidth;
+          dueDateInput.classList.add('field-shake');
+          hasError = true;
+        } else {
+          dueDateError.classList.add('hidden');
+        }
+
+        if (hasError) return;
+
+        const editId = document.getElementById('taskIdInput').value;
+        const nowIso = new Date().toISOString();
+
+        if (editId) {
+          const idx = tasks.findIndex(t => t.id === editId);
+          if (idx !== -1) {
+            tasks[idx] = {
+              ...tasks[idx],
+              title: cleanTitle,
+              subject: subjectInput.value.trim(),
+              type: typeSelect.value,
+              priority: selectedPriority,
+              dueDate: new Date(rawDueDate).toISOString(),
+              notes: notesInput.value.trim(),
+              updatedAt: nowIso
+            };
+            saveTasks(tasks);
+            showToast('Changes saved');
+          }
+        } else {
+          const newTask = {
+            id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+            title: cleanTitle,
+            subject: subjectInput.value.trim(),
+            type: typeSelect.value,
+            priority: selectedPriority,
+            dueDate: new Date(rawDueDate).toISOString(),
+            notes: notesInput.value.trim(),
+            completed: false,
+            createdAt: nowIso,
+            updatedAt: nowIso
+          };
+          tasks.unshift(newTask);
+          saveTasks(tasks);
+          showToast('Deadline added');
+        }
+
+        closeModal();
+        renderDashboard(true);
+      });
+
+      document.getElementById('openAddModalBtn').addEventListener('click', (e) => openModal(null, e.currentTarget));
+      document.getElementById('mobileNavAddBtn').addEventListener('click', (e) => openModal(null, e.currentTarget));
+      document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+      document.getElementById('cancelModalBtn').addEventListener('click', closeModal);
+      document.getElementById('modalBackdrop').addEventListener('click', closeModal);
+
+      const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+      const deleteTitleSpan = document.getElementById('deleteTaskTitleSpan');
+
+      function openDeleteModal(taskId) {
+        deletePendingId = taskId;
+        const task = tasks.find(t => t.id === taskId);
+        deleteTitleSpan.textContent = task ? task.title : 'this task';
+        deleteConfirmModal.classList.remove('hidden');
+        document.getElementById('confirmDeleteBtn').focus();
+      }
+
+      function closeDeleteModal() {
+        deletePendingId = null;
+        deleteConfirmModal.classList.add('hidden');
+      }
+
+      document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+      document.getElementById('deleteModalBackdrop').addEventListener('click', closeDeleteModal);
+
+      document.getElementById('confirmDeleteBtn').addEventListener('click', () => {
+        if (!deletePendingId) return;
+
+        const card = document.querySelector(`article[data-id="${deletePendingId}"]`);
+        if (card && !prefersReducedMotion()) {
+          // Collapse card gracefully
+          card.style.transition = 'transform 180ms ease-in, opacity 180ms ease-in';
+          card.style.transform = 'scale(0.95)';
+          card.style.opacity = '0';
+          setTimeout(() => {
+            card.style.transition = 'max-height 250ms var(--ease-out), padding 250ms, margin 250ms';
+            card.style.maxHeight = card.offsetHeight + 'px';
+            requestAnimationFrame(() => {
+              card.style.maxHeight = '0px';
+              card.style.paddingTop = '0px';
+              card.style.paddingBottom = '0px';
+              card.style.marginTop = '0px';
+              card.style.marginBottom = '0px';
+              card.style.overflow = 'hidden';
+            });
+            setTimeout(() => {
+              tasks = tasks.filter(t => t.id !== deletePendingId);
+              saveTasks(tasks);
+              showToast('Task deleted');
+              closeDeleteModal();
+              renderDashboard(true);
+            }, 250);
+          }, 180);
+        } else {
+          tasks = tasks.filter(t => t.id !== deletePendingId);
+          saveTasks(tasks);
+          showToast('Task deleted');
+          closeDeleteModal();
+          renderDashboard(true);
+        }
+      });
+
+      document.getElementById('taskListContainer').addEventListener('click', (e) => {
+        const actionBtn = e.target.closest('[data-action]');
+        if (!actionBtn) return;
+        const article = actionBtn.closest('article');
+        if (!article) return;
+        const taskId = article.getAttribute('data-id');
+        const action = actionBtn.getAttribute('data-action');
+
+        if (action === 'toggle') {
+          const task = tasks.find(t => t.id === taskId);
+          if (task) {
+            task.completed = !task.completed;
+            task.updatedAt = new Date().toISOString();
+            saveTasks(tasks);
+
+            if (task.completed) {
+              const rect = actionBtn.getBoundingClientRect();
+              burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            }
+
+            showToast(task.completed ? 'Task marked complete' : 'Task restored');
+            renderDashboard(true);
+          }
+        } else if (action === 'edit') {
+          const task = tasks.find(t => t.id === taskId);
+          if (task) openModal(task, actionBtn);
+        } else if (action === 'delete') {
+          openDeleteModal(taskId);
+        }
+      });
+
+      const searchInput = document.getElementById('searchInput');
+      const clearSearchBtn = document.getElementById('clearSearchBtn');
+
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery.trim()) {
+          clearSearchBtn.classList.remove('hidden');
+        } else {
+          clearSearchBtn.classList.add('hidden');
+        }
+        renderDashboard(true);
+      });
+
+      clearSearchBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        clearSearchBtn.classList.add('hidden');
+        searchInput.focus();
+        renderDashboard(true);
+      });
+
+      function setFilter(filterVal) {
+        currentFilter = filterVal;
+        document.querySelectorAll('.filter-tab').forEach(t => {
+          const filterKey = t.getAttribute('data-filter');
+          if (filterKey === filterVal) {
+            t.className = 'filter-tab active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs';
+          } else {
+            t.className = 'filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#F9F8FD] border border-[#ECE8F4]';
+          }
+        });
+        renderDashboard(true);
+      }
+
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+          setFilter(e.currentTarget.getAttribute('data-filter') || 'all');
+        });
+      });
+
+      document.getElementById('viewCompletedFilterLink').addEventListener('click', () => {
+        setFilter('completed');
+      });
+
+      document.getElementById('sortSelect').addEventListener('change', (e) => {
+        currentSort = e.target.value;
+        renderDashboard(true);
+      });
+
+      document.getElementById('mobileNavHome').addEventListener('click', () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setFilter('all');
+      });
+      document.getElementById('mobileNavUrgent').addEventListener('click', () => {
+        setFilter('critical');
+      });
+      document.getElementById('mobileNavDone').addEventListener('click', () => {
+        setFilter('completed');
+      });
+
+      const dateEl = document.getElementById('currentDateDisplay');
+      if (dateEl) {
+        dateEl.textContent = new Date().toLocaleDateString(undefined, {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+
+      // 60-second ticker: Re-render without replaying initial entrance animations
+      setInterval(() => {
+        renderDashboard(false);
+      }, 60000);
+
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) renderDashboard(false);
+      });
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (!modal.classList.contains('hidden')) closeModal();
+          if (!deleteConfirmModal.classList.contains('hidden')) closeDeleteModal();
+        }
+      });
+
+      // Initial page setup
+      tasks = loadTasks();
+      renderDashboard(false);
+
+      // Mark initial load finished so subsequent 60s ticks don't re-trigger entrance animations
+      setTimeout(() => {
+        initialLoadDone = true;
+      }, 1200);
+
+    })();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+# Secrets & local data
+credentials.json
+config.json
+assignments.json
+assignments.json.bak
+
+# Generated reports
+DueList_Summary_*.docx
+DueList_Summary_*.md
+*.docx
+*.md.generated
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
