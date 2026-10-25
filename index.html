@@ -388,6 +388,14 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    .filter-tab {
+      flex-shrink: 0 !important;
+      white-space: nowrap !important;
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Scrollbar removal */
     .no-scrollbar::-webkit-scrollbar {
       display: none;
@@ -395,6 +403,7 @@
     .no-scrollbar {
       -ms-overflow-style: none;
       scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
     }
 
     /* -------------------------------------------------------------
@@ -747,26 +756,26 @@
       </div>
 
       <!-- Filter Tabs (Pill style with Deep Teal active fill and pop counts) -->
-      <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 no-scrollbar" role="tablist"
+      <div class="flex items-center space-x-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar touch-pan-x" role="tablist"
         aria-label="Filter deadlines">
         <button type="button" role="tab" data-filter="all"
-          class="filter-tab active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs">
+          class="filter-tab shrink-0 active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs">
           All <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="critical"
-          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFDDE3] hover:text-[#9F1239] border border-[#ECE8F4]">
+          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFDDE3] hover:text-[#9F1239] border border-[#ECE8F4]">
           Critical <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="approaching"
-          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFE9BD] hover:text-[#92400E] border border-[#ECE8F4]">
+          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFE9BD] hover:text-[#92400E] border border-[#ECE8F4]">
           Approaching <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="safe"
-          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#D3F6E6] hover:text-[#14645B] border border-[#ECE8F4]">
+          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#D3F6E6] hover:text-[#14645B] border border-[#ECE8F4]">
           Plenty of Time <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="completed"
-          class="filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#EEF0F6] hover:text-[#1E1B2E] border border-[#ECE8F4]">
+          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#EEF0F6] hover:text-[#1E1B2E] border border-[#ECE8F4]">
           Completed <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
       </div>
@@ -2143,9 +2152,9 @@
         document.querySelectorAll('.filter-tab').forEach(t => {
           const filterKey = t.getAttribute('data-filter');
           if (filterKey === filterVal) {
-            t.className = 'filter-tab active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs';
+            t.className = 'filter-tab shrink-0 active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs';
           } else {
-            t.className = 'filter-tab touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#F9F8FD] border border-[#ECE8F4]';
+            t.className = 'filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#F9F8FD] border border-[#ECE8F4]';
           }
         });
         renderDashboard(true);
