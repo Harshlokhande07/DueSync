@@ -17,6 +17,8 @@ from duelist.status import (
     format_colored_text,
     is_color_enabled
 )
+from duelist import digest, digest_config, render_email, channels
+from duelist.channels.base import ChannelError
 
 try:
     if hasattr(sys.stdout, "reconfigure"):
@@ -242,6 +244,240 @@ def cmd_sync(args) -> int:
     return 0
 
 
+def cmd_digest_setup(args) -> int:
+    cfg = digest_config.load_digest_config()
+    email_cfg = cfg.get("email", {})
+    print("DueSync Email Digest Setup")
+    print("-" * 35)
+
+    # 1. Preset provider
+    current_p = email_cfg.get("provider", "gmail")
+    print(f"Current provider preset: {current_p}")
+    p_choice = input(f"Choose provider (1=gmail [default], 2=outlook, 3=custom) [{current_p}]: ").strip()
+    if p_choice == "2":
+        chosen_p = "outlook"
+    elif p_choice == "3":
+        chosen_p = "custom"
+    elif p_choice == "1" or not p_choice:
+        chosen_p = "gmail"
+    else:
+        chosen_p = p_choice.lower()
+
+    if chosen_p == "gmail":
+        smtp_host = "smtp.gmail.com"
+        smtp_port = 587
+        security = "starttls"
+    elif chosen_p == "outlook":
+        smtp_host = "smtp.office365.com"
+        smtp_port = 587
+        security = "starttls"
+    else:
+        curr_host = email_cfg.get("smtp_host", "")
+        smtp_host = input(f"Enter SMTP host [{curr_host}]: ").strip() or curr_host
+        curr_port = str(email_cfg.get("smtp_port", 587))
+        port_str = input(f"Enter SMTP port [{curr_port}]: ").strip() or curr_port
+        try:
+            smtp_port = int(port_str)
+        except ValueError:
+            smtp_port = 587
+        curr_sec = email_cfg.get("security", "starttls")
+        sec_choice = input(f"Security mode (1=starttls [default], 2=ssl) [{curr_sec}]: ").strip()
+        security = "ssl" if sec_choice == "2" else "starttls"
+
+    # 2. Sender and Recipient addresses
+    curr_from = email_cfg.get("from", "")
+    masked_from = digest_config.mask_email(curr_from) if curr_from else "none"
+    from_addr = input(f"Sender email address [{masked_from}]: ").strip()
+    if not from_addr:
+        from_addr = curr_from
+    if from_addr and not digest_config.validate_email_address(from_addr):
+        sys.stderr.write(f"Error: '{from_addr}' is not a valid email address.\n")
+        return 1
+
+    curr_to = email_cfg.get("to", from_addr)
+    masked_to = digest_config.mask_email(curr_to) if curr_to else "none"
+    to_addr = input(f"Recipient email address (press Enter for sender address) [{masked_to}]: ").strip()
+    if not to_addr:
+        to_addr = curr_to or from_addr
+    if to_addr and not digest_config.validate_email_address(to_addr):
+        sys.stderr.write(f"Error: '{to_addr}' is not a valid email address.\n")
+        return 1
+
+    # 3. Send time
+    current_time = cfg.get("send_time", "08:00")
+    send_time = input(f"Preferred send time (HH:MM) [{current_time}]: ").strip() or current_time
+
+    # 4. Labels language
+    current_lang = cfg.get("labels", "english")
+    l_choice = input(f"Labels language (1=english [Today/Tomorrow, default], 2=hinglish [Aaj/Kal]) [{current_lang}]: ").strip()
+    labels = "hinglish" if l_choice == "2" else "english"
+
+    # 5. Send when empty
+    current_empty = cfg.get("send_when_empty", True)
+    empty_str = "Y" if current_empty else "n"
+    e_choice = input(f"Send 'All clear' email when no tasks are due? [Y/n] [{empty_str}]: ").strip().lower()
+    send_when_empty = False if e_choice == "n" else True
+
+    email_cfg.update({
+        "provider": chosen_p,
+        "smtp_host": smtp_host,
+        "smtp_port": smtp_port,
+        "security": security,
+        "from": from_addr,
+        "to": to_addr,
+        "from_name": email_cfg.get("from_name", "DueSync"),
+    })
+    cfg.update({
+        "channel": "email",
+        "send_time": send_time,
+        "labels": labels,
+        "send_when_empty": send_when_empty,
+        "email": email_cfg,
+    })
+    digest_config.save_digest_config(cfg)
+
+    print("\n✔ Setup saved to config.json!")
+    print("\nNext step: Set your SMTP password in the environment (never saved to files).")
+    if chosen_p == "gmail":
+        print("For Gmail:")
+        print("  1. Turn on 2-Step Verification in your Google Account.")
+        print("  2. Create an App Password: https://myaccount.google.com/apppasswords")
+        print("  3. Set the environment variable:")
+        print("     Linux/macOS:")
+        print("       export DUELIST_SMTP_PASSWORD=\"your 16 character app password\"")
+        print("     Windows (PowerShell):")
+        print("       $env:DUELIST_SMTP_PASSWORD=\"your 16 character app password\"")
+    else:
+        print("Set DUELIST_SMTP_PASSWORD:")
+        print("  Linux/macOS: export DUELIST_SMTP_PASSWORD=\"<your_password>\"")
+        print("  Windows:     $env:DUELIST_SMTP_PASSWORD=\"<your_password>\"")
+    return 0
+
+
+def cmd_digest_preview(args) -> int:
+    assignments = storage.load()
+    cfg = digest_config.load_digest_config()
+    data = digest.build_digest_data(
+        assignments,
+        labels=cfg.get("labels", "english"),
+        send_when_empty=cfg.get("send_when_empty", True),
+    )
+    plain_text = render_email.render_plain_text(data)
+    print(plain_text)
+
+    html_path = getattr(args, "html", None)
+    if html_path:
+        target_path = html_path if isinstance(html_path, str) else "digest_preview.html"
+        html_content = render_email.render_html(data)
+        parent = os.path.dirname(os.path.abspath(target_path))
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        with open(target_path, "w", encoding="utf-8") as f:
+            f.write(html_content)
+        print(f"\n✔ HTML preview written to: {target_path}")
+
+    return 0
+
+
+def cmd_digest_status(args) -> int:
+    cfg = digest_config.load_digest_config()
+    email_cfg = cfg.get("email", {})
+    state = digest_config.load_digest_state()
+    print("DueSync Daily Digest Status")
+    print("=" * 35)
+    print(f"Channel:        {cfg.get('channel', 'email')} ({email_cfg.get('provider', 'gmail')})")
+    print(f"Sender:         {digest_config.mask_email(email_cfg.get('from'))}")
+    print(f"Recipient:      {digest_config.mask_email(email_cfg.get('to'))}")
+    print(f"Send Time:      {cfg.get('send_time', '08:00')}")
+    print(f"Labels:         {cfg.get('labels', 'english')}")
+    print(f"Send If Empty:  {cfg.get('send_when_empty', True)}")
+    print(f"Last Sent:      {state.get('last_sent', 'Never')}")
+    return 0
+
+
+def cmd_digest_test(args) -> int:
+    assignments = storage.load()
+    cfg = digest_config.load_digest_config()
+    channel_name = cfg.get("channel", "email")
+
+    data = digest.build_digest_data(
+        assignments,
+        labels=cfg.get("labels", "english"),
+        send_when_empty=True,
+    )
+    channel = channels.get_channel(channel_name)
+    try:
+        channel.send(data, cfg)
+        if channel_name != "dry_run":
+            to_addr = cfg.get("email", {}).get("to", "")
+            print(f"✔ Test digest successfully sent to {digest_config.mask_email(to_addr)} via {channel_name}.")
+        return 0
+    except ChannelError as ce:
+        sys.stderr.write(f"Error: {ce.message}\n")
+        return ce.exit_code
+    except Exception as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 2
+
+
+def cmd_digest_send(args) -> int:
+    today = date.today()
+    cfg = digest_config.load_digest_config()
+    force = getattr(args, "force", False)
+    if_not_sent = getattr(args, "if_not_sent_today", False)
+    dry_run = getattr(args, "dry_run", False)
+
+    state = digest_config.load_digest_state()
+    last_sent = state.get("last_sent")
+
+    if if_not_sent and not force:
+        if last_sent == today.isoformat():
+            # Exits quietly with code 0 if today's digest was already sent
+            return 0
+
+    channel_name = "dry_run" if dry_run else cfg.get("channel", "email")
+
+    assignments = storage.load()
+    data = digest.build_digest_data(
+        assignments,
+        today=today,
+        labels=cfg.get("labels", "english"),
+        send_when_empty=cfg.get("send_when_empty", True),
+    )
+
+    if data.is_empty and not cfg.get("send_when_empty", True):
+        return 0
+
+    channel = channels.get_channel(channel_name)
+    try:
+        channel.send(data, cfg)
+        if channel_name != "dry_run":
+            digest_config.save_digest_state(today.isoformat())
+            to_addr = cfg.get("email", {}).get("to", "")
+            print(f"✔ Daily digest sent to {digest_config.mask_email(to_addr)} via {channel_name}.")
+        return 0
+    except ChannelError as ce:
+        sys.stderr.write(f"Error: {ce.message}\n")
+        return ce.exit_code
+    except Exception as e:
+        sys.stderr.write(f"Error: {e}\n")
+        return 2
+
+
+def cmd_digest(args) -> int:
+    action = getattr(args, "digest_action", None)
+    if action == "setup":
+        return cmd_digest_setup(args)
+    elif action == "test":
+        return cmd_digest_test(args)
+    elif action == "preview":
+        return cmd_digest_preview(args)
+    elif action == "status":
+        return cmd_digest_status(args)
+    else:
+        return cmd_digest_send(args)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="duelist",
@@ -254,6 +490,8 @@ def build_parser() -> argparse.ArgumentParser:
                "  duelist done 1\n"
                "  duelist export --format md\n"
                "  duelist sync\n"
+               "  duelist digest\n"
+               "  duelist digest preview --html\n"
     )
     parser.add_argument("--no-color", action="store_true", help="Disable colored terminal output")
     sub = parser.add_subparsers(dest="command", metavar="command")
@@ -294,6 +532,39 @@ def build_parser() -> argparse.ArgumentParser:
     p_sync.add_argument("--sheet", default="DueList", help="Worksheet tab title (default: DueList)")
     p_sync.add_argument("--spreadsheet-id", default=None, help="Target Google Spreadsheet ID")
     p_sync.set_defaults(func=cmd_sync)
+
+    # digest
+    p_digest = sub.add_parser(
+        "digest",
+        help="Daily email digest of deadlines",
+        description="Daily email digest: today's, tomorrow's, and overdue deadlines.",
+    )
+    p_digest.add_argument("--dry-run", action="store_true", help="Print plain-text digest only without sending")
+    p_digest.add_argument("--force", action="store_true", help="Send even if already sent today")
+    p_digest.add_argument("--if-not-sent-today", action="store_true", help="Exit quietly if already sent today")
+    p_digest.set_defaults(func=cmd_digest)
+
+    d_sub = p_digest.add_subparsers(dest="digest_action", metavar="action")
+
+    p_d_setup = d_sub.add_parser("setup", help="Interactive setup for email digest")
+    p_d_setup.set_defaults(func=cmd_digest)
+
+    p_d_test = d_sub.add_parser("test", help="Send a test digest using real data")
+    p_d_test.set_defaults(func=cmd_digest)
+
+    p_d_preview = d_sub.add_parser("preview", help="Preview plain-text or HTML digest without sending")
+    p_d_preview.add_argument(
+        "--html",
+        nargs="?",
+        const="digest_preview.html",
+        default=None,
+        metavar="FILE",
+        help="Write rendered HTML to file (default: digest_preview.html)",
+    )
+    p_d_preview.set_defaults(func=cmd_digest)
+
+    p_d_status = d_sub.add_parser("status", help="Show channel, masked addresses, send time, and last sent date")
+    p_d_status.set_defaults(func=cmd_digest)
 
     return parser
 

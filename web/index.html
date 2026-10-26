@@ -9,10 +9,10 @@
     content="DueSync is a vibrant, organic pastel deadline tracker with live countdowns, visual progress insights, and smart urgency alerts.">
   <link rel="icon" type="image/png" href="logo.png">
 
-  <!-- Google Fonts: Plus Jakarta Sans -->
+  <!-- Google Fonts: Outfit (Display & Headings) + Plus Jakarta Sans (Body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
@@ -22,7 +22,9 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            sans: ['"Outfit"', '"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            display: ['"Outfit"', 'sans-serif'],
+            body: ['"Plus Jakarta Sans"', 'sans-serif'],
           },
           colors: {
             ink: '#1E1B2E',
@@ -108,6 +110,11 @@
       --border: #ECE8F4;
       --completed-bg: #EEF0F6;
 
+      /* Planner Band Tokens */
+      --optimal-mint: #2FC48D;
+      --focus-amber: #F59E0B;
+      --crunch-coral: #F2546F;
+
       /* Motion Tokens */
       --dur-fast: 150ms;
       --dur-base: 250ms;
@@ -129,13 +136,22 @@
     body {
       background: linear-gradient(135deg, #F7EEFF 0%, #FFF1EA 45%, #EAFBF4 100%) fixed;
       color: var(--ink);
-      font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
+      font-family: 'Outfit', 'Plus Jakarta Sans', Inter, system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       position: relative;
+      letter-spacing: -0.015em;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Outfit', sans-serif;
+      letter-spacing: -0.025em;
     }
 
     .tabular-nums {
       font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum' on, 'cv02' on;
     }
 
     .touch-target {
@@ -355,19 +371,90 @@
     .modal-enter {
       animation: modalScaleSpring var(--dur-base) var(--ease-spring) forwards;
     }
+    .modal-exit {
+      animation: modalScaleExit var(--dur-fast) ease-in forwards !important;
+    }
     @keyframes modalScaleSpring {
       from { opacity: 0; transform: scale(0.96) translateY(8px); }
       to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes modalScaleExit {
+      from { opacity: 1; transform: scale(1) translateY(0); }
+      to { opacity: 0; transform: scale(0.96) translateY(8px); }
     }
 
     @media (max-width: 639px) {
       .modal-enter {
         animation: sheetSlideUp var(--dur-base) var(--ease-out) forwards;
       }
+      .modal-exit {
+        animation: sheetSlideDown var(--dur-fast) ease-in forwards !important;
+      }
     }
     @keyframes sheetSlideUp {
       from { opacity: 0; transform: translateY(100%); }
       to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes sheetSlideDown {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(100%); }
+    }
+
+    /* Card Micro-interactions */
+    .task-card {
+      transition: transform var(--dur-base) var(--ease-out),
+                  box-shadow var(--dur-base) var(--ease-out),
+                  border-left-width var(--dur-fast) ease-out,
+                  background-color var(--dur-base) var(--ease-out),
+                  opacity var(--dur-base) var(--ease-out);
+    }
+    .task-card:hover {
+      border-left-width: 9px !important;
+    }
+    .card-complete-flash {
+      animation: mintFlash 380ms ease-out forwards;
+    }
+    @keyframes mintFlash {
+      0% { background-color: #D3F6E6; box-shadow: 0 0 20px 4px rgba(47, 196, 141, 0.45); }
+      100% { background-color: #EEF0F6; }
+    }
+    .card-restore-bounce {
+      animation: cardRestoreBounce 320ms var(--ease-spring) forwards;
+    }
+    @keyframes cardRestoreBounce {
+      0% { transform: scale(0.96); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    .card-add-glow {
+      animation: cardAddGlow 1.2s ease-out forwards;
+    }
+    @keyframes cardAddGlow {
+      0% { transform: translateY(-16px) scale(0.96); opacity: 0; box-shadow: 0 0 0 0 rgba(31, 138, 125, 0.5); }
+      35% { transform: translateY(0) scale(1); opacity: 1; box-shadow: 0 0 24px 6px rgba(31, 138, 125, 0.35); }
+      100% { box-shadow: var(--shadow-card); }
+    }
+
+    /* Count badge micro-pop */
+    .count-pop {
+      animation: countPop 350ms var(--ease-spring);
+    }
+    @keyframes countPop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.35); }
+      100% { transform: scale(1); }
+    }
+
+    /* SVG Chart Node Spring Pop-in */
+    @keyframes chartNodePop {
+      0% { transform: scale(0); opacity: 0; }
+      70% { transform: scale(1.3); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .chart-node-appear {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: chartNodePop 450ms var(--ease-spring) backwards;
     }
 
     /* Field shake on validation error */
@@ -418,8 +505,14 @@
       .empty-floating,
       .entrance-item,
       .modal-enter,
+      .modal-exit,
       .field-shake,
-      .error-slide {
+      .error-slide,
+      .card-complete-flash,
+      .card-restore-bounce,
+      .card-add-glow,
+      .count-pop,
+      .chart-node-appear {
         animation: none !important;
         transition: none !important;
         opacity: 1 !important;
@@ -431,7 +524,8 @@
       .btn-action-edit svg,
       .btn-action-edit i,
       .press-feedback,
-      .progress-ring-circle {
+      .progress-ring-circle,
+      .task-card {
         transition: none !important;
         transform: none !important;
       }
@@ -477,28 +571,99 @@
       </div>
 
       <!-- Right Header Actions -->
-      <div class="flex items-center space-x-3 sm:space-x-4 entrance-item" style="animation-delay: 60ms;">
+      <div class="flex items-center space-x-2 sm:space-x-3 entrance-item" style="animation-delay: 60ms;">
         <!-- Date Pill -->
         <div
-          class="hidden md:flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white border border-[#ECE8F4] text-xs font-semibold text-[#6A6682] shadow-xs">
+          class="hidden lg:flex items-center space-x-2 px-3.5 py-1.5 rounded-full bg-white border border-[#ECE8F4] text-xs font-semibold text-[#6A6682] shadow-xs">
           <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
           <span id="currentDateDisplay">Today</span>
         </div>
 
+        <!-- AI Study Planner Button -->
+        <button id="openPlannerBtn" type="button"
+          class="touch-target press-feedback group inline-flex items-center justify-center px-3 sm:px-4 py-2.5 rounded-[16px] bg-white/85 hover:bg-white backdrop-blur-md border border-[#1F8A7D]/35 hover:border-[#7C6CF2]/60 text-[#14645B] hover:text-[#1F8A7D] font-extrabold text-xs sm:text-sm shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]">
+          <i data-lucide="sparkles" class="w-4 h-4 mr-1.5 text-[#7C6CF2] transition-transform duration-300 group-hover:rotate-12"></i>
+          <span class="hidden sm:inline">AI Study Planner</span>
+          <span class="sm:hidden">Planner</span>
+        </button>
+
         <!-- + Add Deadline Primary CTA (Sunny Yellow with Shine & Rotate) -->
         <button id="openAddModalBtn" type="button"
-          class="touch-target press-feedback btn-cta-shine inline-flex items-center justify-center px-4 sm:px-5 py-2.5 rounded-[16px] bg-[#FFC53D] hover:bg-[#F5B92B] active:bg-[#EAA814] text-[#1E1B2E] font-extrabold text-sm shadow-[0_8px_24px_rgba(255,197,61,0.40)] transition focus:outline-none focus:ring-2 focus:ring-[#FFC53D] focus:ring-offset-2">
-          <i data-lucide="plus" class="w-4 h-4 mr-1.5 stroke-[2.5]"></i>
+          class="touch-target press-feedback btn-cta-shine inline-flex items-center justify-center px-3.5 sm:px-5 py-2.5 rounded-[16px] bg-[#FFC53D] hover:bg-[#F5B92B] active:bg-[#EAA814] text-[#1E1B2E] font-extrabold text-xs sm:text-sm shadow-[0_8px_24px_rgba(255,197,61,0.40)] transition focus:outline-none focus:ring-2 focus:ring-[#FFC53D] focus:ring-offset-2">
+          <i data-lucide="plus" class="w-4 h-4 mr-1 sm:mr-1.5 stroke-[2.5]"></i>
           <span>Add Deadline</span>
         </button>
+
+        <!-- Account Area -->
+        <!-- Logged Out / Guest Mode: "Log in" button -->
+        <button id="headerAuthBtn" type="button"
+          class="touch-target press-feedback inline-flex items-center justify-center px-3 sm:px-3.5 py-2.5 rounded-[16px] bg-white/90 hover:bg-white border border-[#ECE8F4] hover:border-[#7C6CF2]/50 text-[#1E1B2E] font-bold text-xs sm:text-sm shadow-xs hover:shadow-soft transition focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]"
+          aria-label="Log in or create account">
+          <i data-lucide="user" class="w-4 h-4 sm:mr-1.5 text-[#7C6CF2]"></i>
+          <span class="hidden sm:inline">Log in</span>
+        </button>
+
+        <!-- Logged In: Avatar Chip & Dropdown -->
+        <div id="headerUserMenuWrap" class="relative hidden">
+          <button id="userAvatarBtn" type="button"
+            class="touch-target press-feedback inline-flex items-center space-x-1.5 sm:space-x-2 pl-1 pr-2 sm:pl-1.5 sm:pr-2.5 py-1 rounded-[18px] bg-white border border-[#ECE8F4] hover:border-[#7C6CF2]/60 shadow-xs hover:shadow-soft transition focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]"
+            aria-haspopup="true" aria-expanded="false" aria-label="User account menu">
+            <div id="userAvatarInitials"
+              class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#1F8A7D] to-[#7C6CF2] text-white font-black text-xs flex items-center justify-center shadow-xs uppercase select-none">
+              U
+            </div>
+            <span id="headerUserName" class="hidden md:inline font-bold text-xs text-[#1E1B2E] max-w-[90px] truncate">
+              User
+            </span>
+            <i data-lucide="chevron-down" id="userMenuChevron" class="w-3.5 h-3.5 text-[#6A6682] transition-transform duration-200"></i>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div id="userDropdownMenu"
+            class="hidden absolute right-0 mt-2 w-64 bg-white rounded-[22px] shadow-float border border-[#ECE8F4] p-2.5 z-50 modal-enter origin-top-right">
+            <div class="px-3 py-2.5 border-b border-[#ECE8F4] mb-1">
+              <div id="userMenuName" class="font-extrabold text-sm text-[#1E1B2E] truncate"></div>
+              <div id="userMenuEmail" class="text-xs text-[#6A6682] truncate font-medium"></div>
+              <div class="mt-2 inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-[#EAFBF4] text-[#14645B] text-[10px] font-bold">
+                <i data-lucide="shield-check" class="w-3 h-3 text-[#1F8A7D]"></i>
+                <span>Saved on this device only</span>
+              </div>
+            </div>
+
+            <div class="space-y-1">
+              <button id="exportDataBtn" type="button"
+                class="w-full flex items-center space-x-2 px-3 py-2 rounded-[14px] text-xs font-bold text-[#1E1B2E] hover:bg-[#F9F8FD] hover:text-[#1F8A7D] transition">
+                <i data-lucide="download" class="w-4 h-4 text-[#1F8A7D]"></i>
+                <span>Export data (JSON)</span>
+              </button>
+
+              <button id="logoutBtn" type="button"
+                class="w-full flex items-center space-x-2 px-3 py-2 rounded-[14px] text-xs font-bold text-[#1E1B2E] hover:bg-[#F9F8FD] hover:text-[#7C6CF2] transition">
+                <i data-lucide="log-out" class="w-4 h-4 text-[#7C6CF2]"></i>
+                <span>Log out</span>
+              </button>
+
+              <div class="border-t border-[#ECE8F4] my-1"></div>
+
+              <button id="deleteAccountBtn" type="button"
+                class="w-full flex items-center space-x-2 px-3 py-2 rounded-[14px] text-xs font-bold text-[#F2546F] hover:bg-[#FFDDE3]/50 transition">
+                <i data-lucide="trash-2" class="w-4 h-4 text-[#F2546F]"></i>
+                <span>Delete account</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Main Workspace Canvas -->
-  <main class="relative z-10 flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6 sm:space-y-8">
+  <main class="relative z-10 flex-1 max-w-[1240px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
-    <!-- Welcome Greeting Block -->
+    <!-- View 1: Main Deadlines Dashboard View -->
+    <div id="dashboardView" class="space-y-6 sm:space-y-8">
+
+      <!-- Welcome Greeting Block -->
     <section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 entrance-item"
       style="animation-delay: 80ms;">
       <div>
@@ -667,6 +832,15 @@
 
         <!-- Inline SVG Interactive Workload Chart with Coral Stroke -->
         <div class="mt-3 w-full h-28 sm:h-32 relative flex items-center">
+          <!-- Gliding Tooltip Bubble with arrow -->
+          <div id="chartFloatingTooltip"
+            class="absolute pointer-events-none opacity-0 transition-all duration-150 z-20 -translate-x-1/2 flex flex-col items-center">
+            <div id="chartFloatingTooltipText"
+              class="px-2.5 py-1 rounded-full bg-[#1E1B2E] text-white text-[11px] font-bold shadow-md whitespace-nowrap">
+              0 deadlines
+            </div>
+            <div class="w-2 h-2 bg-[#1E1B2E] rotate-45 -mt-1"></div>
+          </div>
           <svg id="workloadSvgChart" class="w-full h-full overflow-visible" preserveAspectRatio="none"
             viewBox="0 0 700 130">
             <defs>
@@ -755,27 +929,28 @@
         </div>
       </div>
 
-      <!-- Filter Tabs (Pill style with Deep Teal active fill and pop counts) -->
-      <div class="flex items-center space-x-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar touch-pan-x" role="tablist"
+      <!-- Filter Tabs (Gliding Pill Indicator with pop counts) -->
+      <div id="filterTabsWrapper" class="relative flex items-center space-x-2 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar touch-pan-x" role="tablist"
         aria-label="Filter deadlines">
+        <div id="filterActivePill" class="absolute top-0.5 h-[34px] rounded-full bg-[#14645B] transition-all duration-200 pointer-events-none shadow-xs z-0" style="left: 0; width: 0; opacity: 0;"></div>
         <button type="button" role="tab" data-filter="all"
-          class="filter-tab shrink-0 active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs">
+          class="filter-tab relative z-10 shrink-0 active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap text-white">
           All <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="critical"
-          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFDDE3] hover:text-[#9F1239] border border-[#ECE8F4]">
+          class="filter-tab relative z-10 shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap text-[#6A6682] hover:text-[#9F1239]">
           Critical <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="approaching"
-          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#FFE9BD] hover:text-[#92400E] border border-[#ECE8F4]">
+          class="filter-tab relative z-10 shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap text-[#6A6682] hover:text-[#92400E]">
           Approaching <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="safe"
-          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#D3F6E6] hover:text-[#14645B] border border-[#ECE8F4]">
+          class="filter-tab relative z-10 shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap text-[#6A6682] hover:text-[#14645B]">
           Plenty of Time <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
         <button type="button" role="tab" data-filter="completed"
-          class="filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#EEF0F6] hover:text-[#1E1B2E] border border-[#ECE8F4]">
+          class="filter-tab relative z-10 shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap text-[#6A6682] hover:text-[#1E1B2E]">
           Completed <span class="filter-count ml-1 opacity-80">(0)</span>
         </button>
       </div>
@@ -798,12 +973,203 @@
         completely clear.</p>
       <div id="emptyStateActionWrap" class="mt-5"></div>
     </section>
+    </div><!-- /#dashboardView -->
+
+    <!-- View 2: AI Study & Workload Planner View -->
+    <div id="plannerView" class="hidden space-y-6 sm:space-y-8">
+      <!-- Planner Top Header Bar -->
+      <section class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <button id="backToDeadlinesBtn" type="button"
+            class="touch-target inline-flex items-center text-xs sm:text-sm font-extrabold text-[#1F8A7D] hover:text-[#14645B] mb-2 group transition">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-1.5 transition-transform group-hover:-translate-x-1"></i>
+            <span>Back to Deadlines</span>
+          </button>
+          <div class="flex items-center space-x-2.5">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-[#1E1B2E] tracking-tight">AI Study & Workload Planner</h1>
+            <span class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#E5E0FF] text-[#5B4CC4]">Auto-Suggestions</span>
+          </div>
+          <p class="text-xs sm:text-sm text-[#6A6682] mt-1 font-medium">Your workload, visualized. Your next steps, simplified.</p>
+        </div>
+
+        <!-- Week range badge & Auto-Smooth Action -->
+        <div class="flex flex-wrap items-center gap-3">
+          <div id="plannerWeekRangeBadge"
+            class="px-3.5 py-1.5 rounded-full bg-white border border-[#ECE8F4] text-xs font-bold text-[#6A6682] shadow-xs flex items-center space-x-1.5">
+            <i data-lucide="calendar" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+            <span id="plannerWeekRangeText">Current Week</span>
+          </div>
+          <button id="autoSmoothBtn" type="button" disabled title="Auto-Smooth optimizer activates in Phase 3"
+            class="touch-target px-4 py-2 rounded-[16px] bg-[#D3F6E6] text-[#14645B] text-xs sm:text-sm font-extrabold border border-[#B9EDD4] opacity-70 cursor-not-allowed flex items-center space-x-1.5 shadow-xs">
+            <i data-lucide="wand-2" class="w-4 h-4"></i>
+            <span>Auto-Smooth Workload</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- 3 Summary Tiles -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-4" aria-label="Planner Summary Tiles">
+        <!-- Tile 1: Total Remaining Workload -->
+        <div class="bg-white rounded-[24px] p-5 border border-[#ECE8F4] shadow-soft flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <div class="w-9 h-9 rounded-full bg-[#E5E0FF] text-[#7C6CF2] flex items-center justify-center">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+            </div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#6A6682]">Workload</span>
+          </div>
+          <div class="mt-4">
+            <div class="flex items-baseline space-x-2">
+              <span id="plannerTotalHours" class="text-3xl sm:text-4xl font-extrabold text-[#1E1B2E] tabular-nums">0h</span>
+              <span id="plannerActiveCount" class="text-xs font-bold text-[#6A6682]">across 0 tasks</span>
+            </div>
+            <div id="plannerTierBreakdown" class="flex flex-wrap items-center gap-1.5 mt-2 text-[11px] font-semibold text-[#6A6682]">
+              <span>Light: 0h</span> · <span>Med: 0h</span> · <span>Deep: 0h</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 2: Peak Workload Day -->
+        <div class="bg-white rounded-[24px] p-5 border border-[#ECE8F4] shadow-soft flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <div class="w-9 h-9 rounded-full bg-[#FFE9BD] text-[#F59E0B] flex items-center justify-center">
+              <i data-lucide="zap" class="w-4 h-4"></i>
+            </div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#6A6682]">Peak Day</span>
+          </div>
+          <div class="mt-4">
+            <div id="plannerPeakDayName" class="text-2xl sm:text-3xl font-extrabold text-[#1E1B2E] truncate">None</div>
+            <div id="plannerPeakDayStats" class="flex items-center space-x-2 mt-1.5 text-xs font-bold text-[#6A6682]">
+              <span>0 sched hrs</span> · <span id="plannerPeakBandBadge" class="px-2 py-0.5 rounded-full text-[10px] bg-[#EEF0F6] text-[#6A6682]">Optimal</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 3: Workload Risk Score -->
+        <div class="bg-white rounded-[24px] p-5 border border-[#ECE8F4] shadow-soft flex flex-col justify-between">
+          <div class="flex items-center justify-between">
+            <div id="plannerRiskIconWrap" class="w-9 h-9 rounded-full bg-[#D3F6E6] text-[#2FC48D] flex items-center justify-center">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+            </div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#6A6682]">Workload Risk</span>
+          </div>
+          <div class="mt-4">
+            <div id="plannerRiskScoreBadge" class="text-2xl sm:text-3xl font-extrabold text-[#2FC48D]">Low</div>
+            <p id="plannerRiskReason" class="text-xs font-semibold text-[#6A6682] mt-1 line-clamp-2">Even schedule balance with zero overdue tasks.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7-Day Monotone SVG Workload Curve -->
+      <section class="bg-white rounded-[28px] p-5 sm:p-6 border border-[#ECE8F4] shadow-soft space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#1E1B2E]">7-Day Workload Distribution</h2>
+            <p class="text-xs text-[#6A6682]">Weighted cognitive load across the current local week</p>
+          </div>
+          <!-- Band Legend -->
+          <div class="flex flex-wrap items-center gap-3 text-[11px] font-bold">
+            <span class="inline-flex items-center text-[#14645B]"><span class="w-2.5 h-2.5 rounded-full bg-[#2FC48D] mr-1.5"></span>Optimal (&le; 3.5w)</span>
+            <span class="inline-flex items-center text-[#92400E]"><span class="w-2.5 h-2.5 rounded-full bg-[#F59E0B] mr-1.5"></span>Focus (3.5–7w)</span>
+            <span class="inline-flex items-center text-[#9F1239]"><span class="w-2.5 h-2.5 rounded-full bg-[#F2546F] mr-1.5"></span>Crunch (&gt; 7w)</span>
+          </div>
+        </div>
+
+        <!-- Chart SVG Container with Floating Tooltip -->
+        <div id="plannerChartContainer" class="relative w-full h-44 sm:h-52 flex items-center">
+          <!-- Floating Chart Tooltip -->
+          <div id="plannerFloatingTooltip"
+            class="absolute pointer-events-none opacity-0 transition-all duration-150 z-30 -translate-x-1/2 flex flex-col items-center">
+            <div id="plannerFloatingTooltipCard"
+              class="bg-[#1E1B2E] text-white p-3 rounded-[16px] shadow-xl text-xs max-w-xs pointer-events-none">
+              <div class="flex items-center justify-between gap-2 border-b border-white/15 pb-1 mb-1.5">
+                <span id="pttDayTitle" class="font-bold">Mon, Oct 26</span>
+                <span id="pttBandBadge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#2FC48D] text-white">Optimal</span>
+              </div>
+              <div class="space-y-0.5 text-[11px] text-white/90">
+                <div>Sched: <span id="pttSchedHours" class="font-bold text-white">0h</span> · Weighted: <span id="pttWeightLoad" class="font-bold text-[#FFC53D]">0w</span></div>
+                <div>Stress Score: <span id="pttStressScore" class="font-bold text-[#FFDDE3]">0</span></div>
+              </div>
+              <div id="pttTasksList" class="mt-2 pt-1.5 border-t border-white/10 text-[10px] space-y-1 text-white/80 max-h-24 overflow-y-auto"></div>
+            </div>
+            <div class="w-2.5 h-2.5 bg-[#1E1B2E] rotate-45 -mt-1.5"></div>
+          </div>
+
+          <svg id="plannerSvgChart" class="w-full h-full overflow-visible" viewBox="0 0 700 180" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="plannerChartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#7C6CF2" stop-opacity="0.25" />
+                <stop offset="100%" stop-color="#7C6CF2" stop-opacity="0.0" />
+              </linearGradient>
+            </defs>
+            <!-- Threshold reference lines -->
+            <g id="plannerThresholdLines"></g>
+            <path id="plannerAreaPath" fill="url(#plannerChartGrad)" d="" />
+            <path id="plannerLinePath" fill="none" stroke="#7C6CF2" stroke-width="3.5" stroke-linecap="round" d="" />
+            <g id="plannerNodesGroup"></g>
+          </svg>
+        </div>
+
+        <!-- Weekday Labels -->
+        <div id="plannerAxisLabels"
+          class="grid grid-cols-7 text-center pt-2 border-t border-[#ECE8F4] text-[10px] sm:text-xs font-bold text-[#6A6682]"></div>
+
+        <!-- Disclaimer line per specification -->
+        <p class="text-[11px] text-[#6A6682] italic text-center sm:text-left pt-1">
+          Thresholds are configurable planning guidelines, not medical limits. Stress score is a weighted planning indicator.
+        </p>
+
+        <!-- Mobile Selected Day Detail Card -->
+        <div id="plannerSelectedDayCard" class="sm:hidden mt-3 p-3.5 rounded-[18px] bg-[#F9F8FD] border border-[#ECE8F4] text-xs">
+          <div class="flex items-center justify-between mb-1.5">
+            <span id="psdDate" class="font-extrabold text-[#1E1B2E]">Selected Day</span>
+            <span id="psdBand" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-[#D3F6E6] text-[#14645B]">Optimal</span>
+          </div>
+          <div id="psdStats" class="text-[#6A6682] font-semibold text-[11px]">Tap any chart node above to view day breakdown.</div>
+          <div id="psdTasks" class="mt-2 space-y-1"></div>
+        </div>
+
+        <!-- Screen-Reader Table -->
+        <table class="sr-only" aria-label="7-Day Workload Distribution Data Table">
+          <caption>Weekly Workload Breakdown</caption>
+          <thead><tr><th>Day</th><th>Hours</th><th>Weighted Load</th><th>Stress Score</th><th>Status</th></tr></thead>
+          <tbody id="plannerSrTableBody"></tbody>
+        </table>
+      </section>
+
+      <!-- Milestones Section (Phase 2 Placeholder Card with NO mock data) -->
+      <section class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#1E1B2E]">Study Milestones & Decompositions</h2>
+            <p class="text-xs text-[#6A6682]">Step-by-step session breakdowns derived from your real deadlines</p>
+          </div>
+        </div>
+        <div id="milestonesContainer" class="space-y-3">
+          <div class="p-6 rounded-[24px] bg-white border border-[#ECE8F4] text-center text-xs text-[#6A6682] font-medium shadow-soft">
+            Milestone auto-decompositions activate in Phase 2. All workloads above are computed from your active tasks.
+          </div>
+        </div>
+      </section>
+
+      <!-- Daily Breakdown List -->
+      <section class="bg-white rounded-[28px] p-5 sm:p-6 border border-[#ECE8F4] shadow-soft space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-[#1E1B2E]">Daily Scheduled Workload Breakdown</h2>
+            <p class="text-xs text-[#6A6682]">Active sessions and deadlines per day</p>
+          </div>
+        </div>
+        <div id="plannerDailyBreakdownList" class="space-y-2.5">
+          <!-- Populated via computeWorkloadSchedule -->
+        </div>
+      </section>
+    </div><!-- /#plannerView -->
 
   </main>
 
   <!-- Mobile Floating Bottom Navigation (Visible on screen < 640px) -->
   <nav
-    class="sm:hidden fixed bottom-4 inset-x-4 z-40 bg-white/95 backdrop-blur-md border border-[#ECE8F4] rounded-full shadow-float px-3 py-2 flex items-center justify-around"
+    class="sm:hidden fixed bottom-4 inset-x-4 z-40 bg-white/95 backdrop-blur-md border border-[#ECE8F4] rounded-full shadow-float px-2 py-2 flex items-center justify-around"
     aria-label="Mobile Navigation">
     <button id="mobileNavHome" type="button"
       class="mobile-nav-item touch-target flex flex-col items-center justify-center text-[#14645B] text-[10px] font-bold"
@@ -824,6 +1190,13 @@
       class="touch-target -mt-6 w-12 h-12 rounded-full bg-[#FFC53D] hover:bg-[#F5B92B] text-[#1E1B2E] flex items-center justify-center shadow-[0_8px_20px_rgba(255,197,61,0.40)] press-feedback focus:outline-none focus:ring-2 focus:ring-[#FFC53D]"
       aria-label="Add new deadline">
       <i data-lucide="plus" class="w-6 h-6 stroke-[2.5]"></i>
+    </button>
+
+    <button id="mobileNavPlanner" type="button"
+      class="mobile-nav-item touch-target flex flex-col items-center justify-center text-[#6A6682] text-[10px] font-bold"
+      aria-label="AI Study Planner">
+      <i data-lucide="sparkles" class="w-5 h-5 text-[#7C6CF2]"></i>
+      <span>Planner</span>
     </button>
 
     <button id="mobileNavDone" type="button"
@@ -922,6 +1295,60 @@
             </div>
           </div>
 
+          <!-- AI Planner Study Metadata: Estimated Effort & Cognitive Weight -->
+          <div class="p-3.5 rounded-[18px] bg-[#F9F8FD] border border-[#ECE8F4] space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-[#1E1B2E] uppercase tracking-wider flex items-center space-x-1.5">
+                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-[#7C6CF2]"></i>
+                <span>Study Planner Sizing</span>
+              </span>
+              <span class="text-[10px] font-bold text-[#6A6682]">Auto-Scheduling Input</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="taskEffortInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+                  Estimated Effort <span class="text-[#F2546F]">*</span>
+                </label>
+                <div class="relative">
+                  <input type="number" id="taskEffortInput" min="0.5" max="50" step="0.5" value="3" required
+                    class="touch-target w-full px-4 py-2 pr-14 rounded-[14px] border border-[#ECE8F4] text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] transition">
+                  <span class="absolute inset-y-0 right-3.5 flex items-center text-xs font-bold text-[#6A6682] pointer-events-none">hours</span>
+                </div>
+                <p id="effortError" class="hidden text-xs text-[#F2546F] mt-1 font-bold flex items-center space-x-1 error-slide">
+                  <i data-lucide="alert-circle" class="w-3.5 h-3.5"></i>
+                  <span>Enter 0.5 to 50 hours</span>
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+                  Cognitive Weight
+                </label>
+                <div class="grid grid-cols-3 gap-1" role="radiogroup" aria-label="Cognitive Weight">
+                  <button type="button" data-weight-val="light"
+                    class="weight-pill touch-target press-feedback px-1.5 py-1.5 rounded-[12px] border border-[#ECE8F4] bg-white text-[11px] font-bold text-[#6A6682] flex flex-col items-center justify-center transition"
+                    title="admin, formatting">
+                    <span>Light</span>
+                    <span class="text-[8px] font-normal text-[#6A6682] opacity-80 leading-none mt-0.5">Admin</span>
+                  </button>
+                  <button type="button" data-weight-val="medium"
+                    class="weight-pill active touch-target press-feedback px-1.5 py-1.5 rounded-[12px] border border-[#7C6CF2] bg-[#E5E0FF] text-[11px] font-bold text-[#5B4CC4] flex flex-col items-center justify-center transition"
+                    title="reports, standard assignments">
+                    <span>Medium</span>
+                    <span class="text-[8px] font-normal opacity-80 leading-none mt-0.5">Standard</span>
+                  </button>
+                  <button type="button" data-weight-val="deep"
+                    class="weight-pill touch-target press-feedback px-1.5 py-1.5 rounded-[12px] border border-[#ECE8F4] bg-white text-[11px] font-bold text-[#6A6682] flex flex-col items-center justify-center transition"
+                    title="coding, math, hard exams">
+                    <span>Deep</span>
+                    <span class="text-[8px] font-normal text-[#6A6682] opacity-80 leading-none mt-0.5">Coding/Exam</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label for="taskDueDateInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
               Due Date & Time <span class="text-[#F2546F]">*</span>
@@ -993,6 +1420,263 @@
     </div>
   </div>
 
+  <!-- Local Auth Modal (Log in / Sign up) -->
+  <div id="authModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+    <div id="authModalBackdrop" class="fixed inset-0 bg-[#1E1B2E]/50 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
+      <div id="authModalContentCard"
+        class="bg-white w-full sm:max-w-md rounded-t-[28px] sm:rounded-[28px] shadow-float border border-[#ECE8F4] p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto modal-enter">
+        <div class="sm:hidden w-12 h-1.5 rounded-full bg-[#ECE8F4] mx-auto -mt-1 mb-2"></div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-3 border-b border-[#ECE8F4]">
+          <div class="flex items-center space-x-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-[#E5E0FF] text-[#5B4CC4] flex items-center justify-center shadow-xs">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="authModalTitle" class="text-lg font-extrabold text-[#1E1B2E]">DueSync Account</h2>
+              <p class="text-[11px] text-[#6A6682] font-medium">Keep your deadlines organized per profile</p>
+            </div>
+          </div>
+          <button id="closeAuthModalBtn" type="button"
+            class="touch-target p-2 text-[#6A6682] hover:text-[#1E1B2E] rounded-full hover:bg-[#F9F8FD] transition"
+            aria-label="Close authentication dialog">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Auth Tabs (Pill Switcher) -->
+        <div class="p-1 bg-[#F5F3FA] rounded-[18px] grid grid-cols-2 gap-1 text-xs font-bold" role="tablist">
+          <button id="authTabLogin" type="button" role="tab" aria-selected="true"
+            class="py-2 rounded-[14px] bg-white text-[#1E1B2E] shadow-xs transition-all flex items-center justify-center space-x-1.5">
+            <i data-lucide="log-in" class="w-3.5 h-3.5 text-[#7C6CF2]"></i>
+            <span>Log in</span>
+          </button>
+          <button id="authTabSignup" type="button" role="tab" aria-selected="false"
+            class="py-2 rounded-[14px] text-[#6A6682] hover:text-[#1E1B2E] transition-all flex items-center justify-center space-x-1.5">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span>Sign up</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Log In Form -->
+        <form id="loginForm" class="space-y-3.5" novalidate>
+          <!-- 30s Lockout Warning Banner -->
+          <div id="loginLockoutBanner"
+            class="hidden p-3 rounded-2xl bg-[#FFDDE3] border border-[#F2546F]/40 flex items-start space-x-2 text-xs text-[#9F1239] font-medium error-slide">
+            <i data-lucide="hourglass" class="w-4 h-4 shrink-0 text-[#F2546F] mt-0.5"></i>
+            <div>
+              <p class="font-bold">Too many failed attempts.</p>
+              <p>Please wait <span id="loginLockoutTimer" class="font-extrabold tabular-nums">30</span>s before trying again.</p>
+            </div>
+          </div>
+
+          <div>
+            <label for="loginEmailInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Email
+            </label>
+            <input type="email" id="loginEmailInput" required autocomplete="email" placeholder="name@example.com"
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+          </div>
+
+          <div>
+            <label for="loginPasswordInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Password
+            </label>
+            <div class="relative">
+              <input type="password" id="loginPasswordInput" required autocomplete="current-password" placeholder="••••••••"
+                class="touch-target w-full pl-4 pr-11 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+              <button type="button" id="loginTogglePasswordBtn" aria-label="Toggle password visibility" aria-pressed="false"
+                class="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-[#6A6682] hover:text-[#1E1B2E] transition focus:outline-none">
+                <i data-lucide="eye" id="loginEyeIcon" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember me & hint -->
+          <div class="flex items-center justify-between pt-1">
+            <label class="flex items-center space-x-2 cursor-pointer select-none">
+              <input type="checkbox" id="loginRememberMeCheckbox" checked
+                class="w-4 h-4 rounded text-[#7C6CF2] border-[#ECE8F4] focus:ring-[#7C6CF2] transition">
+              <span class="text-xs font-medium text-[#6A6682]">Remember me</span>
+            </label>
+            <span class="text-[11px] text-[#6A6682] italic">Stored locally</span>
+          </div>
+
+          <!-- Error Message Banner -->
+          <p id="loginErrorMsg"
+            class="hidden text-xs text-[#F2546F] font-bold flex items-center space-x-1.5 error-slide">
+            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+            <span id="loginErrorText">Invalid email or password.</span>
+          </p>
+
+          <button type="submit" id="loginSubmitBtn"
+            class="touch-target press-feedback w-full py-3 rounded-[16px] bg-[#1E1B2E] hover:bg-[#2C2744] text-white font-extrabold text-sm shadow-soft transition flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]">
+            <span id="loginBtnText">Log in</span>
+            <span id="loginBtnSpinner" class="hidden">
+              <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+            </span>
+          </button>
+        </form>
+
+        <!-- Tab 2: Sign Up Form -->
+        <form id="signupForm" class="space-y-3.5 hidden" novalidate>
+          <!-- Honest Disclosure Box -->
+          <div class="p-3 rounded-2xl bg-[#FFE9BD]/70 border border-[#F59E0B]/30 flex items-start space-x-2.5 text-xs text-[#92400E]">
+            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-[#F59E0B] mt-0.5"></i>
+            <p class="leading-relaxed font-medium">
+              <strong class="font-bold">Saved on this device only.</strong> Accounts and data exist only inside this browser. If you forget your password it cannot be recovered.
+            </p>
+          </div>
+
+          <div>
+            <label for="signupNameInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Your Name <span class="text-[#F2546F]">*</span>
+            </label>
+            <input type="text" id="signupNameInput" required maxlength="40" placeholder="e.g. Alex Chen"
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+          </div>
+
+          <div>
+            <label for="signupEmailInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Email Address <span class="text-[#F2546F]">*</span>
+            </label>
+            <input type="email" id="signupEmailInput" required autocomplete="email" placeholder="alex@university.edu"
+              class="touch-target w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+          </div>
+
+          <div>
+            <label for="signupPasswordInput" class="block text-xs font-bold text-[#1E1B2E] uppercase tracking-wider mb-1">
+              Password <span class="text-[#F2546F]">*</span> <span class="text-[11px] font-normal text-[#6A6682]">(min 8 characters)</span>
+            </label>
+            <div class="relative">
+              <input type="password" id="signupPasswordInput" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters"
+                class="touch-target w-full pl-4 pr-11 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] focus:border-[#7C6CF2] transition">
+              <button type="button" id="signupTogglePasswordBtn" aria-label="Toggle password visibility" aria-pressed="false"
+                class="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-[#6A6682] hover:text-[#1E1B2E] transition focus:outline-none">
+                <i data-lucide="eye" id="signupEyeIcon" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Error Message Banner -->
+          <p id="signupErrorMsg"
+            class="hidden text-xs text-[#F2546F] font-bold flex items-center space-x-1.5 error-slide">
+            <i data-lucide="alert-circle" class="w-4 h-4 shrink-0"></i>
+            <span id="signupErrorText">Please fill in all fields properly.</span>
+          </p>
+
+          <button type="submit" id="signupSubmitBtn"
+            class="touch-target press-feedback w-full py-3 rounded-[16px] bg-[#1F8A7D] hover:bg-[#14645B] text-white font-extrabold text-sm shadow-soft transition flex items-center justify-center space-x-2 focus:outline-none focus:ring-2 focus:ring-[#1F8A7D]">
+            <span id="signupBtnText">Create local account</span>
+            <span id="signupBtnSpinner" class="hidden">
+              <i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i>
+            </span>
+          </button>
+        </form>
+
+        <!-- Footer / Continue as Guest -->
+        <div class="pt-2 border-t border-[#ECE8F4] text-center space-y-1">
+          <button id="authContinueGuestBtn" type="button"
+            class="touch-target text-xs font-bold text-[#6A6682] hover:text-[#1E1B2E] transition py-1.5 px-3 rounded-[12px] hover:bg-[#F9F8FD]">
+            Continue as guest
+          </button>
+          <p class="text-[10px] text-[#6A6682]/80">Guest tasks stay on this browser. You can create an account anytime.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Account Confirmation Modal -->
+  <div id="deleteAccountModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true"
+    aria-labelledby="deleteAccountModalTitle">
+    <div id="deleteAccountModalBackdrop" class="fixed inset-0 bg-[#1E1B2E]/50 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+      <div id="deleteAccountModalCard"
+        class="bg-white w-full max-w-sm rounded-[24px] shadow-float border border-[#ECE8F4] p-5 sm:p-6 space-y-3.5 modal-enter">
+        <div
+          class="w-10 h-10 rounded-full bg-[#FFDDE3] text-[#F2546F] flex items-center justify-center shadow-[0_0_16px_rgba(242,84,111,0.30)]">
+          <i data-lucide="trash-2" class="w-5 h-5"></i>
+        </div>
+        <h3 id="deleteAccountModalTitle" class="text-base font-extrabold text-[#1E1B2E]">Delete Local Account?</h3>
+        <p class="text-xs sm:text-sm text-[#6A6682] font-medium leading-relaxed">
+          This will permanently delete this account, all its deadlines, and study plans from this device.
+        </p>
+
+        <div class="space-y-1.5 text-xs text-[#1E1B2E]">
+          <label for="deleteAccountEmailInput" class="block font-bold">
+            Type your email (<span id="deleteAccountEmailConfirmSpan" class="font-extrabold text-[#7C6CF2]"></span>) to confirm:
+          </label>
+          <input type="email" id="deleteAccountEmailInput" placeholder="Type email here"
+            class="touch-target w-full px-3.5 py-2 rounded-[14px] border border-[#ECE8F4] text-xs bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#F2546F] transition">
+          <p id="deleteAccountErrorMsg" class="hidden text-[11px] text-[#F2546F] font-bold error-slide">
+            Email does not match this account.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-2">
+          <button id="cancelDeleteAccountBtn" type="button"
+            class="touch-target px-4 py-2 rounded-[14px] border border-[#ECE8F4] text-xs sm:text-sm font-bold text-[#6A6682] hover:bg-[#F9F8FD] transition">
+            Cancel
+          </button>
+          <button id="confirmDeleteAccountBtn" type="button"
+            class="touch-target press-feedback px-4 py-2 rounded-[14px] bg-[#F2546F] hover:bg-[#DE3F5A] text-white text-xs sm:text-sm font-bold shadow-xs transition">
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- One-Time Guest Task Import Prompt Modal -->
+  <div id="importGuestTasksModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true"
+    aria-labelledby="importModalTitle">
+    <div id="importModalBackdrop" class="fixed inset-0 bg-[#1E1B2E]/50 backdrop-blur-sm transition-opacity"></div>
+    <div class="fixed inset-0 z-10 flex items-center justify-center p-4">
+      <div id="importModalCard"
+        class="bg-white w-full max-w-sm rounded-[26px] shadow-float border border-[#ECE8F4] p-5 sm:p-6 space-y-4 modal-enter">
+        <div class="flex items-center space-x-3">
+          <div
+            class="w-10 h-10 rounded-full bg-[#EAFBF4] text-[#1F8A7D] flex items-center justify-center shadow-xs">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="importModalTitle" class="text-base font-extrabold text-[#1E1B2E]">Import Deadlines?</h3>
+            <p class="text-xs text-[#6A6682] font-medium">Keep your current progress</p>
+          </div>
+        </div>
+
+        <p class="text-xs sm:text-sm text-[#1E1B2E] font-medium leading-relaxed">
+          We found <strong id="guestTaskCountSpan" class="font-extrabold text-[#1F8A7D]">0 deadlines</strong> from your guest session. Would you like to copy them into your new account?
+        </p>
+
+        <div class="p-3 rounded-2xl bg-[#F9F8FD] border border-[#ECE8F4] text-xs text-[#6A6682] space-y-1">
+          <div class="flex items-center space-x-1.5 font-bold text-[#1E1B2E]">
+            <i data-lucide="info" class="w-3.5 h-3.5 text-[#7C6CF2]"></i>
+            <span>Guest deadlines are preserved</span>
+          </div>
+          <p class="text-[11px] leading-normal">
+            Your guest list will remain untouched if you ever log out back to guest mode.
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end space-x-2 pt-1">
+          <button id="skipImportTasksBtn" type="button"
+            class="touch-target px-4 py-2.5 rounded-[14px] border border-[#ECE8F4] text-xs sm:text-sm font-bold text-[#6A6682] hover:bg-[#F9F8FD] hover:text-[#1E1B2E] transition">
+            Start fresh
+          </button>
+          <button id="confirmImportTasksBtn" type="button"
+            class="touch-target press-feedback px-4 py-2.5 rounded-[14px] bg-[#1F8A7D] hover:bg-[#14645B] text-white text-xs sm:text-sm font-bold shadow-xs transition flex items-center space-x-1.5">
+            <i data-lucide="download" class="w-4 h-4"></i>
+            <span>Import deadlines</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification with Animated Progress Shrink -->
   <div id="toastContainer"
     class="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-50 max-w-sm bg-[#1E1B2E] text-white text-xs sm:text-sm px-4 py-3 rounded-2xl shadow-pill border border-[#312C45] flex items-center space-x-2.5 transform translate-y-16 opacity-0 transition-all duration-300 pointer-events-none overflow-hidden"
@@ -1011,6 +1695,709 @@
       'use strict';
 
       const STORAGE_KEY = 'dueSyncTasks';
+      const PLANNER_STORAGE_KEY = 'dueSyncPlanner';
+      const USERS_STORAGE_KEY = 'dueSyncUsers';
+      const SESSION_STORAGE_KEY = 'dueSyncSession';
+
+      let currentSession = null; // { userId: string, loggedInAt: string } or null for guest mode
+
+      function getCurrentUserId() {
+        return currentSession && currentSession.userId ? currentSession.userId : null;
+      }
+
+      function isGuestMode() {
+        return !getCurrentUserId();
+      }
+
+      function getTasksKey() {
+        const uid = getCurrentUserId();
+        return uid ? `dueSyncTasks:${uid}` : STORAGE_KEY;
+      }
+
+      function getPlannerKey() {
+        const uid = getCurrentUserId();
+        return uid ? `dueSyncPlanner:${uid}` : PLANNER_STORAGE_KEY;
+      }
+
+      /* -------------------------------------------------------------
+         Auth Data Layer: Web Crypto API Hashing & User Storage
+         ------------------------------------------------------------- */
+      const PBKDF2_ITERATIONS = 150000;
+      const SALT_BYTE_LENGTH = 16;
+      const HASH_BIT_LENGTH = 256;
+
+      let usersCorruptWarningShown = false;
+
+      // Rate limiting store for login attempts (in-memory, client-side only)
+      // Note: This client-side lockout is a local UX mitigation and not a substitute for server-side auth.
+      const loginAttempts = {}; // cleanEmail -> { count: number, lockedUntil: number }
+
+      function isCryptoSubtleAvailable() {
+        return !!(window.crypto && window.crypto.subtle && typeof window.crypto.subtle.importKey === 'function');
+      }
+
+      function uint8ToBase64(bytes) {
+        let binary = '';
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+          binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+      }
+
+      function base64ToUint8(base64) {
+        const binary = window.atob(base64);
+        const len = binary.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binary.charCodeAt(i);
+        }
+        return bytes;
+      }
+
+      function generateSaltBase64() {
+        if (!window.crypto || typeof window.crypto.getRandomValues !== 'function') {
+          throw new Error('Cryptographically secure random values are not supported in this environment.');
+        }
+        const saltBytes = new Uint8Array(SALT_BYTE_LENGTH);
+        window.crypto.getRandomValues(saltBytes);
+        return uint8ToBase64(saltBytes);
+      }
+
+      async function deriveHashBase64(password, saltBase64, iterations = PBKDF2_ITERATIONS) {
+        if (!isCryptoSubtleAvailable()) {
+          throw new Error('Accounts need a secure context. Open the app through http://localhost (python -m http.server) or https.');
+        }
+        const encoder = new TextEncoder();
+        const pwKey = await window.crypto.subtle.importKey(
+          'raw',
+          encoder.encode(password),
+          'PBKDF2',
+          false,
+          ['deriveBits']
+        );
+        const saltBytes = base64ToUint8(saltBase64);
+        const derivedBits = await window.crypto.subtle.deriveBits(
+          {
+            name: 'PBKDF2',
+            salt: saltBytes,
+            iterations: iterations,
+            hash: 'SHA-256'
+          },
+          pwKey,
+          HASH_BIT_LENGTH
+        );
+        return uint8ToBase64(new Uint8Array(derivedBits));
+      }
+
+      function constantTimeCompare(a, b) {
+        if (typeof a !== 'string' || typeof b !== 'string') return false;
+        let mismatch = a.length === b.length ? 0 : 1;
+        const maxLen = Math.max(a.length, b.length);
+        for (let i = 0; i < maxLen; i++) {
+          const charCodeA = i < a.length ? a.charCodeAt(i) : 0;
+          const charCodeB = i < b.length ? b.charCodeAt(i) : 0;
+          mismatch |= charCodeA ^ charCodeB;
+        }
+        return mismatch === 0;
+      }
+
+      function loadUsers() {
+        try {
+          const raw = localStorage.getItem(USERS_STORAGE_KEY);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+          throw new Error('dueSyncUsers is not an array');
+        } catch (e) {
+          console.warn('Storage read warning on dueSyncUsers:', e);
+          if (!usersCorruptWarningShown) {
+            usersCorruptWarningShown = true;
+            if (typeof showToast === 'function') {
+              showToast('Users account data is malformed. Running in safe guest mode.');
+            }
+          }
+          return [];
+        }
+      }
+
+      function saveUsers(usersList) {
+        try {
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(usersList));
+        } catch (e) {
+          console.warn('Storage save warning on dueSyncUsers:', e);
+        }
+      }
+
+      function findUserByEmail(email) {
+        if (!email) return null;
+        const cleanEmail = email.trim().toLowerCase();
+        const users = loadUsers();
+        return users.find(u => u.email && u.email.toLowerCase() === cleanEmail) || null;
+      }
+
+      function loadSession() {
+        try {
+          const sessionRaw = sessionStorage.getItem(SESSION_STORAGE_KEY) || localStorage.getItem(SESSION_STORAGE_KEY);
+          if (!sessionRaw) return null;
+          const parsed = JSON.parse(sessionRaw);
+          if (parsed && typeof parsed.userId === 'string') {
+            const user = loadUsers().find(u => u.id === parsed.userId);
+            if (user) {
+              return parsed;
+            } else {
+              clearSession();
+              return null;
+            }
+          }
+          return null;
+        } catch (e) {
+          console.warn('Storage read warning on dueSyncSession:', e);
+          clearSession();
+          return null;
+        }
+      }
+
+      function saveSession(sessionData, rememberMe = true) {
+        currentSession = sessionData;
+        const json = JSON.stringify(sessionData);
+        try {
+          if (rememberMe) {
+            localStorage.setItem(SESSION_STORAGE_KEY, json);
+            sessionStorage.removeItem(SESSION_STORAGE_KEY);
+          } else {
+            sessionStorage.setItem(SESSION_STORAGE_KEY, json);
+            localStorage.removeItem(SESSION_STORAGE_KEY);
+          }
+        } catch (e) {
+          console.warn('Storage save warning on dueSyncSession:', e);
+        }
+      }
+
+      function clearSession() {
+        currentSession = null;
+        try {
+          localStorage.removeItem(SESSION_STORAGE_KEY);
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        } catch (e) {
+          console.warn('Storage remove warning on dueSyncSession:', e);
+        }
+      }
+
+      function getLoginLockStatus(email) {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const record = loginAttempts[cleanEmail];
+        if (!record) return { isLocked: false, remainingSeconds: 0 };
+        const now = Date.now();
+        if (record.lockedUntil && record.lockedUntil > now) {
+          const remaining = Math.ceil((record.lockedUntil - now) / 1000);
+          return { isLocked: true, remainingSeconds: remaining };
+        }
+        return { isLocked: false, remainingSeconds: 0 };
+      }
+
+      function recordFailedLoginAttempt(email) {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const now = Date.now();
+        if (!loginAttempts[cleanEmail]) {
+          loginAttempts[cleanEmail] = { count: 0, lockedUntil: 0 };
+        }
+        const record = loginAttempts[cleanEmail];
+        if (record.lockedUntil && record.lockedUntil <= now) {
+          record.count = 0;
+          record.lockedUntil = 0;
+        }
+        record.count++;
+        if (record.count >= 5) {
+          record.lockedUntil = now + 30000; // 30s lockout
+        }
+        return getLoginLockStatus(cleanEmail);
+      }
+
+      function resetLoginAttempts(email) {
+        const cleanEmail = (email || '').trim().toLowerCase();
+        delete loginAttempts[cleanEmail];
+      }
+
+      async function registerUser(name, email, password) {
+        if (!isCryptoSubtleAvailable()) {
+          return {
+            success: false,
+            error: 'Accounts need a secure context. Open the app through http://localhost (python -m http.server) or https.'
+          };
+        }
+
+        const cleanName = (name || '').trim();
+        const cleanEmail = (email || '').trim().toLowerCase();
+
+        if (!cleanName || cleanName.length > 40) {
+          return { success: false, error: 'Name is required (1 to 40 characters).' };
+        }
+        if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+          return { success: false, error: 'Please enter a valid email address.' };
+        }
+        if (!password || password.length < 8) {
+          return { success: false, error: 'Password must be at least 8 characters.' };
+        }
+
+        if (findUserByEmail(cleanEmail)) {
+          return { success: false, error: 'An account with this email already exists.' };
+        }
+
+        const salt = generateSaltBase64();
+        const hash = await deriveHashBase64(password, salt, PBKDF2_ITERATIONS);
+        const newUserId = (window.crypto && crypto.randomUUID)
+          ? `u_${crypto.randomUUID()}`
+          : `u_${Date.now()}_${Math.random().toString(36).substr(2, 8)}`;
+
+        const newUser = {
+          id: newUserId,
+          name: cleanName,
+          email: cleanEmail,
+          salt: salt,
+          hash: hash,
+          iterations: PBKDF2_ITERATIONS,
+          createdAt: new Date().toISOString()
+        };
+
+        const users = loadUsers();
+        users.push(newUser);
+        saveUsers(users);
+
+        // Pre-create empty task list for new user
+        try {
+          localStorage.setItem(`dueSyncTasks:${newUserId}`, JSON.stringify([]));
+        } catch (e) {}
+
+        return { success: true, user: newUser };
+      }
+
+      async function authenticateUser(email, password) {
+        if (!isCryptoSubtleAvailable()) {
+          return {
+            success: false,
+            error: 'Accounts need a secure context. Open the app through http://localhost (python -m http.server) or https.'
+          };
+        }
+
+        const cleanEmail = (email || '').trim().toLowerCase();
+        const lock = getLoginLockStatus(cleanEmail);
+        if (lock.isLocked) {
+          return {
+            success: false,
+            isLocked: true,
+            remainingSeconds: lock.remainingSeconds,
+            error: `Too many failed attempts. Login locked for ${lock.remainingSeconds}s.`
+          };
+        }
+
+        const user = findUserByEmail(cleanEmail);
+        if (!user) {
+          recordFailedLoginAttempt(cleanEmail);
+          return { success: false, error: 'Email or password is incorrect.' };
+        }
+
+        const computedHash = await deriveHashBase64(password, user.salt, user.iterations || PBKDF2_ITERATIONS);
+        const isMatch = constantTimeCompare(computedHash, user.hash);
+
+        if (!isMatch) {
+          const updatedLock = recordFailedLoginAttempt(cleanEmail);
+          if (updatedLock.isLocked) {
+            return {
+              success: false,
+              isLocked: true,
+              remainingSeconds: updatedLock.remainingSeconds,
+              error: `Too many failed attempts. Login locked for ${updatedLock.remainingSeconds}s.`
+            };
+          }
+          return { success: false, error: 'Email or password is incorrect.' };
+        }
+
+        resetLoginAttempts(cleanEmail);
+        return { success: true, user: user };
+      }
+
+      /* -------------------------------------------------------------
+         Auth UI Controller: Modal, Header Avatar, Dropdown, Lockout
+         ------------------------------------------------------------- */
+      let authLockoutInterval = null;
+
+      function updateAuthUI() {
+        const headerAuthBtn = document.getElementById('headerAuthBtn');
+        const headerUserMenuWrap = document.getElementById('headerUserMenuWrap');
+        const userAvatarInitials = document.getElementById('userAvatarInitials');
+        const headerUserName = document.getElementById('headerUserName');
+        const userMenuName = document.getElementById('userMenuName');
+        const userMenuEmail = document.getElementById('userMenuEmail');
+        const userDropdownMenu = document.getElementById('userDropdownMenu');
+
+        const session = currentSession;
+        let loggedInUser = null;
+        if (session && session.userId) {
+          loggedInUser = loadUsers().find(u => u.id === session.userId) || null;
+        }
+
+        if (loggedInUser) {
+          if (headerAuthBtn) headerAuthBtn.classList.add('hidden');
+          if (headerUserMenuWrap) headerUserMenuWrap.classList.remove('hidden');
+
+          // Initials (up to 2 letters, uppercase)
+          const nameParts = (loggedInUser.name || 'User').trim().split(/\s+/);
+          let initials = nameParts[0].charAt(0).toUpperCase();
+          if (nameParts.length > 1) {
+            initials += nameParts[nameParts.length - 1].charAt(0).toUpperCase();
+          }
+          if (userAvatarInitials) userAvatarInitials.textContent = initials;
+          if (headerUserName) headerUserName.textContent = nameParts[0];
+          if (userMenuName) userMenuName.textContent = loggedInUser.name;
+          if (userMenuEmail) userMenuEmail.textContent = loggedInUser.email;
+        } else {
+          if (headerAuthBtn) headerAuthBtn.classList.remove('hidden');
+          if (headerUserMenuWrap) headerUserMenuWrap.classList.add('hidden');
+          if (userDropdownMenu) userDropdownMenu.classList.add('hidden');
+        }
+      }
+
+      function switchAuthTab(tab) {
+        const tabLogin = document.getElementById('authTabLogin');
+        const tabSignup = document.getElementById('authTabSignup');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const loginErrorMsg = document.getElementById('loginErrorMsg');
+        const signupErrorMsg = document.getElementById('signupErrorMsg');
+
+        if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
+        if (signupErrorMsg) signupErrorMsg.classList.add('hidden');
+
+        if (tab === 'signup') {
+          if (tabLogin) {
+            tabLogin.classList.remove('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+            tabLogin.classList.add('text-[#6A6682]');
+            tabLogin.setAttribute('aria-selected', 'false');
+          }
+          if (tabSignup) {
+            tabSignup.classList.add('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+            tabSignup.classList.remove('text-[#6A6682]');
+            tabSignup.setAttribute('aria-selected', 'true');
+          }
+          if (loginForm) loginForm.classList.add('hidden');
+          if (signupForm) signupForm.classList.remove('hidden');
+          const nameInput = document.getElementById('signupNameInput');
+          if (nameInput) setTimeout(() => nameInput.focus(), 60);
+        } else {
+          if (tabSignup) {
+            tabSignup.classList.remove('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+            tabSignup.classList.add('text-[#6A6682]');
+            tabSignup.setAttribute('aria-selected', 'false');
+          }
+          if (tabLogin) {
+            tabLogin.classList.add('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+            tabLogin.classList.remove('text-[#6A6682]');
+            tabLogin.setAttribute('aria-selected', 'true');
+          }
+          if (signupForm) signupForm.classList.add('hidden');
+          if (loginForm) loginForm.classList.remove('hidden');
+          const emailInput = document.getElementById('loginEmailInput');
+          if (emailInput) setTimeout(() => emailInput.focus(), 60);
+        }
+      }
+
+      function openAuthModal(initialTab = 'login') {
+        const modal = document.getElementById('authModal');
+        const content = document.getElementById('authModalContentCard');
+        if (!modal) return;
+
+        const loginErrorMsg = document.getElementById('loginErrorMsg');
+        const signupErrorMsg = document.getElementById('signupErrorMsg');
+        if (loginErrorMsg) loginErrorMsg.classList.add('hidden');
+        if (signupErrorMsg) signupErrorMsg.classList.add('hidden');
+
+        modal.classList.remove('hidden');
+        if (content) {
+          content.classList.remove('modal-exit');
+          content.classList.add('modal-enter');
+        }
+
+        switchAuthTab(initialTab);
+        checkAndUpdateLockoutUI();
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+      }
+
+      function closeAuthModal() {
+        const modal = document.getElementById('authModal');
+        const content = document.getElementById('authModalContentCard');
+        if (!modal || modal.classList.contains('hidden')) return;
+
+        if (authLockoutInterval) {
+          clearInterval(authLockoutInterval);
+          authLockoutInterval = null;
+        }
+
+        if (content && !prefersReducedMotion()) {
+          content.classList.remove('modal-enter');
+          content.classList.add('modal-exit');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            content.classList.remove('modal-exit');
+          }, 180);
+        } else {
+          modal.classList.add('hidden');
+        }
+      }
+
+      function togglePasswordVisibility(inputId, btnId, iconId) {
+        const input = document.getElementById(inputId);
+        const btn = document.getElementById(btnId);
+        const icon = document.getElementById(iconId);
+        if (!input) return;
+
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
+        if (btn) btn.setAttribute('aria-pressed', isPassword ? 'true' : 'false');
+        if (icon) {
+          icon.setAttribute('data-lucide', isPassword ? 'eye-off' : 'eye');
+          if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+        }
+      }
+
+      function checkAndUpdateLockoutUI() {
+        const emailInput = document.getElementById('loginEmailInput');
+        const email = emailInput ? emailInput.value : '';
+        const banner = document.getElementById('loginLockoutBanner');
+        const timer = document.getElementById('loginLockoutTimer');
+        const submitBtn = document.getElementById('loginSubmitBtn');
+
+        const lock = getLoginLockStatus(email);
+        if (lock.isLocked) {
+          if (banner) banner.classList.remove('hidden');
+          if (timer) timer.textContent = lock.remainingSeconds;
+          if (submitBtn) submitBtn.disabled = true;
+
+          if (!authLockoutInterval) {
+            authLockoutInterval = setInterval(() => {
+              const currentLock = getLoginLockStatus(email);
+              if (currentLock.isLocked) {
+                if (timer) timer.textContent = currentLock.remainingSeconds;
+              } else {
+                clearInterval(authLockoutInterval);
+                authLockoutInterval = null;
+                if (banner) banner.classList.add('hidden');
+                if (submitBtn) submitBtn.disabled = false;
+              }
+            }, 1000);
+          }
+        } else {
+          if (banner) banner.classList.add('hidden');
+          if (submitBtn) submitBtn.disabled = false;
+          if (authLockoutInterval) {
+            clearInterval(authLockoutInterval);
+            authLockoutInterval = null;
+          }
+        }
+      }
+
+      function openDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        const card = document.getElementById('deleteAccountModalCard');
+        const emailSpan = document.getElementById('deleteAccountEmailConfirmSpan');
+        const emailInput = document.getElementById('deleteAccountEmailInput');
+        const errorMsg = document.getElementById('deleteAccountErrorMsg');
+
+        const user = loadUsers().find(u => u.id === getCurrentUserId());
+        if (!user) return;
+
+        if (emailSpan) emailSpan.textContent = user.email;
+        if (emailInput) {
+          emailInput.value = '';
+          emailInput.classList.remove('field-shake');
+        }
+        if (errorMsg) errorMsg.classList.add('hidden');
+
+        if (modal) modal.classList.remove('hidden');
+        if (card) {
+          card.classList.remove('modal-exit');
+          card.classList.add('modal-enter');
+        }
+        if (emailInput) setTimeout(() => emailInput.focus(), 80);
+      }
+
+      function closeDeleteAccountModal() {
+        const modal = document.getElementById('deleteAccountModal');
+        const card = document.getElementById('deleteAccountModalCard');
+        if (!modal || modal.classList.contains('hidden')) return;
+
+        if (card && !prefersReducedMotion()) {
+          card.classList.remove('modal-enter');
+          card.classList.add('modal-exit');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            card.classList.remove('modal-exit');
+          }, 180);
+        } else {
+          modal.classList.add('hidden');
+        }
+      }
+
+      function exportUserData() {
+        const uid = getCurrentUserId();
+        const user = loadUsers().find(u => u.id === uid);
+        if (!user) {
+          showToast('No user account data to export.');
+          return;
+        }
+
+        const exportPayload = {
+          exportVersion: 1,
+          exportedAt: new Date().toISOString(),
+          environment: 'DueSync Local Browser Storage',
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            createdAt: user.createdAt
+          },
+          tasks: loadTasks(),
+          planner: loadPlanner()
+        };
+
+        const jsonStr = JSON.stringify(exportPayload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const cleanName = user.name.toLowerCase().replace(/[^a-z0-9]/g, '_');
+        a.download = `dueSync_export_${cleanName}_${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        showToast('Account data exported successfully.');
+        const dropdown = document.getElementById('userDropdownMenu');
+        if (dropdown) dropdown.classList.add('hidden');
+      }
+
+      async function performDeleteAccount() {
+        const uid = getCurrentUserId();
+        const user = loadUsers().find(u => u.id === uid);
+        const emailInput = document.getElementById('deleteAccountEmailInput');
+        const errorMsg = document.getElementById('deleteAccountErrorMsg');
+
+        if (!user || !emailInput) return;
+
+        const typedEmail = emailInput.value.trim().toLowerCase();
+        if (typedEmail !== user.email.toLowerCase()) {
+          emailInput.classList.remove('field-shake');
+          void emailInput.offsetWidth;
+          emailInput.classList.add('field-shake');
+          if (errorMsg) errorMsg.classList.remove('hidden');
+          return;
+        }
+
+        // Delete user's isolated tasks & planner data
+        try {
+          localStorage.removeItem(`dueSyncTasks:${uid}`);
+          localStorage.removeItem(`dueSyncPlanner:${uid}`);
+        } catch (e) {}
+
+        // Remove user from users list
+        const remainingUsers = loadUsers().filter(u => u.id !== uid);
+        saveUsers(remainingUsers);
+
+        clearSession();
+        closeDeleteAccountModal();
+        reloadForCurrentUser();
+        updateAuthUI();
+        showToast('Account and associated data deleted.');
+      }
+
+      /* -------------------------------------------------------------
+         One-Time Guest Tasks Import Controller
+         ------------------------------------------------------------- */
+      let pendingSignupUser = null;
+      let pendingGuestTasks = [];
+
+      function openImportPrompt(user, guestTasks) {
+        pendingSignupUser = user;
+        pendingGuestTasks = guestTasks;
+
+        const countSpan = document.getElementById('guestTaskCountSpan');
+        if (countSpan) {
+          countSpan.textContent = `${guestTasks.length} deadline${guestTasks.length === 1 ? '' : 's'}`;
+        }
+
+        const modal = document.getElementById('importGuestTasksModal');
+        const card = document.getElementById('importModalCard');
+        if (modal) modal.classList.remove('hidden');
+        if (card) {
+          card.classList.remove('modal-exit');
+          card.classList.add('modal-enter');
+        }
+        if (typeof lucide !== 'undefined' && lucide.createIcons) lucide.createIcons();
+      }
+
+      function closeImportPrompt() {
+        const modal = document.getElementById('importGuestTasksModal');
+        const card = document.getElementById('importModalCard');
+        if (!modal || modal.classList.contains('hidden')) return;
+
+        if (card && !prefersReducedMotion()) {
+          card.classList.remove('modal-enter');
+          card.classList.add('modal-exit');
+          setTimeout(() => {
+            modal.classList.add('hidden');
+            card.classList.remove('modal-exit');
+          }, 180);
+        } else {
+          modal.classList.add('hidden');
+        }
+      }
+
+      function handleImportTasksChoice(shouldImport) {
+        if (!pendingSignupUser) return;
+        const user = pendingSignupUser;
+        const guestTasksToCopy = [...pendingGuestTasks];
+
+        pendingSignupUser = null;
+        pendingGuestTasks = [];
+        closeImportPrompt();
+
+        if (shouldImport && guestTasksToCopy.length > 0) {
+          // Copy guest tasks cleanly into user's isolated store
+          // Note: Original guest 'dueSyncTasks' is preserved untouched!
+          const copiedTasks = guestTasksToCopy.map(t => ({
+            ...t,
+            id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6)
+          }));
+          try {
+            localStorage.setItem(`dueSyncTasks:${user.id}`, JSON.stringify(copiedTasks));
+          } catch (e) {}
+
+          saveSession({ userId: user.id, loggedInAt: new Date().toISOString() }, true);
+          reloadForCurrentUser();
+          updateAuthUI();
+          showToast(`Account created! ${copiedTasks.length} deadline${copiedTasks.length === 1 ? '' : 's'} imported.`);
+        } else {
+          // Start fresh: empty array
+          try {
+            localStorage.setItem(`dueSyncTasks:${user.id}`, JSON.stringify([]));
+          } catch (e) {}
+
+          saveSession({ userId: user.id, loggedInAt: new Date().toISOString() }, true);
+          reloadForCurrentUser();
+          updateAuthUI();
+          showToast(`Account created! Welcome, ${user.name}!`);
+        }
+      }
+
+      const WEIGHT = { light: 0.6, medium: 1.0, deep: 1.4 };
+      const LABEL = { light: "Light", medium: "Medium", deep: "Deep Work" };
+      const BANDS = {
+        OPTIMAL: { max: 3.5, label: "Optimal", color: "#2FC48D", bg: "#D3F6E6", text: "#14645B" },
+        FOCUS: { max: 7.0, label: "Focus", color: "#F59E0B", bg: "#FFE9BD", text: "#92400E" },
+        CRUNCH: { max: Infinity, label: "Crunch", color: "#F2546F", bg: "#FFDDE3", text: "#9F1239" }
+      };
+
       const URGENCY = {
         OVERDUE: 'Overdue',
         DUE_TODAY: 'Due Today',
@@ -1024,8 +2411,12 @@
       let currentSort = 'closest';
       let searchQuery = '';
       let selectedPriority = 'Medium';
+      let selectedWeight = 'medium';
       let deletePendingId = null;
       let modalFocusTrigger = null;
+      let plannerHasRenderedOnce = false;
+      let pinnedTooltipDayKey = null;
+      let plannerCorruptWarningShown = false;
 
       // Track previous values for smooth count-ups
       let prevMetrics = { active: 0, approaching: 0, urgent: 0, completed: 0, percent: 0 };
@@ -1101,16 +2492,23 @@
 
       function loadTasks() {
         try {
-          const raw = localStorage.getItem(STORAGE_KEY);
+          const key = getTasksKey();
+          const raw = localStorage.getItem(key);
           if (raw === null) {
-            const initial = getSeedTasks();
-            saveTasks(initial);
-            return initial;
+            // Seed tasks are strictly guest-mode-only on first run
+            if (isGuestMode()) {
+              const initial = getSeedTasks();
+              saveTasks(initial);
+              return initial;
+            } else {
+              // Account mode: a new user starts with a clean empty list
+              return [];
+            }
           }
           const parsed = JSON.parse(raw);
           return Array.isArray(parsed) ? parsed : [];
         } catch (e) {
-          console.warn('Storage read warning:', e);
+          console.warn('Storage read warning on tasks:', e);
           return [];
         }
       }
@@ -1118,9 +2516,841 @@
       function saveTasks(updatedList) {
         tasks = updatedList;
         try {
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+          localStorage.setItem(getTasksKey(), JSON.stringify(tasks));
         } catch (e) {
-          console.warn('Storage save warning:', e);
+          console.warn('Storage save warning on tasks:', e);
+        }
+        if (window.location.hash === '#planner') {
+          renderPlannerView();
+        }
+      }
+
+      /* -------------------------------------------------------------
+         Planner Date & Local Calendar Helpers
+         Strictly avoiding UTC timestamp midnight offsets (e.g. IST)
+         ------------------------------------------------------------- */
+      function toLocalDateKey(dateInput) {
+        if (!dateInput) return '';
+        const d = (dateInput instanceof Date) ? dateInput : new Date(dateInput);
+        if (isNaN(d.getTime())) return '';
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      function parseLocalDateKey(dateKeyStr) {
+        if (!dateKeyStr || typeof dateKeyStr !== 'string') return new Date();
+        const parts = dateKeyStr.split('-').map(Number);
+        return new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0);
+      }
+
+      function addDays(dateKeyStr, n) {
+        const d = parseLocalDateKey(dateKeyStr);
+        d.setDate(d.getDate() + n);
+        return toLocalDateKey(d);
+      }
+
+      function diffDays(aKey, bKey) {
+        const da = parseLocalDateKey(aKey);
+        const db = parseLocalDateKey(bKey);
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        return Math.round((db.getTime() - da.getTime()) / oneDayMs);
+      }
+
+      function getCurrentWeekKeys() {
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0 is Sunday, 1 is Monday...
+        const offsetToMonday = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+        const mondayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + offsetToMonday);
+        const mondayKey = toLocalDateKey(mondayDate);
+        const keys = [];
+        for (let i = 0; i < 7; i++) {
+          keys.push(addDays(mondayKey, i));
+        }
+        return keys;
+      }
+
+      /* -------------------------------------------------------------
+         Effective Task & Planner Storage Helpers
+         ------------------------------------------------------------- */
+      function getEffectiveTask(task) {
+        if (!task) return null;
+        const effort = (typeof task.estimatedEffort === 'number' && !isNaN(task.estimatedEffort) && task.estimatedEffort >= 0.5)
+          ? task.estimatedEffort
+          : 3;
+        const weight = (task.cognitiveWeight && WEIGHT[task.cognitiveWeight])
+          ? task.cognitiveWeight
+          : 'medium';
+        return {
+          ...task,
+          estimatedEffort: effort,
+          cognitiveWeight: weight
+        };
+      }
+
+      function loadPlanner() {
+        try {
+          const raw = localStorage.getItem(getPlannerKey());
+          if (!raw) {
+            return { version: 1, settings: { dailyTargetHours: 7 }, plans: {} };
+          }
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            if (!parsed.settings) parsed.settings = { dailyTargetHours: 7 };
+            if (!parsed.plans) parsed.plans = {};
+            return parsed;
+          }
+          throw new Error('Invalid planner payload');
+        } catch (e) {
+          console.warn('Storage read warning on dueSyncPlanner:', e);
+          if (!plannerCorruptWarningShown) {
+            plannerCorruptWarningShown = true;
+            showToast('Planner data was corrupt. Running with safe defaults in-memory.');
+          }
+          return { version: 1, settings: { dailyTargetHours: 7 }, plans: {} };
+        }
+      }
+
+      function savePlanner(plannerData) {
+        try {
+          localStorage.setItem(getPlannerKey(), JSON.stringify(plannerData));
+        } catch (e) {
+          console.warn('Storage save warning on dueSyncPlanner:', e);
+        }
+      }
+
+      /* -------------------------------------------------------------
+         Reload all app state for current user/guest
+         Resets search, filters, sort, modals, count-up cache, and re-renders
+         ------------------------------------------------------------- */
+      function reloadForCurrentUser() {
+        tasks = loadTasks();
+
+        searchQuery = '';
+        const searchInputEl = document.getElementById('searchInput');
+        if (searchInputEl) searchInputEl.value = '';
+        const clearSearchBtnEl = document.getElementById('clearSearchBtn');
+        if (clearSearchBtnEl) clearSearchBtnEl.classList.add('hidden');
+
+        currentFilter = 'all';
+        document.querySelectorAll('.filter-tab').forEach(t => {
+          const filterKey = t.getAttribute('data-filter');
+          if (filterKey === 'all') {
+            t.classList.add('active', 'font-extrabold', 'text-white');
+            t.classList.remove('text-[#6A6682]');
+          } else {
+            t.classList.remove('active', 'font-extrabold', 'text-white');
+            t.classList.add('text-[#6A6682]');
+          }
+        });
+        if (typeof updateFilterActivePill === 'function') {
+          updateFilterActivePill();
+        }
+
+        currentSort = 'closest';
+        const sortSelectEl = document.getElementById('sortSelect');
+        if (sortSelectEl) sortSelectEl.value = 'closest';
+
+        if (typeof closeModal === 'function') closeModal();
+        if (typeof closeDeleteModal === 'function') closeDeleteModal();
+
+        prevMetrics = { active: 0, approaching: 0, urgent: 0, completed: 0, percent: 0 };
+
+        renderDashboard(false);
+        if (window.location.hash === '#planner' && typeof renderPlannerView === 'function') {
+          renderPlannerView();
+        }
+        if (typeof updateAuthUI === 'function') {
+          updateAuthUI();
+        }
+      }
+
+      /* -------------------------------------------------------------
+         Workload Engine (Pure functions, no DOM access)
+         ------------------------------------------------------------- */
+      function getUrgencyFactor(daysUntilDue) {
+        if (daysUntilDue > 7) return 0.8;
+        if (daysUntilDue >= 4) return 1.0;
+        if (daysUntilDue >= 2) return 1.2;
+        if (daysUntilDue === 1) return 1.4;
+        return 1.6; // 0 or negative (due today or overdue)
+      }
+
+      function computeWorkloadSchedule(tasksList, plannerStore) {
+        const todayKey = toLocalDateKey(new Date());
+        const dailyTarget = (plannerStore && plannerStore.settings && plannerStore.settings.dailyTargetHours) || 7;
+        const activeTasks = tasksList.filter(t => !t.completed).map(getEffectiveTask);
+
+        // Sort tasks by earliest due date first
+        activeTasks.sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
+
+        const dailyAllocations = {};
+        const taskStatusMap = {};
+
+        activeTasks.forEach(task => {
+          const plan = plannerStore && plannerStore.plans && plannerStore.plans[task.id];
+          let completedEffort = 0;
+          if (plan && Array.isArray(plan.milestones)) {
+            completedEffort = plan.milestones.filter(m => m.done).reduce((acc, m) => acc + (Number(m.hours) || 0), 0);
+          }
+          const remainingEffort = Math.max(task.estimatedEffort - completedEffort, 0);
+          const weight = WEIGHT[task.cognitiveWeight] || 1.0;
+          const taskDueKey = toLocalDateKey(task.dueDate);
+          const daysRemaining = diffDays(todayKey, taskDueKey);
+          const isOverdue = daysRemaining < 0;
+
+          taskStatusMap[task.id] = {
+            infeasible: false,
+            shortfallHours: 0,
+            overdue: isOverdue,
+            remainingEffort,
+            cognitiveWeight: task.cognitiveWeight,
+            task
+          };
+
+          if (remainingEffort <= 0) return;
+
+          // Allowed window: today through dueDate (inclusive)
+          let windowDaysKeys = [];
+          if (isOverdue || daysRemaining === 0) {
+            windowDaysKeys = [todayKey];
+          } else {
+            for (let i = 0; i <= daysRemaining; i++) {
+              windowDaysKeys.push(addDays(todayKey, i));
+            }
+          }
+
+          const windowCapacity = windowDaysKeys.length * dailyTarget;
+          let placeableEffort = remainingEffort;
+          if (placeableEffort > windowCapacity) {
+            taskStatusMap[task.id].infeasible = true;
+            taskStatusMap[task.id].shortfallHours = Math.round((placeableEffort - windowCapacity) * 10) / 10;
+            placeableEffort = windowCapacity;
+          }
+
+          // Spread in 0.5h chunks, filling least-loaded day first
+          let chunksCount = Math.round(placeableEffort / 0.5);
+          while (chunksCount > 0) {
+            let bestDay = windowDaysKeys[0];
+            let minHours = Infinity;
+            for (const dayKey of windowDaysKeys) {
+              const curHours = (dailyAllocations[dayKey] || []).reduce((acc, s) => acc + s.hours, 0);
+              if (curHours < minHours) {
+                minHours = curHours;
+                bestDay = dayKey;
+              }
+            }
+
+            if (!dailyAllocations[bestDay]) dailyAllocations[bestDay] = [];
+            const urgencyF = getUrgencyFactor(diffDays(bestDay, taskDueKey));
+            const existingSession = dailyAllocations[bestDay].find(s => s.taskId === task.id);
+            if (existingSession) {
+              existingSession.hours = Math.round((existingSession.hours + 0.5) * 10) / 10;
+              existingSession.weightedHours = Math.round(existingSession.hours * weight * 10) / 10;
+              existingSession.stress = Math.round(existingSession.weightedHours * urgencyF * 10) / 10;
+            } else {
+              dailyAllocations[bestDay].push({
+                taskId: task.id,
+                taskTitle: task.title,
+                hours: 0.5,
+                weightedHours: Math.round(0.5 * weight * 10) / 10,
+                stress: Math.round(0.5 * weight * urgencyF * 10) / 10,
+                cognitiveWeight: task.cognitiveWeight,
+                dueDateKey: taskDueKey,
+                daysUntilDue: diffDays(bestDay, taskDueKey),
+                isOverdue
+              });
+            }
+            chunksCount--;
+          }
+        });
+
+        return { dailyAllocations, taskStatusMap, activeTasks };
+      }
+
+      function getDayMetrics(dayKey, dailyAllocations) {
+        const sessions = dailyAllocations[dayKey] || [];
+        const totalActualHours = sessions.reduce((acc, s) => acc + s.hours, 0);
+        const totalWeightedLoad = sessions.reduce((acc, s) => acc + s.weightedHours, 0);
+        const totalStress = sessions.reduce((acc, s) => acc + s.stress, 0);
+
+        let band = 'Optimal';
+        let bandMeta = BANDS.OPTIMAL;
+        if (totalWeightedLoad > 7.0) {
+          band = 'Crunch';
+          bandMeta = BANDS.CRUNCH;
+        } else if (totalWeightedLoad > 3.5) {
+          band = 'Focus';
+          bandMeta = BANDS.FOCUS;
+        }
+
+        return {
+          dayKey,
+          actualHours: Math.round(totalActualHours * 10) / 10,
+          weightedLoad: Math.round(totalWeightedLoad * 10) / 10,
+          stressScore: Math.round(totalStress * 10) / 10,
+          band,
+          bandMeta,
+          sessions
+        };
+      }
+
+      function computeWorkloadRisk(weekMetrics, taskStatusMap, activeTasks, todayKey) {
+        let riskScore = 0;
+        const reasons = [];
+
+        let crunchDaysCount = 0;
+        let focusDaysCount = 0;
+        let consecutiveCrunch = 0;
+        let maxConsecutiveCrunch = 0;
+
+        weekMetrics.forEach(m => {
+          if (m.band === 'Crunch') {
+            crunchDaysCount++;
+            consecutiveCrunch++;
+            if (consecutiveCrunch > maxConsecutiveCrunch) {
+              maxConsecutiveCrunch = consecutiveCrunch;
+            }
+          } else {
+            consecutiveCrunch = 0;
+          }
+          if (m.band === 'Focus') {
+            focusDaysCount++;
+          }
+        });
+
+        if (crunchDaysCount > 0) {
+          riskScore += crunchDaysCount * 2;
+          reasons.push(`${crunchDaysCount} Crunch day${crunchDaysCount > 1 ? 's' : ''}`);
+        }
+
+        if (focusDaysCount > 3) {
+          const extraFocus = focusDaysCount - 3;
+          riskScore += extraFocus * 1;
+          reasons.push(`${focusDaysCount} Focus days`);
+        }
+
+        if (maxConsecutiveCrunch >= 2) {
+          const extraConsecutive = maxConsecutiveCrunch - 1;
+          riskScore += extraConsecutive * 2;
+          reasons.push(`${maxConsecutiveCrunch} consecutive Crunch days`);
+        }
+
+        let overdueCount = 0;
+        let dueWithin24hCount = 0;
+        let infeasibleCount = 0;
+
+        activeTasks.forEach(task => {
+          const status = taskStatusMap[task.id] || {};
+          if (status.overdue) overdueCount++;
+          if (status.infeasible) infeasibleCount++;
+          const daysLeft = diffDays(todayKey, toLocalDateKey(task.dueDate));
+          if (daysLeft >= 0 && daysLeft <= 1 && (status.remainingEffort > 0)) {
+            dueWithin24hCount++;
+          }
+        });
+
+        if (overdueCount > 0) {
+          riskScore += overdueCount * 3;
+          reasons.push(`${overdueCount} overdue task${overdueCount > 1 ? 's' : ''}`);
+        }
+
+        if (dueWithin24hCount > 0) {
+          riskScore += dueWithin24hCount * 2;
+          reasons.push(`${dueWithin24hCount} deadline${dueWithin24hCount > 1 ? 's' : ''} in next 24h`);
+        }
+
+        if (infeasibleCount > 0) {
+          riskScore += infeasibleCount * 2;
+          reasons.push(`${infeasibleCount} task${infeasibleCount > 1 ? 's' : ''} exceeding capacity`);
+        }
+
+        let level = 'Low';
+        let badgeClass = 'text-[#2FC48D]';
+        let iconBg = 'bg-[#D3F6E6] text-[#2FC48D]';
+        let iconName = 'shield-check';
+
+        if (riskScore >= 6) {
+          level = 'High';
+          badgeClass = 'text-[#F2546F]';
+          iconBg = 'bg-[#FFDDE3] text-[#F2546F]';
+          iconName = 'alert-triangle';
+        } else if (riskScore >= 3) {
+          level = 'Moderate';
+          badgeClass = 'text-[#F59E0B]';
+          iconBg = 'bg-[#FFE9BD] text-[#F59E0B]';
+          iconName = 'zap';
+        }
+
+        const reasonText = reasons.length > 0
+          ? `${level}: ${reasons.join(', ')}.`
+          : 'Low: Balanced workload distribution with manageable deadlines.';
+
+        return { riskScore, level, badgeClass, iconBg, iconName, reasonText };
+      }
+
+      /* -------------------------------------------------------------
+         Monotone Cubic Hermite Spline (Fritsch-Carlson Algorithm)
+         Guarantees curve NEVER overshoots below 0 or above peak points
+         ------------------------------------------------------------- */
+      function getMonotoneCubicPath(points) {
+        const n = points.length;
+        if (n === 0) return '';
+        if (n === 1) return `M ${points[0].x} ${points[0].y}`;
+        if (n === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+
+        const dx = [];
+        const dy = [];
+        const m = [];
+        for (let i = 0; i < n - 1; i++) {
+          dx[i] = points[i + 1].x - points[i].x;
+          dy[i] = points[i + 1].y - points[i].y;
+          m[i] = dy[i] / dx[i];
+        }
+
+        const tangents = [m[0]];
+        for (let i = 1; i < n - 1; i++) {
+          if (m[i - 1] * m[i] <= 0) {
+            tangents.push(0);
+          } else {
+            tangents.push((m[i - 1] + m[i]) / 2);
+          }
+        }
+        tangents.push(m[n - 2]);
+
+        for (let i = 0; i < n - 1; i++) {
+          if (dy[i] === 0) {
+            tangents[i] = 0;
+            tangents[i + 1] = 0;
+          } else {
+            const alpha = tangents[i] / m[i];
+            const beta = tangents[i + 1] / m[i];
+            const hyp = Math.sqrt(alpha * alpha + beta * beta);
+            if (hyp > 3) {
+              const tau = 3 / hyp;
+              tangents[i] = tau * alpha * m[i];
+              tangents[i + 1] = tau * beta * m[i];
+            }
+          }
+        }
+
+        let d = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+        for (let i = 0; i < n - 1; i++) {
+          const cp1x = points[i].x + dx[i] / 3;
+          const cp1y = points[i].y + (tangents[i] * dx[i]) / 3;
+          const cp2x = points[i + 1].x - dx[i] / 3;
+          const cp2y = points[i + 1].y - (tangents[i + 1] * dx[i]) / 3;
+          d += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${points[i + 1].x.toFixed(1)} ${points[i + 1].y.toFixed(1)}`;
+        }
+        return d;
+      }
+
+      /* -------------------------------------------------------------
+         Planner View Renderer
+         ------------------------------------------------------------- */
+      function renderPlannerView() {
+        const plannerStore = loadPlanner();
+        const activeTasks = tasks.filter(t => !t.completed).map(getEffectiveTask);
+        const todayKey = toLocalDateKey(new Date());
+        const weekKeys = getCurrentWeekKeys();
+
+        // 1. Week Range Badge
+        const firstDate = parseLocalDateKey(weekKeys[0]);
+        const lastDate = parseLocalDateKey(weekKeys[6]);
+        const firstStr = firstDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+        const lastStr = lastDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        const weekBadge = document.getElementById('plannerWeekRangeBadge');
+        if (weekBadge) {
+          weekBadge.textContent = `${firstStr} – ${lastStr}`;
+        }
+
+        // 2. Compute Workload Schedule
+        const { dailyAllocations, taskStatusMap } = computeWorkloadSchedule(tasks, plannerStore);
+        const weekMetrics = weekKeys.map(k => getDayMetrics(k, dailyAllocations));
+
+        // 3. Tile 1: Total Remaining Workload
+        const totalRemainingHours = activeTasks.reduce((acc, t) => {
+          const status = taskStatusMap[t.id];
+          return acc + (status ? status.remainingEffort : t.estimatedEffort);
+        }, 0);
+
+        let lightHours = 0;
+        let medHours = 0;
+        let deepHours = 0;
+        activeTasks.forEach(t => {
+          const status = taskStatusMap[t.id];
+          const rem = status ? status.remainingEffort : t.estimatedEffort;
+          if (t.cognitiveWeight === 'light') lightHours += rem;
+          else if (t.cognitiveWeight === 'deep') deepHours += rem;
+          else medHours += rem;
+        });
+
+        const totalHoursEl = document.getElementById('plannerTotalHours');
+        const activeCountEl = document.getElementById('plannerActiveCount');
+        const tierBreakdownEl = document.getElementById('plannerTierBreakdown');
+        if (totalHoursEl) totalHoursEl.textContent = `${Math.round(totalRemainingHours * 10) / 10}h`;
+        if (activeCountEl) activeCountEl.textContent = `across ${activeTasks.length} active task${activeTasks.length === 1 ? '' : 's'}`;
+        if (tierBreakdownEl) {
+          tierBreakdownEl.innerHTML = `<span>Light: ${Math.round(lightHours * 10) / 10}h</span> · <span>Med: ${Math.round(medHours * 10) / 10}h</span> · <span>Deep: ${Math.round(deepHours * 10) / 10}h</span>`;
+        }
+
+        // 4. Tile 2: Peak Workload Day
+        let peakDay = weekMetrics[0];
+        weekMetrics.forEach(m => {
+          if (m.weightedLoad > peakDay.weightedLoad) {
+            peakDay = m;
+          }
+        });
+
+        const peakDayNameEl = document.getElementById('plannerPeakDayName');
+        const peakDayStatsEl = document.getElementById('plannerPeakDayStats');
+        if (peakDayNameEl && peakDayStatsEl) {
+          if (peakDay.weightedLoad === 0) {
+            peakDayNameEl.textContent = 'None';
+            peakDayStatsEl.innerHTML = `<span>0 sched hrs</span> · <span id="plannerPeakBandBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#D3F6E6] text-[#14645B]">Optimal</span>`;
+          } else {
+            const peakD = parseLocalDateKey(peakDay.dayKey);
+            const peakWeekday = peakD.toLocaleDateString(undefined, { weekday: 'long' });
+            peakDayNameEl.textContent = peakWeekday;
+            peakDayStatsEl.innerHTML = `<span>${peakDay.actualHours}h sched (${peakDay.weightedLoad}w)</span> · <span id="plannerPeakBandBadge" class="px-2 py-0.5 rounded-full text-[10px] font-bold" style="background-color: ${peakDay.bandMeta.bg}; color: ${peakDay.bandMeta.text}">${peakDay.band}</span>`;
+          }
+        }
+
+        // 5. Tile 3: Workload Risk Score
+        const risk = computeWorkloadRisk(weekMetrics, taskStatusMap, activeTasks, todayKey);
+        const riskScoreBadge = document.getElementById('plannerRiskScoreBadge');
+        const riskIconWrap = document.getElementById('plannerRiskIconWrap');
+        const riskReason = document.getElementById('plannerRiskReason');
+        if (riskScoreBadge) {
+          riskScoreBadge.textContent = risk.level;
+          riskScoreBadge.className = `text-2xl sm:text-3xl font-extrabold ${risk.badgeClass}`;
+        }
+        if (riskIconWrap) {
+          riskIconWrap.className = `w-9 h-9 rounded-full ${risk.iconBg} flex items-center justify-center`;
+          riskIconWrap.innerHTML = `<i data-lucide="${risk.iconName}" class="w-4 h-4"></i>`;
+        }
+        if (riskReason) {
+          riskReason.textContent = risk.reasonText;
+        }
+
+        // 6. SVG 7-Day Monotone Workload Curve
+        const svgChart = document.getElementById('plannerSvgChart');
+        const linePath = document.getElementById('plannerLinePath');
+        const areaPath = document.getElementById('plannerAreaPath');
+        const nodesGroup = document.getElementById('plannerNodesGroup');
+        const thresholdGroup = document.getElementById('plannerThresholdLines');
+        const axisLabels = document.getElementById('plannerAxisLabels');
+        const srTableBody = document.getElementById('plannerSrTableBody');
+
+        const peakLoadVal = Math.max(...weekMetrics.map(m => m.weightedLoad), 0);
+        const maxY = Math.max(10, Math.ceil(peakLoadVal * 1.25));
+        const chartHeight = 135;
+        const baselineY = 155;
+
+        // Threshold Reference Lines at 3.5w and 7.0w
+        const yFocus = baselineY - (3.5 / maxY) * chartHeight;
+        const yCrunch = baselineY - (7.0 / maxY) * chartHeight;
+
+        if (thresholdGroup) {
+          thresholdGroup.innerHTML = `
+            <line x1="30" y1="${yFocus.toFixed(1)}" x2="670" y2="${yFocus.toFixed(1)}" stroke="#F59E0B" stroke-dasharray="4,4" stroke-opacity="0.4" stroke-width="1.5" />
+            <text x="670" y="${(yFocus - 4).toFixed(1)}" text-anchor="end" fill="#92400E" font-size="10" font-weight="700">Focus (3.5w)</text>
+            <line x1="30" y1="${yCrunch.toFixed(1)}" x2="670" y2="${yCrunch.toFixed(1)}" stroke="#F2546F" stroke-dasharray="4,4" stroke-opacity="0.4" stroke-width="1.5" />
+            <text x="670" y="${(yCrunch - 4).toFixed(1)}" text-anchor="end" fill="#9F1239" font-size="10" font-weight="700">Crunch (7.0w)</text>
+          `;
+        }
+
+        // Compute 7 coordinates: x across 50 to 650
+        const points = weekMetrics.map((m, idx) => {
+          const x = 50 + idx * 100;
+          const y = baselineY - (m.weightedLoad / maxY) * chartHeight;
+          return { x, y, metric: m };
+        });
+
+        const curvePathD = getMonotoneCubicPath(points);
+        if (linePath) {
+          linePath.setAttribute('d', curvePathD);
+          if (!plannerHasRenderedOnce && !prefersReducedMotion()) {
+            const totalLength = (typeof linePath.getTotalLength === 'function' ? linePath.getTotalLength() : 700) || 700;
+            linePath.style.strokeDasharray = totalLength;
+            linePath.style.strokeDashoffset = totalLength;
+            linePath.style.transition = 'stroke-dashoffset 900ms cubic-bezier(0.16, 1, 0.3, 1)';
+            requestAnimationFrame(() => {
+              linePath.style.strokeDashoffset = '0';
+            });
+          }
+        }
+
+        if (areaPath) {
+          const areaD = `${curvePathD} L ${points[points.length - 1].x.toFixed(1)} ${baselineY} L ${points[0].x.toFixed(1)} ${baselineY} Z`;
+          areaPath.setAttribute('d', areaD);
+        }
+
+        // Render nodes and interactive focusable buttons
+        if (nodesGroup) {
+          nodesGroup.innerHTML = '';
+          points.forEach((pt, idx) => {
+            const m = pt.metric;
+            const isToday = m.dayKey === todayKey;
+            const isCrunch = m.band === 'Crunch';
+            const nodeG = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+            nodeG.setAttribute('tabindex', '0');
+            nodeG.setAttribute('role', 'button');
+            nodeG.setAttribute('class', 'chart-node cursor-pointer focus:outline-none');
+
+            const dObj = parseLocalDateKey(m.dayKey);
+            const wName = dObj.toLocaleDateString(undefined, { weekday: 'short' });
+            const dName = dObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            nodeG.setAttribute('aria-label', `${wName}, ${dName}: ${m.actualHours}h scheduled, ${m.weightedLoad}w load (${m.band}), stress score ${m.stressScore}`);
+
+            let shapeMarkup = '';
+            if (isCrunch) {
+              shapeMarkup = `
+                <circle cx="${pt.x}" cy="${pt.y}" r="12" fill="${m.bandMeta.color}" fill-opacity="0.25" class="animate-pulse" />
+                <rect x="${pt.x - 6}" y="${pt.y - 6}" width="12" height="12" transform="rotate(45 ${pt.x} ${pt.y})" fill="${m.bandMeta.color}" stroke="#FFFFFF" stroke-width="2.5" />
+              `;
+            } else {
+              shapeMarkup = `
+                <circle cx="${pt.x}" cy="${pt.y}" r="${isToday ? '8' : '6.5'}" fill="${m.bandMeta.color}" stroke="#FFFFFF" stroke-width="2.5" />
+                ${isToday ? `<circle cx="${pt.x}" cy="${pt.y}" r="12" fill="none" stroke="${m.bandMeta.color}" stroke-width="1.5" stroke-opacity="0.5" />` : ''}
+              `;
+            }
+            nodeG.innerHTML = shapeMarkup;
+
+            // Bind tooltip & mobile card events
+            const showDetails = () => updatePlannerTooltip(pt, m);
+            nodeG.addEventListener('mouseenter', showDetails);
+            nodeG.addEventListener('focus', showDetails);
+            nodeG.addEventListener('click', () => {
+              pinnedTooltipDayKey = (pinnedTooltipDayKey === m.dayKey) ? null : m.dayKey;
+              updatePlannerTooltip(pt, m, true);
+            });
+            nodeG.addEventListener('mouseleave', () => {
+              if (pinnedTooltipDayKey !== m.dayKey) hidePlannerTooltip();
+            });
+            nodeG.addEventListener('blur', () => {
+              if (pinnedTooltipDayKey !== m.dayKey) hidePlannerTooltip();
+            });
+
+            nodesGroup.appendChild(nodeG);
+          });
+        }
+
+        // Render Weekday Axis Labels
+        if (axisLabels) {
+          axisLabels.innerHTML = weekMetrics.map((m) => {
+            const isToday = m.dayKey === todayKey;
+            const dObj = parseLocalDateKey(m.dayKey);
+            const wName = dObj.toLocaleDateString(undefined, { weekday: 'short' });
+            const dNum = dObj.getDate();
+            return `
+              <div class="flex flex-col items-center py-1">
+                <span class="${isToday ? 'text-[#7C6CF2] font-black' : 'text-[#6A6682]'}">${wName}</span>
+                <span class="text-xs sm:text-sm font-extrabold ${isToday ? 'bg-[#7C6CF2] text-white px-2 py-0.5 rounded-full shadow-xs' : 'text-[#1E1B2E]'}">${dNum}</span>
+                ${isToday ? '<span class="text-[9px] font-black text-[#7C6CF2] uppercase tracking-wider mt-0.5">Today</span>' : ''}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Render Screen Reader Table
+        if (srTableBody) {
+          srTableBody.innerHTML = weekMetrics.map((m) => {
+            const dObj = parseLocalDateKey(m.dayKey);
+            const fullDate = dObj.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+            return `
+              <tr>
+                <td>${fullDate}</td>
+                <td>${m.actualHours} hrs</td>
+                <td>${m.weightedLoad}w</td>
+                <td>${m.stressScore}</td>
+                <td>${m.band}</td>
+              </tr>
+            `;
+          }).join('');
+        }
+
+        // Render Daily Scheduled Workload Breakdown List
+        const dailyListEl = document.getElementById('plannerDailyList');
+        if (dailyListEl) {
+          dailyListEl.innerHTML = weekMetrics.map((m) => {
+            const isToday = m.dayKey === todayKey;
+            const dObj = parseLocalDateKey(m.dayKey);
+            const wName = dObj.toLocaleDateString(undefined, { weekday: 'long' });
+            const fullDate = dObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+            const hasSessions = m.sessions && m.sessions.length > 0;
+
+            return `
+              <div class="p-4 rounded-[20px] border border-[#ECE8F4] bg-[#F9F8FD] hover:bg-white hover:shadow-soft transition-all space-y-3">
+                <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[#ECE8F4] pb-2.5">
+                  <div class="flex items-center space-x-2">
+                    <span class="font-extrabold text-[#1E1B2E] text-sm">${wName}, ${fullDate}</span>
+                    ${isToday ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#7C6CF2] text-white">Today</span>' : ''}
+                  </div>
+                  <div class="flex items-center space-x-2 text-xs font-bold">
+                    <span class="text-[#6A6682]">${m.actualHours}h sched (${m.weightedLoad}w)</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold" style="background-color: ${m.bandMeta.bg}; color: ${m.bandMeta.text}">${m.band}</span>
+                  </div>
+                </div>
+
+                ${hasSessions ? `
+                  <div class="space-y-2">
+                    ${m.sessions.map(s => {
+                      const tierLabel = LABEL[s.cognitiveWeight] || 'Medium';
+                      return `
+                        <div class="flex items-center justify-between bg-white p-2.5 rounded-[14px] border border-[#ECE8F4] text-xs">
+                          <div class="flex items-center space-x-2 min-w-0">
+                            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: ${m.bandMeta.color}"></span>
+                            <span class="font-bold text-[#1E1B2E] truncate">${escapeHtml(s.taskTitle)}</span>
+                            ${s.isOverdue ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-[#FFDDE3] text-[#9F1239] font-black uppercase">Overdue</span>' : ''}
+                          </div>
+                          <div class="flex items-center space-x-2 shrink-0 ml-2">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E5E0FF] text-[#5B4CC4]">${tierLabel}</span>
+                            <span class="font-extrabold text-[#1E1B2E]">${s.hours}h</span>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                ` : `
+                  <div class="text-xs text-[#6A6682] italic py-1">No study sessions scheduled for this day.</div>
+                `}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Set default mobile card to today or first day
+        const todayMetric = weekMetrics.find(m => m.dayKey === todayKey) || weekMetrics[0];
+        updateSelectedDayCard(todayMetric);
+
+        plannerHasRenderedOnce = true;
+        if (window.lucide) lucide.createIcons();
+      }
+
+      /* Tooltip and Mobile Day Detail Card helpers */
+      function updatePlannerTooltip(pt, metric, isClick = false) {
+        const tooltip = document.getElementById('plannerFloatingTooltip');
+        const container = document.getElementById('plannerChartContainer');
+        if (!tooltip || !container) return;
+
+        const dObj = parseLocalDateKey(metric.dayKey);
+        const wTitle = dObj.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+
+        const titleEl = document.getElementById('pttDayTitle');
+        const badgeEl = document.getElementById('pttBandBadge');
+        const schedEl = document.getElementById('pttSchedHours');
+        const weightEl = document.getElementById('pttWeightLoad');
+        const stressEl = document.getElementById('pttStressScore');
+        const listEl = document.getElementById('pttTasksList');
+
+        if (titleEl) titleEl.textContent = wTitle;
+        if (badgeEl) {
+          badgeEl.textContent = metric.band;
+          badgeEl.style.backgroundColor = metric.bandMeta.color;
+        }
+        if (schedEl) schedEl.textContent = `${metric.actualHours}h`;
+        if (weightEl) weightEl.textContent = `${metric.weightedLoad}w`;
+        if (stressEl) stressEl.textContent = `${metric.stressScore}`;
+
+        if (listEl) {
+          if (metric.sessions && metric.sessions.length > 0) {
+            listEl.innerHTML = metric.sessions.map(s => `
+              <div class="flex items-center justify-between gap-2 border-b border-white/5 pb-0.5">
+                <span class="truncate font-semibold">${escapeHtml(s.taskTitle)}</span>
+                <span class="shrink-0 font-bold">${s.hours}h (${s.daysUntilDue < 0 ? 'overdue' : s.daysUntilDue + 'd left'})</span>
+              </div>
+            `).join('');
+          } else {
+            listEl.innerHTML = '<div class="italic text-white/60">No sessions scheduled</div>';
+          }
+        }
+
+        const contRect = container.getBoundingClientRect();
+        const xPercent = pt.x / 700;
+        const leftPx = xPercent * contRect.width;
+        tooltip.style.left = `${leftPx}px`;
+        tooltip.style.top = `${Math.max(10, pt.y * (contRect.height / 180) - 75)}px`;
+        tooltip.classList.remove('opacity-0', 'pointer-events-none');
+        tooltip.classList.add('opacity-100');
+
+        updateSelectedDayCard(metric);
+      }
+
+      function hidePlannerTooltip() {
+        const tooltip = document.getElementById('plannerFloatingTooltip');
+        if (!tooltip) return;
+        tooltip.classList.remove('opacity-100');
+        tooltip.classList.add('opacity-0', 'pointer-events-none');
+      }
+
+      function updateSelectedDayCard(metric) {
+        const card = document.getElementById('plannerSelectedDayCard');
+        if (!card || !metric) return;
+        const dObj = parseLocalDateKey(metric.dayKey);
+        const wTitle = dObj.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+
+        const dateEl = document.getElementById('psdDate');
+        const bandEl = document.getElementById('psdBand');
+        const statsEl = document.getElementById('psdStats');
+        const tasksEl = document.getElementById('psdTasks');
+
+        if (dateEl) dateEl.textContent = wTitle;
+        if (bandEl) {
+          bandEl.textContent = metric.band;
+          bandEl.style.backgroundColor = metric.bandMeta.bg;
+          bandEl.style.color = metric.bandMeta.text;
+        }
+        if (statsEl) {
+          statsEl.textContent = `${metric.actualHours}h scheduled · ${metric.weightedLoad}w weighted load · Stress: ${metric.stressScore}`;
+        }
+        if (tasksEl) {
+          if (metric.sessions && metric.sessions.length > 0) {
+            tasksEl.innerHTML = metric.sessions.map(s => `
+              <div class="flex items-center justify-between text-[11px] p-2 bg-white rounded-[12px] border border-[#ECE8F4]">
+                <span class="font-bold text-[#1E1B2E] truncate">${escapeHtml(s.taskTitle)}</span>
+                <span class="text-[#6A6682] font-semibold shrink-0 ml-2">${s.hours}h · ${s.daysUntilDue < 0 ? 'Overdue' : s.daysUntilDue + 'd left'}</span>
+              </div>
+            `).join('');
+          } else {
+            tasksEl.innerHTML = '<div class="text-[11px] text-[#6A6682] italic">No study sessions scheduled for this day.</div>';
+          }
+        }
+      }
+
+      /* -------------------------------------------------------------
+         Hash Navigation & View Switching (#planner vs default dashboard)
+         ------------------------------------------------------------- */
+      function navigateView() {
+        const isPlanner = window.location.hash === '#planner';
+        const dashboardView = document.getElementById('dashboardView');
+        const plannerView = document.getElementById('plannerView');
+        const mobileNavPlanner = document.getElementById('mobileNavPlanner');
+
+        if (isPlanner) {
+          if (dashboardView) dashboardView.classList.add('hidden');
+          if (plannerView) {
+            plannerView.classList.remove('hidden');
+            if (!prefersReducedMotion()) {
+              plannerView.classList.remove('opacity-0', 'translate-y-2');
+            }
+          }
+          if (mobileNavPlanner) {
+            mobileNavPlanner.classList.add('text-[#7C6CF2]', 'font-bold');
+            mobileNavPlanner.classList.remove('text-[#6A6682]');
+          }
+          window.scrollTo({ top: 0, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+          tasks = loadTasks();
+          renderPlannerView();
+        } else {
+          if (plannerView) plannerView.classList.add('hidden');
+          if (dashboardView) dashboardView.classList.remove('hidden');
+          if (mobileNavPlanner) {
+            mobileNavPlanner.classList.remove('text-[#7C6CF2]', 'font-bold');
+            mobileNavPlanner.classList.add('text-[#6A6682]');
+          }
+          renderDashboard(false);
         }
       }
 
@@ -1475,9 +3705,13 @@
         const dArea = `${dLine} L ${points[points.length - 1].x} ${height + 15} L ${points[0].x} ${height + 15} Z`;
         areaPath.setAttribute('d', dArea);
 
+        const floatingTip = document.getElementById('chartFloatingTooltip');
+        const floatingTipText = document.getElementById('chartFloatingTooltipText');
+
         nodesGroup.innerHTML = points.map((p, idx) => {
           const isToday = idx === 0;
           const dayName = isToday ? 'Today' : p.day.toLocaleDateString(undefined, { weekday: 'short' });
+          const popDelay = !window.__chartLineAnimated && !prefersReducedMotion() ? idx * 60 : 0;
           return `
             <circle
               cx="${p.x}"
@@ -1491,7 +3725,10 @@
               aria-label="${dayName}: ${p.val} deadlines"
               data-day="${dayName}"
               data-count="${p.val}"
-              class="chart-node cursor-pointer transition hover:scale-150 focus:outline-none ${isToday ? 'chart-node-today' : ''}"
+              data-x="${p.x}"
+              data-y="${p.y}"
+              style="${popDelay ? `animation-delay: ${popDelay}ms;` : ''}"
+              class="chart-node chart-node-appear cursor-pointer transition hover:scale-150 focus:outline-none ${isToday ? 'chart-node-today' : ''}"
             />
           `;
         }).join('');
@@ -1500,9 +3737,20 @@
           const updateTip = () => {
             const day = node.getAttribute('data-day');
             const cnt = node.getAttribute('data-count');
-            tooltipBubble.textContent = `${cnt} deadline${cnt == 1 ? '' : 's'} on ${day}`;
+            const x = parseFloat(node.getAttribute('data-x'));
+            const y = parseFloat(node.getAttribute('data-y'));
+            const textStr = `${cnt} deadline${cnt == 1 ? '' : 's'} on ${day}`;
+
+            tooltipBubble.textContent = textStr;
             tooltipBubble.classList.remove('bg-[#1E1B2E]');
             tooltipBubble.classList.add('bg-[#F2546F]');
+
+            if (floatingTip && floatingTipText) {
+              floatingTipText.textContent = textStr;
+              floatingTip.style.left = `${(x / 700) * 100}%`;
+              floatingTip.style.top = `${y - 14}px`;
+              floatingTip.style.opacity = '1';
+            }
           };
           node.addEventListener('mouseenter', updateTip);
           node.addEventListener('focus', updateTip);
@@ -1510,6 +3758,9 @@
             tooltipBubble.textContent = 'Hover to inspect';
             tooltipBubble.classList.add('bg-[#1E1B2E]');
             tooltipBubble.classList.remove('bg-[#F2546F]');
+            if (floatingTip) {
+              floatingTip.style.opacity = '0';
+            }
           });
         });
       }
@@ -1567,7 +3818,15 @@
           const filterKey = tab.getAttribute('data-filter');
           const countSpan = tab.querySelector('.filter-count');
           if (countSpan && counts[filterKey] !== undefined) {
-            countSpan.textContent = `(${counts[filterKey]})`;
+            const newText = `(${counts[filterKey]})`;
+            if (countSpan.textContent !== newText) {
+              countSpan.textContent = newText;
+              if (!prefersReducedMotion() && initialLoadDone) {
+                countSpan.classList.remove('count-pop');
+                void countSpan.offsetWidth;
+                countSpan.classList.add('count-pop');
+              }
+            }
           }
         });
       }
@@ -1699,8 +3958,10 @@
           const staggerDelay = !initialLoadDone ? Math.min(280 + index * 40, 680) : 0;
           const entranceClass = !initialLoadDone ? 'entrance-item' : '';
 
+          const addGlowClass = (window.__lastAddedTaskId === t.id) ? 'card-add-glow' : '';
+
           return `
-            <article class="bg-white rounded-[24px] p-4 sm:p-5 border ${urgency.cardBorder} shadow-soft hover:shadow-hover hover:-translate-y-[3px] transition-all duration-200 flex flex-col justify-between space-y-3.5 relative ${isDone ? 'opacity-85 bg-[#EEF0F6]/80' : ''} ${entranceClass}"
+            <article class="task-card bg-white rounded-[24px] p-4 sm:p-5 border ${urgency.cardBorder} shadow-soft hover:shadow-hover hover:-translate-y-[3px] transition-all duration-200 flex flex-col justify-between space-y-3.5 relative ${isDone ? 'opacity-85 bg-[#EEF0F6]/80' : ''} ${entranceClass} ${addGlowClass}"
               style="border-left: 6px solid ${urgency.accentColor}; ${staggerDelay ? `animation-delay: ${staggerDelay}ms;` : ''}"
               data-id="${t.id}">
               <div class="flex items-start justify-between gap-3">
@@ -1907,6 +4168,29 @@
         });
       }
 
+      function setWeightPillState(wVal) {
+        selectedWeight = (wVal && WEIGHT[wVal]) ? wVal : 'medium';
+        document.querySelectorAll('.weight-pill').forEach(b => {
+          const val = b.getAttribute('data-weight-val');
+          if (val === selectedWeight) {
+            b.classList.add('active', 'border-[#7C6CF2]', 'bg-[#E5E0FF]', 'text-[#5B4CC4]');
+            b.classList.remove('border-[#ECE8F4]', 'bg-white', 'text-[#6A6682]');
+            b.setAttribute('aria-checked', 'true');
+          } else {
+            b.classList.remove('active', 'border-[#7C6CF2]', 'bg-[#E5E0FF]', 'text-[#5B4CC4]');
+            b.classList.add('border-[#ECE8F4]', 'bg-white', 'text-[#6A6682]');
+            b.setAttribute('aria-checked', 'false');
+          }
+        });
+      }
+
+      document.querySelectorAll('.weight-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-weight-val');
+          setWeightPillState(val);
+        });
+      });
+
       function openModal(editingTask = null, triggerEl = null) {
         modalFocusTrigger = triggerEl;
         taskForm.reset();
@@ -1914,6 +4198,13 @@
         dueDateError.classList.add('hidden');
         titleInput.classList.remove('field-shake');
         dueDateInput.classList.remove('field-shake');
+
+        const effortInput = document.getElementById('taskEffortInput');
+        const effortError = document.getElementById('effortError');
+        if (effortError) effortError.classList.add('hidden');
+        if (effortInput) {
+          effortInput.classList.remove('field-shake');
+        }
 
         if (editingTask) {
           modalTitle.textContent = 'Update Deadline';
@@ -1923,6 +4214,10 @@
           subjectInput.value = editingTask.subject || '';
           typeSelect.value = editingTask.type || 'Assignment';
           setPriorityPillState(editingTask.priority || 'Medium');
+
+          const eff = getEffectiveTask(editingTask);
+          if (effortInput) effortInput.value = eff.estimatedEffort;
+          setWeightPillState(eff.cognitiveWeight);
 
           if (editingTask.dueDate) {
             const dt = new Date(editingTask.dueDate);
@@ -1940,6 +4235,8 @@
           submitBtnText.textContent = 'Add Deadline';
           document.getElementById('taskIdInput').value = '';
           setPriorityPillState('Medium');
+          if (effortInput) effortInput.value = 3;
+          setWeightPillState('medium');
 
           const tmrw = new Date();
           tmrw.setDate(tmrw.getDate() + 1);
@@ -1956,8 +4253,23 @@
       }
 
       function closeModal() {
-        modal.classList.add('hidden');
-        if (modalFocusTrigger) modalFocusTrigger.focus();
+        const content = document.getElementById('modalContentCard');
+        const backdrop = document.getElementById('modalBackdrop');
+        if (prefersReducedMotion() || !content) {
+          modal.classList.add('hidden');
+          if (modalFocusTrigger) modalFocusTrigger.focus();
+          return;
+        }
+        content.classList.remove('modal-enter');
+        content.classList.add('modal-exit');
+        if (backdrop) backdrop.classList.add('opacity-0');
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          content.classList.remove('modal-exit');
+          content.classList.add('modal-enter');
+          if (backdrop) backdrop.classList.remove('opacity-0');
+          if (modalFocusTrigger) modalFocusTrigger.focus();
+        }, 180);
       }
 
       notesInput.addEventListener('input', () => {
@@ -1968,12 +4280,15 @@
         e.preventDefault();
         const cleanTitle = titleInput.value.trim();
         const rawDueDate = dueDateInput.value;
+        const effortInput = document.getElementById('taskEffortInput');
+        const effortError = document.getElementById('effortError');
+        const rawEffort = effortInput ? parseFloat(effortInput.value) : 3;
 
         let hasError = false;
         if (!cleanTitle) {
           titleError.classList.remove('hidden');
           titleInput.classList.remove('field-shake');
-          void titleInput.offsetWidth; // trigger reflow
+          void titleInput.offsetWidth;
           titleInput.classList.add('field-shake');
           hasError = true;
         } else {
@@ -1990,6 +4305,18 @@
           dueDateError.classList.add('hidden');
         }
 
+        if (isNaN(rawEffort) || rawEffort < 0.5 || rawEffort > 50) {
+          if (effortError) effortError.classList.remove('hidden');
+          if (effortInput) {
+            effortInput.classList.remove('field-shake');
+            void effortInput.offsetWidth;
+            effortInput.classList.add('field-shake');
+          }
+          hasError = true;
+        } else if (effortError) {
+          effortError.classList.add('hidden');
+        }
+
         if (hasError) return;
 
         const editId = document.getElementById('taskIdInput').value;
@@ -2004,6 +4331,8 @@
               subject: subjectInput.value.trim(),
               type: typeSelect.value,
               priority: selectedPriority,
+              estimatedEffort: rawEffort,
+              cognitiveWeight: selectedWeight,
               dueDate: new Date(rawDueDate).toISOString(),
               notes: notesInput.value.trim(),
               updatedAt: nowIso
@@ -2012,12 +4341,16 @@
             showToast('Changes saved');
           }
         } else {
+          const newId = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+          window.__lastAddedTaskId = newId;
           const newTask = {
-            id: (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+            id: newId,
             title: cleanTitle,
             subject: subjectInput.value.trim(),
             type: typeSelect.value,
             priority: selectedPriority,
+            estimatedEffort: rawEffort,
+            cognitiveWeight: selectedWeight,
             dueDate: new Date(rawDueDate).toISOString(),
             notes: notesInput.value.trim(),
             completed: false,
@@ -2031,6 +4364,9 @@
 
         closeModal();
         renderDashboard(true);
+        if (window.location.hash === '#planner') {
+          renderPlannerView();
+        }
       });
 
       document.getElementById('openAddModalBtn').addEventListener('click', (e) => openModal(null, e.currentTarget));
@@ -2052,7 +4388,21 @@
 
       function closeDeleteModal() {
         deletePendingId = null;
-        deleteConfirmModal.classList.add('hidden');
+        const dialogCard = deleteConfirmModal.querySelector('.modal-enter, .modal-exit') || deleteConfirmModal.querySelector('.bg-white');
+        const backdrop = document.getElementById('deleteModalBackdrop');
+        if (prefersReducedMotion() || !dialogCard) {
+          deleteConfirmModal.classList.add('hidden');
+          return;
+        }
+        dialogCard.classList.remove('modal-enter');
+        dialogCard.classList.add('modal-exit');
+        if (backdrop) backdrop.classList.add('opacity-0');
+        setTimeout(() => {
+          deleteConfirmModal.classList.add('hidden');
+          dialogCard.classList.remove('modal-exit');
+          dialogCard.classList.add('modal-enter');
+          if (backdrop) backdrop.classList.remove('opacity-0');
+        }, 180);
       }
 
       document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
@@ -2106,17 +4456,36 @@
         if (action === 'toggle') {
           const task = tasks.find(t => t.id === taskId);
           if (task) {
-            task.completed = !task.completed;
-            task.updatedAt = new Date().toISOString();
-            saveTasks(tasks);
+            if (!task.completed) {
+              // Completing: mint flash, check stroke, strikethrough sweep, confetti
+              if (!prefersReducedMotion()) {
+                article.classList.add('card-complete-flash');
+                const heading = article.querySelector('h3');
+                if (heading) heading.classList.add('strikethrough-sweep-anim');
+                const rect = actionBtn.getBoundingClientRect();
+                burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              }
 
-            if (task.completed) {
-              const rect = actionBtn.getBoundingClientRect();
-              burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              setTimeout(() => {
+                task.completed = true;
+                task.updatedAt = new Date().toISOString();
+                saveTasks(tasks);
+                showToast('Task marked complete');
+                renderDashboard(true);
+              }, prefersReducedMotion() ? 0 : 320);
+            } else {
+              // Restoring: gentle spring bounce
+              if (!prefersReducedMotion()) {
+                article.classList.add('card-restore-bounce');
+              }
+              setTimeout(() => {
+                task.completed = false;
+                task.updatedAt = new Date().toISOString();
+                saveTasks(tasks);
+                showToast('Task restored');
+                renderDashboard(true);
+              }, prefersReducedMotion() ? 0 : 200);
             }
-
-            showToast(task.completed ? 'Task marked complete' : 'Task restored');
-            renderDashboard(true);
           }
         } else if (action === 'edit') {
           const task = tasks.find(t => t.id === taskId);
@@ -2147,18 +4516,36 @@
         renderDashboard(true);
       });
 
+      function updateFilterActivePill() {
+        const pill = document.getElementById('filterActivePill');
+        const container = document.getElementById('filterTabsWrapper');
+        const activeTab = document.querySelector('.filter-tab.active');
+        if (!pill || !container || !activeTab) return;
+        const contRect = container.getBoundingClientRect();
+        const tabRect = activeTab.getBoundingClientRect();
+        const left = tabRect.left - contRect.left + container.scrollLeft;
+        pill.style.transform = `translateX(${left}px)`;
+        pill.style.width = `${tabRect.width}px`;
+        pill.style.opacity = '1';
+      }
+
       function setFilter(filterVal) {
         currentFilter = filterVal;
         document.querySelectorAll('.filter-tab').forEach(t => {
           const filterKey = t.getAttribute('data-filter');
           if (filterKey === filterVal) {
-            t.className = 'filter-tab shrink-0 active touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-extrabold transition whitespace-nowrap bg-[#14645B] text-white shadow-xs';
+            t.classList.add('active', 'font-extrabold', 'text-white');
+            t.classList.remove('text-[#6A6682]');
           } else {
-            t.className = 'filter-tab shrink-0 touch-target press-feedback px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold transition whitespace-nowrap bg-white text-[#6A6682] hover:bg-[#F9F8FD] border border-[#ECE8F4]';
+            t.classList.remove('active', 'font-extrabold', 'text-white');
+            t.classList.add('text-[#6A6682]');
           }
         });
+        updateFilterActivePill();
         renderDashboard(true);
       }
+
+      window.addEventListener('resize', updateFilterActivePill);
 
       document.querySelectorAll('.filter-tab').forEach(tab => {
         tab.addEventListener('click', (e) => {
@@ -2208,12 +4595,417 @@
         if (e.key === 'Escape') {
           if (!modal.classList.contains('hidden')) closeModal();
           if (!deleteConfirmModal.classList.contains('hidden')) closeDeleteModal();
+          const authModal = document.getElementById('authModal');
+          if (authModal && !authModal.classList.contains('hidden')) closeAuthModal();
+          const delAccModal = document.getElementById('deleteAccountModal');
+          if (delAccModal && !delAccModal.classList.contains('hidden')) closeDeleteAccountModal();
+          const importModal = document.getElementById('importGuestTasksModal');
+          if (importModal && !importModal.classList.contains('hidden')) handleImportTasksChoice(false);
+          const userDropdown = document.getElementById('userDropdownMenu');
+          if (userDropdown && !userDropdown.classList.contains('hidden')) {
+            userDropdown.classList.add('hidden');
+            const ch = document.getElementById('userMenuChevron');
+            if (ch) ch.style.transform = '';
+          }
         }
       });
 
-      // Initial page setup
+      // AI Study Planner Header Button
+      const openPlannerBtn = document.getElementById('openPlannerBtn');
+      if (openPlannerBtn) {
+        openPlannerBtn.addEventListener('click', () => {
+          window.location.hash = '#planner';
+        });
+      }
+
+      // Mobile bottom nav planner button
+      const mobileNavPlanner = document.getElementById('mobileNavPlanner');
+      if (mobileNavPlanner) {
+        mobileNavPlanner.addEventListener('click', () => {
+          window.location.hash = '#planner';
+        });
+      }
+
+      // Back to Deadlines CTA in Planner
+      const backToDeadlinesBtn = document.getElementById('backToDeadlinesBtn');
+      if (backToDeadlinesBtn) {
+        backToDeadlinesBtn.addEventListener('click', () => {
+          if (window.history.length > 1) {
+            window.history.back();
+          } else {
+            window.location.hash = '';
+          }
+        });
+      }
+
+      // Hash change listener
+      window.addEventListener('hashchange', () => navigateView());
+
+      // Storage event for cross-tab sync (uses dynamic accessors so it works after user switches)
+      window.addEventListener('storage', (e) => {
+        const currentTasksKey = getTasksKey();
+        const currentPlannerKey = getPlannerKey();
+        if (e.key === currentTasksKey) {
+          tasks = loadTasks();
+          renderDashboard(false);
+          if (window.location.hash === '#planner') {
+            renderPlannerView();
+          }
+        } else if (e.key === currentPlannerKey) {
+          if (window.location.hash === '#planner') {
+            renderPlannerView();
+          }
+        }
+      });
+
+      /* -------------------------------------------------------------
+         Header & Auth Modal DOM Event Listeners
+         ------------------------------------------------------------- */
+      // Header Auth Button (Log In / Guest Mode)
+      const headerAuthBtn = document.getElementById('headerAuthBtn');
+      if (headerAuthBtn) {
+        headerAuthBtn.addEventListener('click', () => openAuthModal('login'));
+      }
+
+      // User Avatar Dropdown Toggle
+      const userAvatarBtn = document.getElementById('userAvatarBtn');
+      if (userAvatarBtn) {
+        userAvatarBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const dropdown = document.getElementById('userDropdownMenu');
+          const chevron = document.getElementById('userMenuChevron');
+          if (dropdown) {
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+              dropdown.classList.remove('hidden');
+              userAvatarBtn.setAttribute('aria-expanded', 'true');
+              if (chevron) chevron.style.transform = 'rotate(180deg)';
+            } else {
+              dropdown.classList.add('hidden');
+              userAvatarBtn.setAttribute('aria-expanded', 'false');
+              if (chevron) chevron.style.transform = '';
+            }
+          }
+        });
+      }
+
+      // Click Outside User Dropdown to Close
+      document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('headerUserMenuWrap');
+        const dropdown = document.getElementById('userDropdownMenu');
+        const chevron = document.getElementById('userMenuChevron');
+        if (wrap && !wrap.contains(e.target) && dropdown && !dropdown.classList.contains('hidden')) {
+          dropdown.classList.add('hidden');
+          if (userAvatarBtn) userAvatarBtn.setAttribute('aria-expanded', 'false');
+          if (chevron) chevron.style.transform = '';
+        }
+      });
+
+      // User Menu Actions
+      const exportDataBtn = document.getElementById('exportDataBtn');
+      if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', exportUserData);
+      }
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+          const dropdown = document.getElementById('userDropdownMenu');
+          if (dropdown) dropdown.classList.add('hidden');
+          clearSession();
+          reloadForCurrentUser();
+          updateAuthUI();
+          showToast('Logged out.');
+        });
+      }
+
+      const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+      if (deleteAccountBtn) {
+        deleteAccountBtn.addEventListener('click', () => {
+          const dropdown = document.getElementById('userDropdownMenu');
+          if (dropdown) dropdown.classList.add('hidden');
+          openDeleteAccountModal();
+        });
+      }
+
+      // Auth Modal Buttons & Tabs
+      const closeAuthModalBtn = document.getElementById('closeAuthModalBtn');
+      if (closeAuthModalBtn) {
+        closeAuthModalBtn.addEventListener('click', closeAuthModal);
+      }
+
+      const authModalBackdrop = document.getElementById('authModalBackdrop');
+      if (authModalBackdrop) {
+        authModalBackdrop.addEventListener('click', closeAuthModal);
+      }
+
+      const authContinueGuestBtn = document.getElementById('authContinueGuestBtn');
+      if (authContinueGuestBtn) {
+        authContinueGuestBtn.addEventListener('click', closeAuthModal);
+      }
+
+      const authTabLogin = document.getElementById('authTabLogin');
+      if (authTabLogin) {
+        authTabLogin.addEventListener('click', () => switchAuthTab('login'));
+      }
+
+      const authTabSignup = document.getElementById('authTabSignup');
+      if (authTabSignup) {
+        authTabSignup.addEventListener('click', () => switchAuthTab('signup'));
+      }
+
+      // Password Visibility Toggles
+      const loginTogglePasswordBtn = document.getElementById('loginTogglePasswordBtn');
+      if (loginTogglePasswordBtn) {
+        loginTogglePasswordBtn.addEventListener('click', () => {
+          togglePasswordVisibility('loginPasswordInput', 'loginTogglePasswordBtn', 'loginEyeIcon');
+        });
+      }
+
+      const signupTogglePasswordBtn = document.getElementById('signupTogglePasswordBtn');
+      if (signupTogglePasswordBtn) {
+        signupTogglePasswordBtn.addEventListener('click', () => {
+          togglePasswordVisibility('signupPasswordInput', 'signupTogglePasswordBtn', 'signupEyeIcon');
+        });
+      }
+
+      // Delete Account Modal Listeners
+      const cancelDeleteAccountBtn = document.getElementById('cancelDeleteAccountBtn');
+      if (cancelDeleteAccountBtn) {
+        cancelDeleteAccountBtn.addEventListener('click', closeDeleteAccountModal);
+      }
+
+      const deleteAccountModalBackdrop = document.getElementById('deleteAccountModalBackdrop');
+      if (deleteAccountModalBackdrop) {
+        deleteAccountModalBackdrop.addEventListener('click', closeDeleteAccountModal);
+      }
+
+      const confirmDeleteAccountBtn = document.getElementById('confirmDeleteAccountBtn');
+      if (confirmDeleteAccountBtn) {
+        confirmDeleteAccountBtn.addEventListener('click', performDeleteAccount);
+      }
+
+      // Lockout check on email input
+      const loginEmailInputEl = document.getElementById('loginEmailInput');
+      if (loginEmailInputEl) {
+        loginEmailInputEl.addEventListener('input', checkAndUpdateLockoutUI);
+      }
+
+      // Login Form Submission
+      const loginForm = document.getElementById('loginForm');
+      if (loginForm) {
+        loginForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const emailInput = document.getElementById('loginEmailInput');
+          const passwordInput = document.getElementById('loginPasswordInput');
+          const rememberMe = document.getElementById('loginRememberMeCheckbox')?.checked ?? true;
+          const errorMsg = document.getElementById('loginErrorMsg');
+          const errorText = document.getElementById('loginErrorText');
+          const submitBtn = document.getElementById('loginSubmitBtn');
+          const btnText = document.getElementById('loginBtnText');
+          const btnSpinner = document.getElementById('loginBtnSpinner');
+
+          if (errorMsg) errorMsg.classList.add('hidden');
+
+          const email = emailInput ? emailInput.value : '';
+          const password = passwordInput ? passwordInput.value : '';
+
+          // Check lockout first
+          const lock = getLoginLockStatus(email);
+          if (lock.isLocked) {
+            checkAndUpdateLockoutUI();
+            return;
+          }
+
+          if (!email || !password) {
+            if (errorText) errorText.textContent = 'Please enter both email and password.';
+            if (errorMsg) errorMsg.classList.remove('hidden');
+            return;
+          }
+
+          if (btnText) btnText.classList.add('opacity-0');
+          if (btnSpinner) btnSpinner.classList.remove('hidden');
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const result = await authenticateUser(email, password);
+            if (result.success) {
+              saveSession({ userId: result.user.id, loggedInAt: new Date().toISOString() }, rememberMe);
+              closeAuthModal();
+              reloadForCurrentUser();
+              updateAuthUI();
+              showToast(`Welcome back, ${result.user.name}!`);
+            } else {
+              if (result.isLocked) {
+                checkAndUpdateLockoutUI();
+              }
+              if (errorText) errorText.textContent = result.error || 'Invalid email or password.';
+              if (errorMsg) errorMsg.classList.remove('hidden');
+              if (passwordInput) {
+                passwordInput.classList.remove('field-shake');
+                void passwordInput.offsetWidth;
+                passwordInput.classList.add('field-shake');
+              }
+            }
+          } catch (err) {
+            console.error('Login error:', err);
+            if (errorText) errorText.textContent = 'An error occurred during authentication.';
+            if (errorMsg) errorMsg.classList.remove('hidden');
+          } finally {
+            if (btnText) btnText.classList.remove('opacity-0');
+            if (btnSpinner) btnSpinner.classList.add('hidden');
+            const lock = getLoginLockStatus(email);
+            if (submitBtn) submitBtn.disabled = lock.isLocked;
+          }
+        });
+      }
+
+      // Import Guest Tasks Modal Listeners
+      const confirmImportTasksBtn = document.getElementById('confirmImportTasksBtn');
+      if (confirmImportTasksBtn) {
+        confirmImportTasksBtn.addEventListener('click', () => handleImportTasksChoice(true));
+      }
+
+      const skipImportTasksBtn = document.getElementById('skipImportTasksBtn');
+      if (skipImportTasksBtn) {
+        skipImportTasksBtn.addEventListener('click', () => handleImportTasksChoice(false));
+      }
+
+      const importModalBackdrop = document.getElementById('importModalBackdrop');
+      if (importModalBackdrop) {
+        importModalBackdrop.addEventListener('click', () => handleImportTasksChoice(false));
+      }
+
+      // Sign Up Form Submission
+      const signupForm = document.getElementById('signupForm');
+      if (signupForm) {
+        signupForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const nameInput = document.getElementById('signupNameInput');
+          const emailInput = document.getElementById('signupEmailInput');
+          const passwordInput = document.getElementById('signupPasswordInput');
+          const errorMsg = document.getElementById('signupErrorMsg');
+          const errorText = document.getElementById('signupErrorText');
+          const submitBtn = document.getElementById('signupSubmitBtn');
+          const btnText = document.getElementById('signupBtnText');
+          const btnSpinner = document.getElementById('signupBtnSpinner');
+
+          if (errorMsg) errorMsg.classList.add('hidden');
+
+          const name = nameInput ? nameInput.value : '';
+          const email = emailInput ? emailInput.value : '';
+          const password = passwordInput ? passwordInput.value : '';
+
+          if (btnText) btnText.classList.add('opacity-0');
+          if (btnSpinner) btnSpinner.classList.remove('hidden');
+          if (submitBtn) submitBtn.disabled = true;
+
+          try {
+            const result = await registerUser(name, email, password);
+            if (result.success) {
+              closeAuthModal();
+
+              // Check if guest tasks exist in storage
+              let guestTasks = [];
+              try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                  const parsed = JSON.parse(raw);
+                  if (Array.isArray(parsed) && parsed.length > 0) {
+                    guestTasks = parsed;
+                  }
+                }
+              } catch (e) {}
+
+              if (guestTasks.length > 0) {
+                // Show one-time prompt to import or start fresh
+                openImportPrompt(result.user, guestTasks);
+              } else {
+                // No guest tasks to import: activate session immediately
+                saveSession({ userId: result.user.id, loggedInAt: new Date().toISOString() }, true);
+                reloadForCurrentUser();
+                updateAuthUI();
+                showToast(`Account created! Welcome, ${result.user.name}!`);
+              }
+            } else {
+              if (errorText) errorText.textContent = result.error || 'Please fill in all fields properly.';
+              if (errorMsg) errorMsg.classList.remove('hidden');
+              if (passwordInput) {
+                passwordInput.classList.remove('field-shake');
+                void passwordInput.offsetWidth;
+                passwordInput.classList.add('field-shake');
+              }
+            }
+          } catch (err) {
+            console.error('Registration error:', err);
+            if (errorText) errorText.textContent = 'An error occurred during account creation.';
+            if (errorMsg) errorMsg.classList.remove('hidden');
+          } finally {
+            if (btnText) btnText.classList.remove('opacity-0');
+            if (btnSpinner) btnSpinner.classList.add('hidden');
+            if (submitBtn) submitBtn.disabled = false;
+          }
+        });
+      }
+
+      // Internal API exposed for integration and verification
+      window.__dueSync = {
+        getTasksKey,
+        getPlannerKey,
+        isGuestMode,
+        getCurrentUserId,
+        reloadForCurrentUser,
+        loadTasks,
+        saveTasks,
+        loadPlanner,
+        savePlanner,
+        navigateView,
+        renderDashboard,
+        renderPlannerView,
+        // Auth API
+        isCryptoSubtleAvailable,
+        generateSaltBase64,
+        deriveHashBase64,
+        constantTimeCompare,
+        loadUsers,
+        saveUsers,
+        findUserByEmail,
+        loadSession,
+        saveSession,
+        clearSession,
+        registerUser,
+        authenticateUser,
+        getLoginLockStatus,
+        recordFailedLoginAttempt,
+        resetLoginAttempts,
+        getCurrentSession: () => currentSession,
+        setCurrentSession: (s) => { currentSession = s; },
+        // Auth UI API
+        updateAuthUI,
+        openAuthModal,
+        closeAuthModal,
+        switchAuthTab,
+        togglePasswordVisibility,
+        openDeleteAccountModal,
+        closeDeleteAccountModal,
+        performDeleteAccount,
+        exportUserData,
+        // Import Prompt API
+        openImportPrompt,
+        closeImportPrompt,
+        handleImportTasksChoice
+      };
+
+      // Initial page setup: restore session if valid, otherwise guest mode
+      currentSession = loadSession();
       tasks = loadTasks();
-      renderDashboard(false);
+      updateAuthUI();
+      if (window.location.hash === '#planner') {
+        navigateView();
+      } else {
+        renderDashboard(false);
+      }
+      setTimeout(updateFilterActivePill, 80);
 
       // Mark initial load finished so subsequent 60s ticks don't re-trigger entrance animations
       setTimeout(() => {

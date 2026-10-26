@@ -3,6 +3,10 @@ credentials.json
 config.json
 assignments.json
 assignments.json.bak
+digest_state.json
+digest_preview.html
+.env
+.env.*
 
 # Generated reports
 DueList_Summary_*.docx
@@ -19,3 +23,14 @@ __pycache__/
 # Virtual environments
 .venv/
 venv/
+
+# Browser test profiles & scratch scripts
+cdp_*
+.temp_*
+temp_browser_profile/
+run_*_checks.js
+run_*_check.js
+run_step*.js
+*.png
+!logo.png
+
