@@ -419,10 +419,10 @@ def test_smtp_channel_starttls_and_ssl_flow(monkeypatch):
     }
 
     class MockSMTP:
-        def __init__(self, host, port, timeout=15):
+        def __init__(self, host="", port=0, *args, **kwargs):
             captured["host"] = host
             captured["port"] = port
-            captured["timeout"] = timeout
+            captured["timeout"] = kwargs.get("timeout", 15)
 
         def ehlo(self):
             return 250, b"OK"
@@ -449,6 +449,7 @@ def test_smtp_channel_starttls_and_ssl_flow(monkeypatch):
             pass
 
     monkeypatch.setattr(smtplib, "SMTP", MockSMTP)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", MockSMTP)
 
     data = build_digest_data([
         {"id": 1, "title": "Homework", "due": date.today().isoformat(), "done": False}
@@ -500,7 +501,7 @@ def test_smtp_channel_error_handling(monkeypatch):
     monkeypatch.setenv("DUELIST_SMTP_PASSWORD", "bad_pass")
 
     class MockSMTPAuthFail:
-        def __init__(self, host, port, timeout=15):
+        def __init__(self, host="", port=0, *args, **kwargs):
             pass
         def ehlo(self):
             pass
@@ -512,6 +513,7 @@ def test_smtp_channel_error_handling(monkeypatch):
             pass
 
     monkeypatch.setattr(smtplib, "SMTP", MockSMTPAuthFail)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", MockSMTPAuthFail)
     with pytest.raises(ChannelError) as exc_auth:
         channel.send(data, cfg)
     assert exc_auth.value.exit_code == 2
@@ -519,7 +521,7 @@ def test_smtp_channel_error_handling(monkeypatch):
 
     # 3. Recipient refused
     class MockSMTPRecipRefused:
-        def __init__(self, host, port, timeout=15):
+        def __init__(self, host="", port=0, *args, **kwargs):
             pass
         def ehlo(self):
             pass
@@ -533,6 +535,7 @@ def test_smtp_channel_error_handling(monkeypatch):
             pass
 
     monkeypatch.setattr(smtplib, "SMTP", MockSMTPRecipRefused)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", MockSMTPRecipRefused)
     with pytest.raises(ChannelError) as exc_recip:
         channel.send(data, cfg)
     assert exc_recip.value.exit_code == 2
@@ -540,12 +543,13 @@ def test_smtp_channel_error_handling(monkeypatch):
 
     # 4. Timeout error
     class MockSMTPTimeout:
-        def __init__(self, host, port, timeout=15):
+        def __init__(self, host="", port=0, *args, **kwargs):
             raise socket.timeout("timed out")
         def close(self):
             pass
 
     monkeypatch.setattr(smtplib, "SMTP", MockSMTPTimeout)
+    monkeypatch.setattr(smtplib, "SMTP_SSL", MockSMTPTimeout)
     with pytest.raises(ChannelError) as exc_to:
         channel.send(data, cfg)
     assert exc_to.value.exit_code == 2

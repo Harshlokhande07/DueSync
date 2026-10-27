@@ -40,8 +40,9 @@ class EmailChannel(BaseChannel):
         from_addr = (email_cfg.get("from") or "harshlokhandeshorts@gmail.com").strip()
         to_addr = (email_cfg.get("to") or "harshlokhandeshorts@gmail.com").strip()
         from_name = (email_cfg.get("from_name") or "DueSync").strip()
-        smtp_host = "smtp.gmail.com"
-        smtp_port = 465
+        smtp_host = (email_cfg.get("smtp_host") or "smtp.gmail.com").strip()
+        smtp_port = int(email_cfg.get("smtp_port") or 465)
+        security = (email_cfg.get("security") or ("starttls" if smtp_port == 587 else "ssl")).lower()
 
         if not validate_email_address(from_addr):
             raise ChannelError(
@@ -86,6 +87,7 @@ class EmailChannel(BaseChannel):
         self._send_with_retry(
             smtp_host=smtp_host,
             smtp_port=smtp_port,
+            security=security,
             user=smtp_user,
             password=password,
             msg=msg,
@@ -95,6 +97,7 @@ class EmailChannel(BaseChannel):
         self,
         smtp_host: str,
         smtp_port: int,
+        security: str,
         user: str,
         password: str,
         msg: EmailMessage,
@@ -103,7 +106,14 @@ class EmailChannel(BaseChannel):
         for attempt in range(1, max_attempts + 1):
             server = None
             try:
-                server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15)
+                if security == "starttls":
+                    server = smtplib.SMTP(smtp_host, smtp_port, timeout=15)
+                    server.ehlo()
+                    ctx = ssl._create_stdlib_context() if hasattr(ssl, "_create_stdlib_context") else ssl.create_default_context()
+                    server.starttls(context=ctx)
+                    server.ehlo()
+                else:
+                    server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=15)
                 server.login(user, password)
                 server.send_message(msg)
                 server.quit()
@@ -111,7 +121,7 @@ class EmailChannel(BaseChannel):
 
             except smtplib.SMTPAuthenticationError as e:
                 raise ChannelError(
-                    f"Authentication failed: {e.smtp_error}",
+                    f"Authentication failed: {e.smtp_error}. Check your App Password.",
                     exit_code=2,
                 )
 

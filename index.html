@@ -579,6 +579,26 @@
           <span id="currentDateDisplay">Today</span>
         </div>
 
+        <!-- AI Syllabus / Screenshot Import Button -->
+        <button id="openAiImportBtn" type="button"
+          class="touch-target press-feedback group inline-flex items-center justify-center px-3 sm:px-3.5 py-2.5 rounded-[16px] bg-white/85 hover:bg-white backdrop-blur-md border border-[#1F8A7D]/35 hover:border-[#1F8A7D]/70 text-[#14645B] hover:text-[#1F8A7D] font-extrabold text-xs sm:text-sm shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition focus:outline-none focus:ring-2 focus:ring-[#1F8A7D]"
+          aria-label="Import deadlines from Syllabus or Screenshot">
+          <i data-lucide="file-up" class="w-4 h-4 mr-1 sm:mr-1.5 text-[#1F8A7D] transition-transform duration-300 group-hover:-translate-y-0.5"></i>
+          <span class="hidden md:inline">Scan Syllabus</span>
+          <span class="md:hidden">Scan</span>
+          <span class="ml-1.5 px-1.5 py-0.5 text-[9px] rounded-full bg-[#EAFBF4] text-[#14645B] font-extrabold uppercase tracking-wider border border-[#B9EDD4]">AI</span>
+        </button>
+
+        <!-- Focus Timer Button -->
+        <button id="openFocusTimerBtn" type="button"
+          class="touch-target press-feedback group inline-flex items-center justify-center px-3 sm:px-3.5 py-2.5 rounded-[16px] bg-white/85 hover:bg-white backdrop-blur-md border border-[#7C6CF2]/35 hover:border-[#7C6CF2]/70 text-[#5B4CC4] font-extrabold text-xs sm:text-sm shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]"
+          aria-label="Open Pomodoro Focus Timer">
+          <i data-lucide="timer" class="w-4 h-4 mr-1 sm:mr-1.5 text-[#7C6CF2] transition-transform duration-300 group-hover:scale-110"></i>
+          <span class="hidden md:inline">Focus Timer</span>
+          <span class="md:hidden">Focus</span>
+          <span id="focusHeaderBadge" class="hidden ml-1.5 px-2 py-0.5 text-[10px] rounded-full bg-[#E5E0FF] text-[#5B4CC4] font-bold tabular-nums">25:00</span>
+        </button>
+
         <!-- AI Study Planner Button -->
         <button id="openPlannerBtn" type="button"
           class="touch-target press-feedback group inline-flex items-center justify-center px-3 sm:px-4 py-2.5 rounded-[16px] bg-white/85 hover:bg-white backdrop-blur-md border border-[#1F8A7D]/35 hover:border-[#7C6CF2]/60 text-[#14645B] hover:text-[#1F8A7D] font-extrabold text-xs sm:text-sm shadow-soft hover:shadow-hover hover:-translate-y-0.5 transition focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]">
@@ -1374,6 +1394,33 @@
               class="w-full px-4 py-2.5 rounded-[16px] border border-[#ECE8F4] text-sm bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2] transition resize-none"></textarea>
           </div>
 
+          <!-- Subtasks / Milestones Section -->
+          <div class="p-3.5 rounded-[18px] bg-[#F9F8FD] border border-[#ECE8F4] space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-[#1E1B2E] uppercase tracking-wider flex items-center space-x-1.5">
+                <i data-lucide="check-square" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+                <span>Subtasks & Milestones</span>
+              </span>
+              <span id="subtasksModalCount" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-[#6A6682] border border-[#ECE8F4]">0 items</span>
+            </div>
+
+            <!-- Input to add subtask -->
+            <div class="flex items-center space-x-2">
+              <input type="text" id="subtaskModalInput" placeholder="Add milestone (e.g. Read Chapter 2, Draft outline)..."
+                class="touch-target w-full px-3.5 py-2 rounded-[14px] border border-[#ECE8F4] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#1F8A7D] transition">
+              <button type="button" id="addSubtaskModalBtn"
+                class="touch-target px-3.5 py-2 rounded-[14px] bg-[#EAFBF4] hover:bg-[#D3F6E6] border border-[#B9EDD4] text-[#14645B] text-xs font-extrabold flex items-center space-x-1 transition shrink-0">
+                <i data-lucide="plus" class="w-3.5 h-3.5 stroke-[2.5]"></i>
+                <span>Add</span>
+              </button>
+            </div>
+
+            <!-- List of added subtasks in modal -->
+            <div id="subtasksModalList" class="space-y-1.5 max-h-36 overflow-y-auto pr-1">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
           <div class="flex items-center justify-end space-x-3 pt-3 border-t border-[#ECE8F4]">
             <button type="button" id="cancelModalBtn"
               class="touch-target px-4 py-2.5 rounded-[14px] border border-[#ECE8F4] text-sm font-bold text-[#6A6682] hover:bg-[#F9F8FD] transition">
@@ -1673,6 +1720,336 @@
             <span>Import deadlines</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pomodoro Focus Timer & Ambient Noise Studio Modal -->
+  <div id="focusTimerModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="focusTimerTitle">
+    <div id="focusTimerBackdrop" class="fixed inset-0 bg-[#1E1B2E]/60 backdrop-blur-md transition-opacity"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-3 sm:p-5">
+      <div id="focusTimerCard" class="relative w-full max-w-lg bg-white rounded-[28px] border border-[#ECE8F4] shadow-[0_25px_60px_-15px_rgba(124,108,242,0.25)] p-5 sm:p-7 overflow-hidden transition-all modal-enter">
+        <!-- Ambient decorative gradient blur -->
+        <div class="absolute -top-16 -right-16 w-44 h-44 rounded-full bg-gradient-to-br from-[#E5E0FF] to-[#D3F6E6] blur-2xl opacity-60 pointer-events-none"></div>
+
+        <!-- Header -->
+        <div class="relative flex items-center justify-between pb-4 border-b border-[#ECE8F4]">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#7C6CF2] to-[#1F8A7D] text-white flex items-center justify-center shadow-soft">
+              <i data-lucide="timer" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <h2 id="focusTimerTitle" class="text-lg sm:text-xl font-extrabold text-[#1E1B2E] tracking-tight">Focus Studio</h2>
+              <p class="text-xs text-[#6A6682] font-medium">Pomodoro timer with ambient sounds</p>
+            </div>
+          </div>
+          <button id="closeFocusTimerBtn" type="button" class="touch-target p-2 rounded-full text-[#6A6682] hover:bg-[#F9F8FD] hover:text-[#1E1B2E] transition" aria-label="Close Focus Studio">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Active Task Selector / Info Banner -->
+        <div class="mt-4 p-3.5 rounded-[20px] bg-[#F9F8FD] border border-[#ECE8F4] space-y-2">
+          <div class="flex items-center justify-between text-xs font-bold text-[#6A6682]">
+            <span class="flex items-center space-x-1.5 uppercase tracking-wider text-[11px] text-[#5B4CC4]">
+              <i data-lucide="target" class="w-3.5 h-3.5"></i>
+              <span>Active Focus Target</span>
+            </span>
+            <select id="focusTaskSelect" class="text-xs font-bold px-2.5 py-1 rounded-[10px] bg-white border border-[#ECE8F4] text-[#1E1B2E] max-w-[200px] truncate focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]">
+              <!-- Options populated dynamically -->
+            </select>
+          </div>
+          <div id="focusActiveTaskDisplay" class="flex items-start justify-between gap-2 pt-1">
+            <div class="min-w-0">
+              <h3 id="focusActiveTaskTitle" class="text-sm font-extrabold text-[#1E1B2E] truncate">Free Study Session</h3>
+              <p id="focusActiveTaskMeta" class="text-[11px] text-[#6A6682] font-semibold truncate">General focus · No specific deadline</p>
+            </div>
+            <div id="focusTaskTimeLogged" class="shrink-0 px-2.5 py-0.5 rounded-full bg-[#E5E0FF] text-[#5B4CC4] text-[11px] font-extrabold tabular-nums border border-[#D4CBF8]">
+              0m logged
+            </div>
+          </div>
+
+          <!-- Active Task Subtasks inside Focus Modal (Interactive checklist) -->
+          <div id="focusSubtasksContainer" class="pt-2 border-t border-[#ECE8F4]/80 hidden">
+            <div class="flex items-center justify-between text-[11px] font-bold text-[#6A6682] mb-1.5">
+              <span>Task Milestones</span>
+              <span id="focusSubtasksCount" class="text-[#14645B]">0/0 completed</span>
+            </div>
+            <div id="focusSubtasksList" class="space-y-1 max-h-28 overflow-y-auto pr-1">
+              <!-- Dynamically rendered -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Mode Select (Focus 25m / Short Break 5m / Long Break 15m) -->
+        <div class="mt-4 grid grid-cols-3 gap-2 p-1 bg-[#EEF0F6] rounded-[18px]">
+          <button type="button" data-focus-mode="pomodoro" id="modePillPomodoro" class="py-2 rounded-[14px] text-xs font-extrabold text-[#1E1B2E] bg-white shadow-xs transition touch-target flex items-center justify-center space-x-1">
+            <span>Focus</span>
+            <span class="text-[10px] opacity-70 font-semibold">(25m)</span>
+          </button>
+          <button type="button" data-focus-mode="shortBreak" id="modePillShort" class="py-2 rounded-[14px] text-xs font-extrabold text-[#6A6682] hover:text-[#1E1B2E] transition touch-target flex items-center justify-center space-x-1">
+            <span>Short Break</span>
+            <span class="text-[10px] opacity-70 font-semibold">(5m)</span>
+          </button>
+          <button type="button" data-focus-mode="longBreak" id="modePillLong" class="py-2 rounded-[14px] text-xs font-extrabold text-[#6A6682] hover:text-[#1E1B2E] transition touch-target flex items-center justify-center space-x-1">
+            <span>Long Break</span>
+            <span class="text-[10px] opacity-70 font-semibold">(15m)</span>
+          </button>
+        </div>
+
+        <!-- Circular Countdown Gauge -->
+        <div class="my-4 flex flex-col items-center justify-center relative">
+          <div class="relative w-60 h-60 sm:w-64 sm:h-64 flex items-center justify-center">
+            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 280 280">
+              <!-- Background Ring Track -->
+              <circle cx="140" cy="140" r="115" stroke="#ECE8F4" stroke-width="12" fill="none" />
+              <!-- Animated Progress Ring -->
+              <circle id="focusProgressRing" cx="140" cy="140" r="115" stroke="url(#focusTimerGrad)" stroke-width="12" stroke-linecap="round" fill="none"
+                stroke-dasharray="722.57" stroke-dashoffset="0" class="transition-all duration-300 ease-linear" />
+              <defs>
+                <linearGradient id="focusTimerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#7C6CF2" />
+                  <stop offset="50%" stop-color="#1F8A7D" />
+                  <stop offset="100%" stop-color="#FFC53D" />
+                </linearGradient>
+              </defs>
+            </svg>
+
+            <!-- Center Countdown Readout -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center select-none pointer-events-none">
+              <span id="focusPhaseLabel" class="text-[11px] font-extrabold tracking-widest uppercase text-[#7C6CF2] mb-0.5">Stay Focused</span>
+              <span id="focusTimeDisplay" class="text-5xl font-black text-[#1E1B2E] tracking-tight tabular-nums">25:00</span>
+              <div id="focusCyclePills" class="flex items-center space-x-1.5 mt-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#7C6CF2] shadow-xs"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ECE8F4]"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ECE8F4]"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-[#ECE8F4]"></span>
+              </div>
+              <span id="focusCycleText" class="text-[10px] font-bold text-[#6A6682] mt-0.5">Round 1 of 4</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls: Play/Pause, Reset, Skip -->
+        <div class="flex items-center justify-center space-x-3.5">
+          <button id="focusResetBtn" type="button" class="touch-target p-3 rounded-full border border-[#ECE8F4] text-[#6A6682] hover:bg-[#F9F8FD] hover:text-[#1E1B2E] transition shadow-xs" title="Reset current timer">
+            <i data-lucide="rotate-ccw" class="w-5 h-5"></i>
+          </button>
+
+          <button id="focusToggleBtn" type="button" class="touch-target press-feedback btn-cta-shine px-8 py-3 rounded-2xl bg-gradient-to-r from-[#FFC53D] to-[#F5B92B] hover:from-[#F5B92B] hover:to-[#EAA814] text-[#1E1B2E] text-base font-extrabold shadow-sun-glow flex items-center space-x-2 transition transform active:scale-95">
+            <i id="focusToggleIcon" data-lucide="play" class="w-5 h-5 fill-current"></i>
+            <span id="focusToggleText">Start Focus</span>
+          </button>
+
+          <button id="focusSkipBtn" type="button" class="touch-target p-3 rounded-full border border-[#ECE8F4] text-[#6A6682] hover:bg-[#F9F8FD] hover:text-[#1E1B2E] transition shadow-xs" title="Skip to next session">
+            <i data-lucide="skip-forward" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- Ambient Sound Generator -->
+        <div class="mt-4 pt-3.5 border-t border-[#ECE8F4]">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold text-[#1E1B2E] flex items-center space-x-1.5">
+              <i data-lucide="headphones" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+              <span>Ambient Sound Studio</span>
+            </span>
+            <div class="flex items-center space-x-2">
+              <i data-lucide="volume-2" class="w-3.5 h-3.5 text-[#6A6682]"></i>
+              <input type="range" id="focusSoundVolume" min="0" max="1" step="0.05" value="0.5" class="w-16 h-1.5 bg-[#ECE8F4] rounded-lg appearance-none cursor-pointer accent-[#7C6CF2]">
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5" role="radiogroup" aria-label="Ambient background track">
+            <button type="button" data-sound-track="off" class="sound-pill active touch-target py-1.5 px-2 rounded-[12px] border border-[#ECE8F4] bg-[#EEF0F6] text-[11px] font-bold text-[#1E1B2E] transition flex items-center justify-center">
+              Off
+            </button>
+            <button type="button" data-sound-track="rain" class="sound-pill touch-target py-1.5 px-2 rounded-[12px] border border-[#ECE8F4] bg-white hover:bg-[#F9F8FD] text-[11px] font-bold text-[#6A6682] transition flex items-center justify-center space-x-1">
+              <span>🌧️ Rain</span>
+            </button>
+            <button type="button" data-sound-track="whitenoise" class="sound-pill touch-target py-1.5 px-2 rounded-[12px] border border-[#ECE8F4] bg-white hover:bg-[#F9F8FD] text-[11px] font-bold text-[#6A6682] transition flex items-center justify-center space-x-1">
+              <span>🌊 Hum</span>
+            </button>
+            <button type="button" data-sound-track="alpha" class="sound-pill touch-target py-1.5 px-2 rounded-[12px] border border-[#ECE8F4] bg-white hover:bg-[#F9F8FD] text-[11px] font-bold text-[#6A6682] transition flex items-center justify-center space-x-1">
+              <span>🧘 432Hz</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Syllabus & Screenshot Auto-Importer Modal -->
+  <div id="aiImportModal" class="fixed inset-0 z-50 hidden" role="dialog" aria-modal="true" aria-labelledby="aiImportTitle">
+    <div id="aiImportBackdrop" class="fixed inset-0 bg-[#1E1B2E]/60 backdrop-blur-md transition-opacity"></div>
+    <div class="fixed inset-0 z-10 overflow-y-auto flex items-center justify-center p-3 sm:p-5">
+      <div id="aiImportCard" class="relative w-full max-w-2xl bg-white rounded-[28px] border border-[#ECE8F4] shadow-[0_25px_60px_-15px_rgba(31,138,125,0.25)] p-5 sm:p-7 overflow-hidden transition-all modal-enter">
+        <!-- Ambient decorative gradient blur -->
+        <div class="absolute -top-16 -right-16 w-52 h-52 rounded-full bg-gradient-to-br from-[#D3F6E6] to-[#FFE9BD] blur-2xl opacity-60 pointer-events-none"></div>
+
+        <!-- Header -->
+        <div class="relative flex items-center justify-between pb-4 border-b border-[#ECE8F4]">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#1F8A7D] to-[#FFC53D] text-white flex items-center justify-center shadow-soft">
+              <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+            </div>
+            <div>
+              <div class="flex items-center space-x-2">
+                <h2 id="aiImportTitle" class="text-lg sm:text-xl font-extrabold text-[#1E1B2E] tracking-tight">AI Syllabus & Schedule Importer</h2>
+                <span class="px-2 py-0.5 text-[10px] font-black rounded-full bg-[#EAFBF4] text-[#14645B] border border-[#B9EDD4]">SMART</span>
+              </div>
+              <p class="text-xs text-[#6A6682] font-medium">Extract deadlines automatically from course syllabus, screenshot, or text</p>
+            </div>
+          </div>
+          <button id="closeAiImportBtn" type="button" class="touch-target p-2 rounded-full text-[#6A6682] hover:bg-[#F9F8FD] hover:text-[#1E1B2E] transition" aria-label="Close AI Importer">
+            <i data-lucide="x" class="w-5 h-5"></i>
+          </button>
+        </div>
+
+        <!-- STEP 1: Input Stage -->
+        <div id="aiImportInputStage" class="mt-4 space-y-4">
+          <!-- Mode Tabs -->
+          <div class="grid grid-cols-3 gap-1.5 p-1 bg-[#EEF0F6] rounded-[16px]">
+            <button type="button" id="aiTabUpload" class="ai-tab active py-2 rounded-[12px] text-xs font-extrabold text-[#1E1B2E] bg-white shadow-xs transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="upload-cloud" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+              <span>Upload File / Image</span>
+            </button>
+            <button type="button" id="aiTabPaste" class="ai-tab py-2 rounded-[12px] text-xs font-extrabold text-[#6A6682] hover:text-[#1E1B2E] transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>Paste Syllabus Text</span>
+            </button>
+            <button type="button" id="aiTabSettings" class="ai-tab py-2 rounded-[12px] text-xs font-extrabold text-[#6A6682] hover:text-[#1E1B2E] transition flex items-center justify-center space-x-1.5">
+              <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+              <span>API Settings</span>
+            </button>
+          </div>
+
+          <!-- Tab Content 1: Upload Dropzone -->
+          <div id="aiUploadPane" class="space-y-3">
+            <div id="aiDropzone" class="border-2 border-dashed border-[#B9EDD4] hover:border-[#1F8A7D] bg-[#F9F8FD] hover:bg-[#EAFBF4]/50 rounded-[22px] p-6 text-center transition cursor-pointer flex flex-col items-center justify-center space-y-2.5">
+              <input type="file" id="aiFileInput" accept=".png,.jpg,.jpeg,.webp,.pdf,.txt,.csv,.md" class="hidden">
+              <div class="w-12 h-12 rounded-full bg-[#EAFBF4] text-[#1F8A7D] flex items-center justify-center shadow-xs">
+                <i data-lucide="image-plus" class="w-6 h-6 stroke-[2]"></i>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-[#1E1B2E]">Drop your course syllabus, PDF, or LMS screenshot here</p>
+                <p class="text-xs text-[#6A6682] mt-0.5">Supports PNG, JPG, WEBP, PDF, TXT, CSV, Markdown</p>
+              </div>
+              <button type="button" onclick="document.getElementById('aiFileInput').click()" class="touch-target px-4 py-2 rounded-[14px] bg-white border border-[#ECE8F4] text-xs font-extrabold text-[#14645B] hover:border-[#1F8A7D] shadow-xs transition">
+                Browse file
+              </button>
+            </div>
+
+            <!-- Selected File Info Banner -->
+            <div id="aiSelectedFileInfo" class="hidden p-3 rounded-[16px] bg-[#EAFBF4] border border-[#B9EDD4] flex items-center justify-between">
+              <div class="flex items-center space-x-2.5 min-w-0">
+                <i data-lucide="file-check" class="w-4 h-4 text-[#1F8A7D] shrink-0"></i>
+                <div class="min-w-0">
+                  <p id="aiSelectedFileName" class="text-xs font-extrabold text-[#14645B] truncate">syllabus.pdf</p>
+                  <p id="aiSelectedFileSize" class="text-[10px] text-[#6A6682] font-semibold">124 KB</p>
+                </div>
+              </div>
+              <button type="button" id="aiRemoveFileBtn" class="touch-target p-1.5 text-[#6A6682] hover:text-[#F2546F] rounded-full transition">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Tab Content 2: Paste Syllabus Text Area -->
+          <div id="aiPastePane" class="hidden space-y-2.5">
+            <div class="flex items-center justify-between text-xs">
+              <label for="aiSyllabusTextarea" class="font-extrabold text-[#1E1B2E] uppercase tracking-wider text-[11px]">
+                Paste Syllabus / Timetable / Announcement Text:
+              </label>
+              <div class="flex items-center space-x-1.5">
+                <button type="button" id="loadSampleSyllabusBtn" class="px-2.5 py-1 rounded-[10px] bg-[#E5E0FF] text-[#5B4CC4] text-[11px] font-extrabold hover:bg-[#D4CBF8] transition">
+                  Load Sample Syllabus
+                </button>
+                <button type="button" id="clearSyllabusTextBtn" class="px-2 py-1 rounded-[10px] text-[#6A6682] hover:text-[#F2546F] text-[11px] font-bold">
+                  Clear
+                </button>
+              </div>
+            </div>
+            <textarea id="aiSyllabusTextarea" rows="6" placeholder="Example:
+Course: CS 101 Computer Science
+- Assignment 1: Recursion & Binary Trees - Due Nov 5, 2026 at 11:59 PM
+- Midterm Exam: Multivariable Calculus - Due Nov 12, 2026 at 10:00 AM (High priority)
+- Final Term Project Submission - Due Nov 25, 2026 (Prepare repo, docs, demo)"
+              class="w-full p-3.5 rounded-[18px] border border-[#ECE8F4] text-xs font-mono bg-[#F9F8FD] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1F8A7D] resize-none transition leading-relaxed"></textarea>
+          </div>
+
+          <!-- Tab Content 3: Settings / Gemini Key -->
+          <div id="aiSettingsPane" class="hidden p-4 rounded-[20px] bg-[#F9F8FD] border border-[#ECE8F4] space-y-3">
+            <div class="flex items-start space-x-3">
+              <div class="w-8 h-8 rounded-full bg-[#E5E0FF] text-[#5B4CC4] flex items-center justify-center shrink-0 mt-0.5">
+                <i data-lucide="key" class="w-4 h-4"></i>
+              </div>
+              <div class="min-w-0">
+                <h4 class="text-xs font-extrabold text-[#1E1B2E]">Gemini API Key (Optional Enhancement)</h4>
+                <p class="text-[11px] text-[#6A6682] mt-0.5 leading-normal">
+                  DueSync includes an offline Smart NLP Extractor that works <strong>free with 0 setup</strong>! Adding your free Gemini API key enables Google's Multimodal AI Vision to parse handwritten notes and complex graphics directly.
+                </p>
+              </div>
+            </div>
+            <div>
+              <div class="relative">
+                <input type="password" id="geminiApiKeyInput" placeholder="AIzaSy..."
+                  class="w-full px-3.5 py-2 pr-20 rounded-[14px] border border-[#ECE8F4] text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#7C6CF2]">
+                <button type="button" id="saveApiKeyBtn" class="absolute right-1.5 top-1 bottom-1 px-3 rounded-[10px] bg-[#1F8A7D] text-white text-xs font-bold hover:bg-[#14645B] transition">
+                  Save
+                </button>
+              </div>
+              <p class="text-[10px] text-[#6A6682] mt-1.5">Get a free key from <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-[#1F8A7D] font-bold underline">Google AI Studio</a>. Stored locally in your browser only.</p>
+            </div>
+          </div>
+
+          <!-- Extraction CTA Button & Loading Spinner -->
+          <div class="pt-2">
+            <button type="button" id="runAiExtractionBtn" class="touch-target press-feedback btn-cta-shine w-full py-3.5 rounded-[18px] bg-gradient-to-r from-[#1F8A7D] to-[#2FC48D] hover:from-[#14645B] hover:to-[#1F8A7D] text-white text-sm font-extrabold shadow-soft flex items-center justify-center space-x-2 transition">
+              <i data-lucide="sparkles" class="w-4 h-4 text-[#FFC53D]"></i>
+              <span id="runExtractionBtnText">Extract Deadlines with AI</span>
+            </button>
+          </div>
+
+          <!-- Loading State Animation -->
+          <div id="aiLoadingIndicator" class="hidden p-5 rounded-[20px] bg-[#EAFBF4] border border-[#B9EDD4] text-center space-y-2">
+            <div class="inline-block w-7 h-7 border-3 border-[#1F8A7D] border-t-transparent rounded-full animate-spin"></div>
+            <p id="aiLoadingText" class="text-xs font-extrabold text-[#14645B]">Scanning course document & extracting dates with AI...</p>
+            <p class="text-[11px] text-[#6A6682]">Analyzing assignments, subjects, exams, and priority levels</p>
+          </div>
+        </div>
+
+        <!-- STEP 2: Review & Approval Stage -->
+        <div id="aiImportReviewStage" class="hidden mt-4 space-y-3.5">
+          <div class="flex items-center justify-between pb-2 border-b border-[#ECE8F4]">
+            <div class="flex items-center space-x-2">
+              <span id="aiExtractedCountBadge" class="px-2.5 py-0.5 rounded-full bg-[#EAFBF4] text-[#14645B] text-xs font-black border border-[#B9EDD4]">
+                3 deadlines found
+              </span>
+              <span class="text-xs text-[#6A6682] font-semibold">Review and edit before adding</span>
+            </div>
+            <button type="button" id="aiSelectAllBtn" class="text-xs font-extrabold text-[#1F8A7D] hover:underline">
+              Select All
+            </button>
+          </div>
+
+          <!-- Extracted Deadlines List Container -->
+          <div id="aiExtractedCardsContainer" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+            <!-- Dynamically populated review cards -->
+          </div>
+
+          <!-- Bottom Action Buttons -->
+          <div class="flex items-center justify-between pt-3 border-t border-[#ECE8F4]">
+            <button type="button" id="aiBackToInputBtn" class="touch-target px-4 py-2.5 rounded-[14px] border border-[#ECE8F4] text-xs font-bold text-[#6A6682] hover:bg-[#F9F8FD] transition flex items-center space-x-1">
+              <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+              <span>Back / Upload another</span>
+            </button>
+            <button type="button" id="aiConfirmImportBtn" class="touch-target press-feedback btn-cta-shine px-6 py-2.5 rounded-[16px] bg-[#FFC53D] hover:bg-[#F5B92B] text-[#1E1B2E] text-xs sm:text-sm font-extrabold shadow-sun-glow flex items-center space-x-1.5 transition">
+              <i data-lucide="download" class="w-4 h-4 stroke-[2.5]"></i>
+              <span id="aiConfirmBtnText">Import Selected Deadlines</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -2448,6 +2825,12 @@
             priority: 'High',
             notes: 'Implement red-black tree rebalancing and pass all automated test suites.',
             completed: false,
+            totalFocusMinutes: 50,
+            subtasks: [
+              { id: 'st-1-1', title: 'Implement node rotation helpers', done: true },
+              { id: 'st-1-2', title: 'Write RB tree insertion logic', done: true },
+              { id: 'st-1-3', title: 'Pass edge case unit tests', done: false }
+            ],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           },
@@ -2460,6 +2843,11 @@
             priority: 'Medium',
             notes: 'Complete circuit diagrams and write up spectrometer experiment error analysis.',
             completed: false,
+            totalFocusMinutes: 25,
+            subtasks: [
+              { id: 'st-2-1', title: 'Draw circuit diagrams in clean ink', done: false },
+              { id: 'st-2-2', title: 'Calculate standard error percentage', done: false }
+            ],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           },
@@ -2472,6 +2860,12 @@
             priority: 'High',
             notes: 'Prepare GitHub repository, demo video recording, and architecture documentation.',
             completed: false,
+            totalFocusMinutes: 0,
+            subtasks: [
+              { id: 'st-3-1', title: 'Record 3-minute video walkthrough', done: false },
+              { id: 'st-3-2', title: 'Clean up README & setup guide', done: true },
+              { id: 'st-3-3', title: 'Generate architecture diagram', done: false }
+            ],
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
           },
@@ -3880,6 +4274,12 @@
       }
 
       /* -------------------------------------------------------------
+         Subtasks & Focus Timer State
+         ------------------------------------------------------------- */
+      const expandedSubtaskCards = new Set();
+      let currentModalSubtasks = [];
+
+      /* -------------------------------------------------------------
          FLIP Animation Engine for Cards Grid
          ------------------------------------------------------------- */
       function renderDashboard(animateFLIP = false) {
@@ -3993,6 +4393,12 @@
                   </span>
                 ` : ''}
                 ${getPriorityPill(t.priority)}
+                ${(t.totalFocusMinutes && t.totalFocusMinutes > 0) ? `
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-[#E5E0FF] text-[#5B4CC4] border border-[#D4CBF8]">
+                    <i data-lucide="headphones" class="w-3 h-3 mr-1 text-[#7C6CF2]"></i>
+                    <span>${t.totalFocusMinutes}m focused</span>
+                  </span>
+                ` : ''}
               </div>
 
               <div class="${urgency.stripBg} rounded-[18px] p-3 border ${urgency.stripBorder} flex items-center justify-between text-xs">
@@ -4014,16 +4420,81 @@
                 </p>
               ` : ''}
 
+              <!-- Subtasks Progress & Interactive Checklist Drawer -->
+              ${(() => {
+                const subtasks = Array.isArray(t.subtasks) ? t.subtasks : [];
+                const totalSt = subtasks.length;
+                const doneSt = subtasks.filter(s => s.done).length;
+                const pct = totalSt > 0 ? Math.round((doneSt / totalSt) * 100) : 0;
+                const isExpanded = expandedSubtaskCards.has(t.id);
+
+                return `
+                  <div class="rounded-[16px] bg-[#F9F8FD] p-2.5 sm:p-3 border border-[#ECE8F4] space-y-2">
+                    <div class="flex items-center justify-between">
+                      <button type="button" class="toggle-subtasks-btn group inline-flex items-center space-x-1.5 text-xs font-extrabold text-[#1E1B2E] hover:text-[#1F8A7D] transition" data-action="toggle-subtasks" data-task-id="${t.id}">
+                        <i data-lucide="check-square" class="w-3.5 h-3.5 text-[#1F8A7D]"></i>
+                        <span>Checklist</span>
+                        <span class="px-1.5 py-0.2 rounded-full bg-white border border-[#ECE8F4] text-[10px] text-[#6A6682] font-bold">${doneSt}/${totalSt}</span>
+                        <i data-lucide="${isExpanded ? 'chevron-up' : 'chevron-down'}" class="w-3.5 h-3.5 text-[#6A6682] transition-transform duration-200"></i>
+                      </button>
+                      <span class="text-[11px] font-extrabold tabular-nums ${pct === 100 ? 'text-[#1F8A7D]' : 'text-[#6A6682]'}">${pct}% done</span>
+                    </div>
+
+                    <!-- Progress Track -->
+                    <div class="w-full bg-[#EEF0F6] h-1.5 rounded-full overflow-hidden">
+                      <div class="h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-[#2FC48D]' : 'bg-gradient-to-r from-[#7C6CF2] to-[#1F8A7D]'}" style="width: ${pct}%"></div>
+                    </div>
+
+                    <!-- Collapsible Drawer -->
+                    <div class="${isExpanded ? 'block' : 'hidden'} pt-1 space-y-1.5 border-t border-[#ECE8F4]/70">
+                      ${totalSt === 0 ? `
+                        <p class="text-[11px] text-[#6A6682] italic py-0.5">No milestones yet. Add one below:</p>
+                      ` : subtasks.map(st => `
+                        <label class="flex items-center justify-between p-1 rounded-[10px] hover:bg-white cursor-pointer transition select-none group">
+                          <div class="flex items-center space-x-2 min-w-0 pr-2">
+                            <input type="checkbox" ${st.done ? 'checked' : ''} data-action="toggle-subtask" data-task-id="${t.id}" data-subtask-id="${st.id}" class="w-3.5 h-3.5 rounded text-[#1F8A7D] focus:ring-[#1F8A7D] cursor-pointer">
+                            <span class="text-xs font-semibold ${st.done ? 'line-through text-[#6A6682]' : 'text-[#1E1B2E]'} truncate">${escapeHtml(st.title)}</span>
+                          </div>
+                          <button type="button" data-action="delete-subtask" data-task-id="${t.id}" data-subtask-id="${st.id}" class="opacity-0 group-hover:opacity-100 p-1 text-[#6A6682] hover:text-[#F2546F] transition" title="Delete milestone">
+                            <i data-lucide="x" class="w-3 h-3"></i>
+                          </button>
+                        </label>
+                      `).join('')}
+
+                      <!-- Quick Add Step Input Inline on Card -->
+                      <div class="flex items-center space-x-1.5 pt-1">
+                        <input type="text" placeholder="+ Add milestone and press Enter..." data-action="quick-add-subtask-input" data-task-id="${t.id}"
+                          class="quick-add-subtask-input text-xs px-2.5 py-1.5 rounded-[12px] border border-[#ECE8F4] w-full bg-white focus:outline-none focus:ring-1 focus:ring-[#1F8A7D] text-[#1E1B2E]">
+                      </div>
+                    </div>
+                  </div>
+                `;
+              })()}
+
               <div class="flex items-center justify-between pt-2 border-t border-[#ECE8F4] mt-auto">
-                <button
-                  type="button"
-                  class="toggle-complete-btn touch-target press-feedback inline-flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-full border transition ${isDone ? 'border-[#FCE2B0] bg-[#FFF1C6] text-[#92400E] hover:bg-[#FCE2B0]' : 'border-[#B9EDD4] bg-[#D3F6E6] text-[#14645B] hover:bg-[#B9EDD4]'}"
-                  data-action="toggle"
-                  aria-label="${isDone ? 'Restore deadline' : 'Mark deadline complete'}"
-                >
-                  <i data-lucide="${isDone ? 'rotate-ccw' : 'check'}" class="w-4 h-4"></i>
-                  <span>${isDone ? 'Restore' : 'Complete'}</span>
-                </button>
+                <div class="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    class="toggle-complete-btn touch-target press-feedback inline-flex items-center space-x-1.5 text-xs font-bold px-3.5 py-2 rounded-full border transition ${isDone ? 'border-[#FCE2B0] bg-[#FFF1C6] text-[#92400E] hover:bg-[#FCE2B0]' : 'border-[#B9EDD4] bg-[#D3F6E6] text-[#14645B] hover:bg-[#B9EDD4]'}"
+                    data-action="toggle"
+                    aria-label="${isDone ? 'Restore deadline' : 'Mark deadline complete'}"
+                  >
+                    <i data-lucide="${isDone ? 'rotate-ccw' : 'check'}" class="w-4 h-4"></i>
+                    <span>${isDone ? 'Restore' : 'Complete'}</span>
+                  </button>
+
+                  <!-- Focus Button -->
+                  <button
+                    type="button"
+                    class="btn-action-focus touch-target press-feedback inline-flex items-center space-x-1.5 text-xs font-extrabold px-3 py-2 rounded-full border border-[#D4CBF8] bg-[#E5E0FF]/90 hover:bg-[#E5E0FF] text-[#5B4CC4] transition shadow-xs"
+                    data-action="focus"
+                    data-task-id="${t.id}"
+                    aria-label="Start Pomodoro focus session"
+                  >
+                    <i data-lucide="timer" class="w-3.5 h-3.5 text-[#7C6CF2]"></i>
+                    <span>Focus</span>
+                  </button>
+                </div>
 
                 <div class="flex items-center space-x-1">
                   <button
@@ -4191,6 +4662,85 @@
         });
       });
 
+      /* -------------------------------------------------------------
+         Modal Subtasks List Management
+         ------------------------------------------------------------- */
+      const subtaskModalInput = document.getElementById('subtaskModalInput');
+      const addSubtaskModalBtn = document.getElementById('addSubtaskModalBtn');
+      const subtasksModalList = document.getElementById('subtasksModalList');
+      const subtasksModalCount = document.getElementById('subtasksModalCount');
+
+      function renderModalSubtasks() {
+        if (!subtasksModalList) return;
+        subtasksModalList.innerHTML = '';
+        if (subtasksModalCount) {
+          subtasksModalCount.textContent = `${currentModalSubtasks.length} item${currentModalSubtasks.length === 1 ? '' : 's'}`;
+        }
+
+        if (currentModalSubtasks.length === 0) {
+          subtasksModalList.innerHTML = '<p class="text-[11px] text-[#6A6682] italic py-1 text-center">No milestones added yet.</p>';
+          return;
+        }
+
+        currentModalSubtasks.forEach((st, idx) => {
+          const item = document.createElement('div');
+          item.className = 'flex items-center justify-between p-2 rounded-[12px] bg-white border border-[#ECE8F4] text-xs';
+          item.innerHTML = `
+            <div class="flex items-center space-x-2 min-w-0 pr-2">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#1F8A7D] shrink-0"></span>
+              <span class="font-semibold text-[#1E1B2E] truncate">${escapeHtml(st.title)}</span>
+            </div>
+            <button type="button" data-modal-subtask-del="${idx}" class="touch-target p-1 text-[#6A6682] hover:text-[#F2546F] rounded-full transition" title="Remove milestone">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          `;
+          subtasksModalList.appendChild(item);
+        });
+        if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+      }
+
+      function addSubtaskFromModal() {
+        if (!subtaskModalInput) return;
+        const val = subtaskModalInput.value.trim();
+        if (!val) return;
+        currentModalSubtasks.push({
+          id: 'st-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+          title: val,
+          done: false
+        });
+        subtaskModalInput.value = '';
+        renderModalSubtasks();
+        subtaskModalInput.focus();
+      }
+
+      if (addSubtaskModalBtn) {
+        addSubtaskModalBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          addSubtaskFromModal();
+        });
+      }
+
+      if (subtaskModalInput) {
+        subtaskModalInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addSubtaskFromModal();
+          }
+        });
+      }
+
+      if (subtasksModalList) {
+        subtasksModalList.addEventListener('click', (e) => {
+          const btn = e.target.closest('[data-modal-subtask-del]');
+          if (!btn) return;
+          const idx = parseInt(btn.getAttribute('data-modal-subtask-del'), 10);
+          if (!isNaN(idx) && idx >= 0 && idx < currentModalSubtasks.length) {
+            currentModalSubtasks.splice(idx, 1);
+            renderModalSubtasks();
+          }
+        });
+      }
+
       function openModal(editingTask = null, triggerEl = null) {
         modalFocusTrigger = triggerEl;
         taskForm.reset();
@@ -4230,6 +4780,10 @@
           }
           notesInput.value = editingTask.notes || '';
           notesCounter.textContent = `${notesInput.value.length}/500`;
+          currentModalSubtasks = (editingTask.subtasks && Array.isArray(editingTask.subtasks))
+            ? JSON.parse(JSON.stringify(editingTask.subtasks))
+            : [];
+          renderModalSubtasks();
         } else {
           modalTitle.textContent = 'Add Deadline';
           submitBtnText.textContent = 'Add Deadline';
@@ -4246,6 +4800,8 @@
           const dd = String(tmrw.getDate()).padStart(2, '0');
           dueDateInput.value = `${yyyy}-${mm}-${dd}T23:59`;
           notesCounter.textContent = '0/500';
+          currentModalSubtasks = [];
+          renderModalSubtasks();
         }
 
         modal.classList.remove('hidden');
@@ -4335,6 +4891,7 @@
               cognitiveWeight: selectedWeight,
               dueDate: new Date(rawDueDate).toISOString(),
               notes: notesInput.value.trim(),
+              subtasks: currentModalSubtasks,
               updatedAt: nowIso
             };
             saveTasks(tasks);
@@ -4354,6 +4911,8 @@
             dueDate: new Date(rawDueDate).toISOString(),
             notes: notesInput.value.trim(),
             completed: false,
+            totalFocusMinutes: 0,
+            subtasks: currentModalSubtasks,
             createdAt: nowIso,
             updatedAt: nowIso
           };
@@ -4492,6 +5051,73 @@
           if (task) openModal(task, actionBtn);
         } else if (action === 'delete') {
           openDeleteModal(taskId);
+        } else if (action === 'focus') {
+          openFocusModal(taskId);
+        } else if (action === 'toggle-subtasks') {
+          if (expandedSubtaskCards.has(taskId)) {
+            expandedSubtaskCards.delete(taskId);
+          } else {
+            expandedSubtaskCards.add(taskId);
+          }
+          renderDashboard(false);
+        } else if (action === 'toggle-subtask') {
+          const subtaskId = actionBtn.getAttribute('data-subtask-id');
+          const task = tasks.find(t => t.id === taskId);
+          if (task && Array.isArray(task.subtasks)) {
+            const st = task.subtasks.find(s => s.id === subtaskId);
+            if (st) {
+              st.done = !st.done;
+              task.updatedAt = new Date().toISOString();
+              saveTasks(tasks);
+
+              // If all subtasks completed, show confetti celebration
+              const allDone = task.subtasks.length > 0 && task.subtasks.every(s => s.done);
+              if (allDone && !task.completed && !prefersReducedMotion()) {
+                const rect = actionBtn.getBoundingClientRect();
+                burstConfetti(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                showToast(`All milestones completed for "${task.title}"! 🎉`);
+              }
+
+              renderDashboard(false);
+              if (focusTimer && focusTimer.activeTaskId === taskId) {
+                focusTimer.updateActiveTaskDisplay();
+              }
+            }
+          }
+        } else if (action === 'delete-subtask') {
+          const subtaskId = actionBtn.getAttribute('data-subtask-id');
+          const task = tasks.find(t => t.id === taskId);
+          if (task && Array.isArray(task.subtasks)) {
+            task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+            task.updatedAt = new Date().toISOString();
+            saveTasks(tasks);
+            renderDashboard(false);
+          }
+        }
+      });
+
+      // Quick add milestone directly on card on Enter key
+      document.getElementById('taskListContainer').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && e.target.matches('[data-action="quick-add-subtask-input"]')) {
+          e.preventDefault();
+          const input = e.target;
+          const taskId = input.getAttribute('data-task-id');
+          const val = input.value.trim();
+          if (!val) return;
+          const task = tasks.find(t => t.id === taskId);
+          if (task) {
+            if (!Array.isArray(task.subtasks)) task.subtasks = [];
+            task.subtasks.push({
+              id: 'st-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+              title: val,
+              done: false
+            });
+            expandedSubtaskCards.add(taskId);
+            task.updatedAt = new Date().toISOString();
+            saveTasks(tasks);
+            renderDashboard(false);
+            showToast('Milestone added');
+          }
         }
       });
 
@@ -4948,6 +5574,1293 @@
         });
       }
 
+      /* -------------------------------------------------------------
+         Web Audio Engine for Ambient Sounds & Celebration Chimes
+         ------------------------------------------------------------- */
+      class DueSyncAudioEngine {
+        constructor() {
+          this.ctx = null;
+          this.ambientSource = null;
+          this.ambientGain = null;
+          this.currentTrack = 'off';
+          this.volume = 0.5;
+        }
+
+        init() {
+          if (!this.ctx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) this.ctx = new AudioCtx();
+          }
+          if (this.ctx && this.ctx.state === 'suspended') {
+            this.ctx.resume();
+          }
+        }
+
+        setVolume(v) {
+          this.volume = Math.max(0, Math.min(1, v));
+          if (this.ambientGain && this.ctx) {
+            this.ambientGain.gain.setValueAtTime(this.volume, this.ctx.currentTime);
+          }
+        }
+
+        stopAmbient() {
+          if (this.ambientSource) {
+            try {
+              if (this.ambientSource.stop) this.ambientSource.stop();
+              if (this.ambientSource.disconnect) this.ambientSource.disconnect();
+            } catch (e) {}
+            this.ambientSource = null;
+          }
+          this.currentTrack = 'off';
+        }
+
+        playAmbient(type) {
+          this.init();
+          if (!this.ctx) return;
+          this.stopAmbient();
+          if (type === 'off') return;
+
+          this.currentTrack = type;
+          const ctx = this.ctx;
+          const gainNode = ctx.createGain();
+          gainNode.gain.setValueAtTime(this.volume, ctx.currentTime);
+          gainNode.connect(ctx.destination);
+          this.ambientGain = gainNode;
+
+          try {
+            if (type === 'rain') {
+              // Pink/Brown noise + bandpass filter for soothing rain sound
+              const bufferSize = 2 * ctx.sampleRate;
+              const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+              const output = noiseBuffer.getChannelData(0);
+              let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+              for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b0 = 0.99886 * b0 + white * 0.0555179;
+                b1 = 0.99332 * b1 + white * 0.0750759;
+                b2 = 0.96900 * b2 + white * 0.1538520;
+                b3 = 0.86650 * b3 + white * 0.3104856;
+                b4 = 0.55000 * b4 + white * 0.5329522;
+                b5 = -0.7616 * b5 - white * 0.0168980;
+                output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.035;
+                b6 = white * 0.115926;
+              }
+              const rainSource = ctx.createBufferSource();
+              rainSource.buffer = noiseBuffer;
+              rainSource.loop = true;
+
+              const filter = ctx.createBiquadFilter();
+              filter.type = 'lowpass';
+              filter.frequency.setValueAtTime(800, ctx.currentTime);
+
+              rainSource.connect(filter);
+              filter.connect(gainNode);
+              rainSource.start(0);
+              this.ambientSource = rainSource;
+            } else if (type === 'whitenoise') {
+              // Deep focus ocean hum
+              const bufferSize = 2 * ctx.sampleRate;
+              const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+              const output = noiseBuffer.getChannelData(0);
+              for (let i = 0; i < bufferSize; i++) {
+                output[i] = (Math.random() * 2 - 1) * 0.02;
+              }
+              const humSource = ctx.createBufferSource();
+              humSource.buffer = noiseBuffer;
+              humSource.loop = true;
+
+              const filter = ctx.createBiquadFilter();
+              filter.type = 'bandpass';
+              filter.frequency.setValueAtTime(450, ctx.currentTime);
+              filter.Q.setValueAtTime(1.2, ctx.currentTime);
+
+              humSource.connect(filter);
+              filter.connect(gainNode);
+              humSource.start(0);
+              this.ambientSource = humSource;
+            } else if (type === 'alpha') {
+              // 432Hz binaural focus chord (216Hz + 226Hz = 10Hz Alpha differential)
+              const osc1 = ctx.createOscillator();
+              const osc2 = ctx.createOscillator();
+              osc1.type = 'sine';
+              osc2.type = 'sine';
+              osc1.frequency.setValueAtTime(216, ctx.currentTime);
+              osc2.frequency.setValueAtTime(226, ctx.currentTime);
+
+              const alphaGain = ctx.createGain();
+              alphaGain.gain.setValueAtTime(0.06, ctx.currentTime);
+
+              osc1.connect(alphaGain);
+              osc2.connect(alphaGain);
+              alphaGain.connect(gainNode);
+
+              osc1.start(0);
+              osc2.start(0);
+
+              this.ambientSource = {
+                stop: () => {
+                  try { osc1.stop(); osc2.stop(); } catch (e) {}
+                },
+                disconnect: () => {
+                  try { osc1.disconnect(); osc2.disconnect(); } catch (e) {}
+                }
+              };
+            }
+          } catch (e) {
+            console.warn('Audio synthesis warning:', e);
+          }
+        }
+
+        playChime() {
+          this.init();
+          if (!this.ctx) return;
+          try {
+            const ctx = this.ctx;
+            const now = ctx.currentTime;
+            // C5, E5, G5, C6 crystal bell chord
+            const notes = [523.25, 659.25, 783.99, 1046.50];
+            notes.forEach((freq, idx) => {
+              const osc = ctx.createOscillator();
+              const noteGain = ctx.createGain();
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+              noteGain.gain.setValueAtTime(0, now + idx * 0.12);
+              noteGain.gain.linearRampToValueAtTime(0.18, now + idx * 0.12 + 0.04);
+              noteGain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.12 + 1.2);
+
+              osc.connect(noteGain);
+              noteGain.connect(ctx.destination);
+              osc.start(now + idx * 0.12);
+              osc.stop(now + idx * 0.12 + 1.25);
+            });
+          } catch (e) {
+            console.warn('Chime playback warning:', e);
+          }
+        }
+      }
+
+      const audioEngine = new DueSyncAudioEngine();
+
+      /* -------------------------------------------------------------
+         Pomodoro Focus Timer Controller
+         ------------------------------------------------------------- */
+      class DueSyncFocusTimer {
+        constructor() {
+          this.durations = {
+            pomodoro: 25 * 60,
+            shortBreak: 5 * 60,
+            longBreak: 15 * 60
+          };
+          this.currentMode = 'pomodoro';
+          this.remainingSeconds = this.durations.pomodoro;
+          this.isRunning = false;
+          this.cycleRound = 1;
+          this.activeTaskId = null;
+          this.timerInterval = null;
+          this.ringCircumference = 722.57; // 2 * PI * 115
+        }
+
+        initUI() {
+          this.modal = document.getElementById('focusTimerModal');
+          this.backdrop = document.getElementById('focusTimerBackdrop');
+          this.closeBtn = document.getElementById('closeFocusTimerBtn');
+          this.toggleBtn = document.getElementById('focusToggleBtn');
+          this.toggleIcon = document.getElementById('focusToggleIcon');
+          this.toggleText = document.getElementById('focusToggleText');
+          this.resetBtn = document.getElementById('focusResetBtn');
+          this.skipBtn = document.getElementById('focusSkipBtn');
+          this.timeDisplay = document.getElementById('focusTimeDisplay');
+          this.phaseLabel = document.getElementById('focusPhaseLabel');
+          this.cycleText = document.getElementById('focusCycleText');
+          this.cyclePills = document.getElementById('focusCyclePills');
+          this.progressRing = document.getElementById('focusProgressRing');
+          this.taskSelect = document.getElementById('focusTaskSelect');
+          this.activeTaskTitle = document.getElementById('focusActiveTaskTitle');
+          this.activeTaskMeta = document.getElementById('focusActiveTaskMeta');
+          this.taskTimeLogged = document.getElementById('focusTaskTimeLogged');
+          this.subtasksContainer = document.getElementById('focusSubtasksContainer');
+          this.subtasksCount = document.getElementById('focusSubtasksCount');
+          this.subtasksList = document.getElementById('focusSubtasksList');
+          this.headerBadge = document.getElementById('focusHeaderBadge');
+          this.volumeSlider = document.getElementById('focusSoundVolume');
+
+          // Header button
+          const openBtn = document.getElementById('openFocusTimerBtn');
+          if (openBtn) {
+            openBtn.addEventListener('click', () => this.open());
+          }
+
+          // Modal close
+          if (this.closeBtn) this.closeBtn.addEventListener('click', () => this.close());
+          if (this.backdrop) this.backdrop.addEventListener('click', () => this.close());
+
+          // Controls
+          if (this.toggleBtn) this.toggleBtn.addEventListener('click', () => this.toggle());
+          if (this.resetBtn) this.resetBtn.addEventListener('click', () => this.reset());
+          if (this.skipBtn) this.skipBtn.addEventListener('click', () => this.skip());
+
+          // Mode buttons
+          document.querySelectorAll('[data-focus-mode]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const mode = btn.getAttribute('data-focus-mode');
+              this.setMode(mode);
+            });
+          });
+
+          // Task select dropdown
+          if (this.taskSelect) {
+            this.taskSelect.addEventListener('change', (e) => {
+              this.setActiveTask(e.target.value);
+            });
+          }
+
+          // Ambient sound pills
+          document.querySelectorAll('[data-sound-track]').forEach(btn => {
+            btn.addEventListener('click', () => {
+              const track = btn.getAttribute('data-sound-track');
+              document.querySelectorAll('[data-sound-track]').forEach(b => {
+                b.classList.remove('active', 'bg-[#EEF0F6]', 'text-[#1E1B2E]');
+                b.classList.add('bg-white', 'text-[#6A6682]');
+              });
+              btn.classList.add('active', 'bg-[#EEF0F6]', 'text-[#1E1B2E]');
+              btn.classList.remove('bg-white', 'text-[#6A6682]');
+              audioEngine.playAmbient(track);
+            });
+          });
+
+          // Volume slider
+          if (this.volumeSlider) {
+            this.volumeSlider.addEventListener('input', (e) => {
+              audioEngine.setVolume(parseFloat(e.target.value));
+            });
+          }
+
+          // Subtasks in focus modal checklist delegation
+          if (this.subtasksList) {
+            this.subtasksList.addEventListener('change', (e) => {
+              const chk = e.target.closest('[data-focus-subtask-id]');
+              if (!chk || !this.activeTaskId) return;
+              const subId = chk.getAttribute('data-focus-subtask-id');
+              const task = tasks.find(t => t.id === this.activeTaskId);
+              if (task && Array.isArray(task.subtasks)) {
+                const st = task.subtasks.find(s => s.id === subId);
+                if (st) {
+                  st.done = chk.checked;
+                  task.updatedAt = new Date().toISOString();
+                  saveTasks(tasks);
+                  this.updateActiveTaskDisplay();
+                  renderDashboard(false);
+                }
+              }
+            });
+          }
+
+          // Keyboard navigation
+          document.addEventListener('keydown', (e) => {
+            if (this.modal && !this.modal.classList.contains('hidden')) {
+              if (e.key === 'Escape') {
+                this.close();
+              } else if (e.key === ' ' && e.target === document.body) {
+                e.preventDefault();
+                this.toggle();
+              }
+            }
+          });
+
+          this.updateDisplay();
+        }
+
+        populateTaskDropdown() {
+          if (!this.taskSelect) return;
+          this.taskSelect.innerHTML = '<option value="">Free Focus (No task)</option>';
+          tasks.filter(t => !t.completed).forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t.id;
+            opt.textContent = `${t.title} ${t.subject ? `(${t.subject})` : ''}`;
+            if (t.id === this.activeTaskId) opt.selected = true;
+            this.taskSelect.appendChild(opt);
+          });
+        }
+
+        setActiveTask(taskId) {
+          this.activeTaskId = taskId || null;
+          this.updateActiveTaskDisplay();
+        }
+
+        updateActiveTaskDisplay() {
+          if (!this.activeTaskTitle) return;
+          const task = tasks.find(t => t.id === this.activeTaskId);
+
+          if (task) {
+            this.activeTaskTitle.textContent = task.title;
+            const sub = task.subject ? `${task.subject} · ` : '';
+            const urgency = getUrgencyStatus(task);
+            this.activeTaskMeta.textContent = `${sub}${urgency.label}`;
+            const mins = task.totalFocusMinutes || 0;
+            this.taskTimeLogged.textContent = `${mins}m logged`;
+            this.taskTimeLogged.classList.remove('hidden');
+
+            // Render subtasks inside focus studio
+            const subtasks = Array.isArray(task.subtasks) ? task.subtasks : [];
+            if (subtasks.length > 0) {
+              const doneCount = subtasks.filter(s => s.done).length;
+              this.subtasksContainer.classList.remove('hidden');
+              this.subtasksCount.textContent = `${doneCount}/${subtasks.length} done`;
+              this.subtasksList.innerHTML = subtasks.map(st => `
+                <label class="flex items-center space-x-2 p-1.5 rounded-[10px] bg-white hover:bg-[#F9F8FD] cursor-pointer transition select-none text-xs">
+                  <input type="checkbox" ${st.done ? 'checked' : ''} data-focus-subtask-id="${st.id}" class="w-3.5 h-3.5 rounded text-[#1F8A7D] focus:ring-[#1F8A7D]">
+                  <span class="font-semibold ${st.done ? 'line-through text-[#6A6682]' : 'text-[#1E1B2E]'} truncate">${escapeHtml(st.title)}</span>
+                </label>
+              `).join('');
+            } else {
+              this.subtasksContainer.classList.add('hidden');
+              this.subtasksList.innerHTML = '';
+            }
+          } else {
+            this.activeTaskTitle.textContent = 'Free Study Session';
+            this.activeTaskMeta.textContent = 'General focus · No specific deadline';
+            this.taskTimeLogged.classList.add('hidden');
+            this.subtasksContainer.classList.add('hidden');
+            this.subtasksList.innerHTML = '';
+          }
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        }
+
+        open(taskId = null) {
+          this.populateTaskDropdown();
+          if (taskId) {
+            this.activeTaskId = taskId;
+            if (this.taskSelect) this.taskSelect.value = taskId;
+          } else if (!this.activeTaskId && tasks.length > 0) {
+            const firstActive = tasks.find(t => !t.completed);
+            if (firstActive) {
+              this.activeTaskId = firstActive.id;
+              if (this.taskSelect) this.taskSelect.value = firstActive.id;
+            }
+          }
+          this.updateActiveTaskDisplay();
+          this.updateDisplay();
+
+          if (this.modal) {
+            this.modal.classList.remove('hidden');
+            const card = document.getElementById('focusTimerCard');
+            if (card) {
+              card.classList.remove('modal-enter');
+              void card.offsetWidth;
+              card.classList.add('modal-enter');
+            }
+          }
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        }
+
+        close() {
+          if (this.modal) {
+            this.modal.classList.add('hidden');
+          }
+        }
+
+        setMode(mode) {
+          if (!this.durations[mode]) return;
+          this.pause();
+          this.currentMode = mode;
+          this.remainingSeconds = this.durations[mode];
+
+          // Update active mode tab styles
+          const modePills = {
+            pomodoro: document.getElementById('modePillPomodoro'),
+            shortBreak: document.getElementById('modePillShort'),
+            longBreak: document.getElementById('modePillLong')
+          };
+
+          Object.keys(modePills).forEach(m => {
+            const pill = modePills[m];
+            if (!pill) return;
+            if (m === mode) {
+              pill.classList.add('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+              pill.classList.remove('text-[#6A6682]');
+            } else {
+              pill.classList.remove('bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+              pill.classList.add('text-[#6A6682]');
+            }
+          });
+
+          // Update phase text
+          if (this.phaseLabel) {
+            if (mode === 'pomodoro') {
+              this.phaseLabel.textContent = 'Stay Focused';
+              this.phaseLabel.className = 'text-[11px] font-extrabold tracking-widest uppercase text-[#7C6CF2] mb-0.5';
+            } else if (mode === 'shortBreak') {
+              this.phaseLabel.textContent = 'Short Break';
+              this.phaseLabel.className = 'text-[11px] font-extrabold tracking-widest uppercase text-[#1F8A7D] mb-0.5';
+            } else {
+              this.phaseLabel.textContent = 'Recharge & Rest';
+              this.phaseLabel.className = 'text-[11px] font-extrabold tracking-widest uppercase text-[#FFC53D] mb-0.5';
+            }
+          }
+
+          this.updateDisplay();
+        }
+
+        toggle() {
+          if (this.isRunning) {
+            this.pause();
+          } else {
+            this.start();
+          }
+        }
+
+        start() {
+          audioEngine.init();
+          this.isRunning = true;
+          this.updateToggleBtnState();
+
+          if (this.timerInterval) clearInterval(this.timerInterval);
+          this.timerInterval = setInterval(() => this.tick(), 1000);
+        }
+
+        pause() {
+          this.isRunning = false;
+          if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+          }
+          this.updateToggleBtnState();
+        }
+
+        reset() {
+          this.pause();
+          this.remainingSeconds = this.durations[this.currentMode];
+          this.updateDisplay();
+        }
+
+        skip() {
+          this.pause();
+          if (this.currentMode === 'pomodoro') {
+            const nextMode = (this.cycleRound % 4 === 0) ? 'longBreak' : 'shortBreak';
+            this.setMode(nextMode);
+          } else {
+            this.cycleRound = (this.cycleRound % 4) + 1;
+            this.setMode('pomodoro');
+          }
+          showToast(`Skipped to ${this.currentMode}`);
+        }
+
+        tick() {
+          if (this.remainingSeconds > 0) {
+            this.remainingSeconds--;
+            this.updateDisplay();
+          } else {
+            this.handleSessionCompleted();
+          }
+        }
+
+        handleSessionCompleted() {
+          this.pause();
+          audioEngine.playChime();
+
+          if (this.currentMode === 'pomodoro') {
+            // Log 25 minutes to task if active
+            const sessionMins = Math.round(this.durations.pomodoro / 60);
+            if (this.activeTaskId) {
+              const task = tasks.find(t => t.id === this.activeTaskId);
+              if (task) {
+                task.totalFocusMinutes = (task.totalFocusMinutes || 0) + sessionMins;
+                task.updatedAt = new Date().toISOString();
+                saveTasks(tasks);
+                this.updateActiveTaskDisplay();
+                renderDashboard(false);
+              }
+            }
+
+            // Confetti celebration
+            if (!prefersReducedMotion()) {
+              burstConfetti(window.innerWidth / 2, window.innerHeight / 2);
+            }
+            showToast(`🎉 Focus session complete! +${sessionMins}m logged. Time for a break.`);
+
+            // Advance mode
+            const nextMode = (this.cycleRound % 4 === 0) ? 'longBreak' : 'shortBreak';
+            this.setMode(nextMode);
+          } else {
+            // Break finished
+            showToast('☕ Break completed! Ready for the next focus round.');
+            this.cycleRound = (this.cycleRound % 4) + 1;
+            this.setMode('pomodoro');
+          }
+        }
+
+        updateDisplay() {
+          const m = Math.floor(this.remainingSeconds / 60);
+          const s = this.remainingSeconds % 60;
+          const formatted = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+          if (this.timeDisplay) this.timeDisplay.textContent = formatted;
+
+          // Update Circular Ring Offset
+          if (this.progressRing) {
+            const total = this.durations[this.currentMode] || 1500;
+            const fraction = this.remainingSeconds / total;
+            const offset = this.ringCircumference * (1 - fraction);
+            this.progressRing.style.strokeDashoffset = offset;
+          }
+
+          // Cycle Dots & Text
+          if (this.cycleText) {
+            this.cycleText.textContent = `Round ${this.cycleRound} of 4`;
+          }
+          if (this.cyclePills) {
+            const dots = this.cyclePills.querySelectorAll('span');
+            dots.forEach((dot, idx) => {
+              if (idx + 1 <= this.cycleRound) {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-[#7C6CF2] shadow-xs';
+              } else {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-[#ECE8F4]';
+              }
+            });
+          }
+
+          // Header badge update
+          if (this.headerBadge) {
+            if (this.isRunning) {
+              this.headerBadge.textContent = formatted;
+              this.headerBadge.classList.remove('hidden');
+            } else {
+              this.headerBadge.classList.add('hidden');
+            }
+          }
+
+          // Browser Title
+          if (this.isRunning) {
+            document.title = `(${formatted}) DueSync Focus`;
+          } else {
+            document.title = 'DueSync · Stay ahead of every deadline';
+          }
+        }
+
+        updateToggleBtnState() {
+          if (!this.toggleBtn) return;
+          if (this.isRunning) {
+            if (this.toggleText) this.toggleText.textContent = 'Pause';
+            if (this.toggleIcon) {
+              this.toggleIcon.setAttribute('data-lucide', 'pause');
+            }
+          } else {
+            if (this.toggleText) this.toggleText.textContent = 'Start Focus';
+            if (this.toggleIcon) {
+              this.toggleIcon.setAttribute('data-lucide', 'play');
+            }
+          }
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        }
+      }
+
+      const focusTimer = new DueSyncFocusTimer();
+      function openFocusModal(taskId = null) {
+        focusTimer.open(taskId);
+      }
+      function closeFocusModal() {
+        focusTimer.close();
+      }
+
+
+      /* -------------------------------------------------------------
+         AI Syllabus, Screenshot & Schedule Importer Engine
+         Supports Smart Client-Side NLP + Gemini Multimodal Vision API
+         ------------------------------------------------------------- */
+      class DueSyncAiImporter {
+        constructor() {
+          this.selectedFile = null;
+          this.selectedFileDataUrl = null;
+          this.extractedTasks = [];
+          this.GEMINI_KEY_STORAGE = 'dueSyncGeminiKey';
+        }
+
+        initUI() {
+          this.modal = document.getElementById('aiImportModal');
+          this.backdrop = document.getElementById('aiImportBackdrop');
+          this.closeBtn = document.getElementById('closeAiImportBtn');
+          this.inputStage = document.getElementById('aiImportInputStage');
+          this.reviewStage = document.getElementById('aiImportReviewStage');
+          this.dropzone = document.getElementById('aiDropzone');
+          this.fileInput = document.getElementById('aiFileInput');
+          this.fileInfo = document.getElementById('aiSelectedFileInfo');
+          this.fileName = document.getElementById('aiSelectedFileName');
+          this.fileSize = document.getElementById('aiSelectedFileSize');
+          this.removeFileBtn = document.getElementById('aiRemoveFileBtn');
+          this.syllabusTextarea = document.getElementById('aiSyllabusTextarea');
+          this.loadSampleBtn = document.getElementById('loadSampleSyllabusBtn');
+          this.clearTextBtn = document.getElementById('clearSyllabusTextBtn');
+          this.apiKeyInput = document.getElementById('geminiApiKeyInput');
+          this.saveApiKeyBtn = document.getElementById('saveApiKeyBtn');
+          this.runBtn = document.getElementById('runAiExtractionBtn');
+          this.loading = document.getElementById('aiLoadingIndicator');
+          this.cardsContainer = document.getElementById('aiExtractedCardsContainer');
+          this.countBadge = document.getElementById('aiExtractedCountBadge');
+          this.selectAllBtn = document.getElementById('aiSelectAllBtn');
+          this.backBtn = document.getElementById('aiBackToInputBtn');
+          this.confirmBtn = document.getElementById('aiConfirmImportBtn');
+
+          // Header button
+          const openBtn = document.getElementById('openAiImportBtn');
+          if (openBtn) {
+            openBtn.addEventListener('click', () => this.open());
+          }
+
+          // Modal close
+          if (this.closeBtn) this.closeBtn.addEventListener('click', () => this.close());
+          if (this.backdrop) this.backdrop.addEventListener('click', () => this.close());
+
+          // Tabs
+          const tabs = {
+            upload: { tab: document.getElementById('aiTabUpload'), pane: document.getElementById('aiUploadPane') },
+            paste: { tab: document.getElementById('aiTabPaste'), pane: document.getElementById('aiPastePane') },
+            settings: { tab: document.getElementById('aiTabSettings'), pane: document.getElementById('aiSettingsPane') }
+          };
+
+          const switchTab = (activeKey) => {
+            Object.keys(tabs).forEach(k => {
+              const { tab, pane } = tabs[k];
+              if (!tab || !pane) return;
+              if (k === activeKey) {
+                tab.classList.add('active', 'bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+                tab.classList.remove('text-[#6A6682]');
+                pane.classList.remove('hidden');
+              } else {
+                tab.classList.remove('active', 'bg-white', 'text-[#1E1B2E]', 'shadow-xs');
+                tab.classList.add('text-[#6A6682]');
+                pane.classList.add('hidden');
+              }
+            });
+          };
+
+          if (tabs.upload.tab) tabs.upload.tab.addEventListener('click', () => switchTab('upload'));
+          if (tabs.paste.tab) tabs.paste.tab.addEventListener('click', () => switchTab('paste'));
+          if (tabs.settings.tab) tabs.settings.tab.addEventListener('click', () => switchTab('settings'));
+
+          // File Input & Dropzone
+          if (this.fileInput) {
+            this.fileInput.addEventListener('change', (e) => {
+              if (e.target.files && e.target.files[0]) {
+                this.handleFileSelected(e.target.files[0]);
+              }
+            });
+          }
+
+          if (this.dropzone) {
+            ['dragenter', 'dragover'].forEach(eventName => {
+              this.dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                this.dropzone.classList.add('border-[#1F8A7D]', 'bg-[#EAFBF4]');
+              });
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+              this.dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                this.dropzone.classList.remove('border-[#1F8A7D]', 'bg-[#EAFBF4]');
+              });
+            });
+            this.dropzone.addEventListener('drop', (e) => {
+              if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+                this.handleFileSelected(e.dataTransfer.files[0]);
+              }
+            });
+          }
+
+          if (this.removeFileBtn) {
+            this.removeFileBtn.addEventListener('click', () => {
+              this.selectedFile = null;
+              this.selectedFileDataUrl = null;
+              if (this.fileInput) this.fileInput.value = '';
+              if (this.fileInfo) this.fileInfo.classList.add('hidden');
+            });
+          }
+
+          // Sample Syllabus Preset
+          if (this.loadSampleBtn) {
+            this.loadSampleBtn.addEventListener('click', () => {
+              switchTab('paste');
+              if (this.syllabusTextarea) {
+                this.syllabusTextarea.value = `Course: CS 201 - Advanced Data Structures & Algorithms
+Instructor: Dr. Alan Turing (Semester Fall 2026)
+
+Course Deadlines & Major Milestones:
+1. Homework 1: Binary Search Trees & AVL Rotations - Due Nov 05, 2026 at 11:59 PM (Medium priority, Assignment)
+   - Implement tree rotation helpers
+   - Write rebalance validation
+   - Pass automated test suite
+2. Midterm Examination: Graph Theory & Dynamic Programming - Due Nov 14, 2026 at 10:00 AM (High priority, Exam)
+3. Lab Practical 2: Shortest Path Dijkstra & Bellman-Ford - Due Nov 21, 2026 at 05:00 PM (Practical)
+4. Final Capstone Project: Distributed Hash Table - Due Dec 02, 2026 at 11:59 PM (High priority, Project)
+   - GitHub repository & architecture doc
+   - 3-minute video demonstration`;
+              }
+            });
+          }
+
+          if (this.clearTextBtn && this.syllabusTextarea) {
+            this.clearTextBtn.addEventListener('click', () => {
+              this.syllabusTextarea.value = '';
+            });
+          }
+
+          // API Key Storage
+          const savedKey = localStorage.getItem(this.GEMINI_KEY_STORAGE);
+          if (savedKey && this.apiKeyInput) {
+            this.apiKeyInput.value = savedKey;
+          }
+
+          if (this.saveApiKeyBtn && this.apiKeyInput) {
+            this.saveApiKeyBtn.addEventListener('click', () => {
+              const k = this.apiKeyInput.value.trim();
+              if (k) {
+                localStorage.setItem(this.GEMINI_KEY_STORAGE, k);
+                showToast('Gemini API key saved locally');
+              } else {
+                localStorage.removeItem(this.GEMINI_KEY_STORAGE);
+                showToast('Gemini API key cleared');
+              }
+            });
+          }
+
+          // Run Extraction Button
+          if (this.runBtn) {
+            this.runBtn.addEventListener('click', () => this.runExtraction());
+          }
+
+          // Review Stage Controls
+          if (this.backBtn) {
+            this.backBtn.addEventListener('click', () => {
+              this.reviewStage.classList.add('hidden');
+              this.inputStage.classList.remove('hidden');
+            });
+          }
+
+          if (this.selectAllBtn) {
+            this.selectAllBtn.addEventListener('click', () => {
+              const checkboxes = this.cardsContainer.querySelectorAll('input[type="checkbox"][data-extract-index]');
+              const allChecked = Array.from(checkboxes).every(c => c.checked);
+              checkboxes.forEach(c => c.checked = !allChecked);
+              this.selectAllBtn.textContent = allChecked ? 'Select All' : 'Deselect All';
+              this.updateConfirmCount();
+            });
+          }
+
+          if (this.confirmBtn) {
+            this.confirmBtn.addEventListener('click', () => this.confirmImport());
+          }
+        }
+
+        handleFileSelected(file) {
+          this.selectedFile = file;
+          if (this.fileName) this.fileName.textContent = file.name;
+          if (this.fileSize) {
+            const kb = Math.round(file.size / 1024);
+            this.fileSize.textContent = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
+          }
+          if (this.fileInfo) this.fileInfo.classList.remove('hidden');
+
+          const reader = new FileReader();
+          if (file.type.startsWith('image/')) {
+            reader.onload = (e) => {
+              this.selectedFileDataUrl = e.target.result;
+            };
+            reader.readAsDataURL(file);
+          } else {
+            reader.onload = (e) => {
+              this.selectedFileText = e.target.result;
+            };
+            reader.readAsText(file);
+          }
+        }
+
+        open() {
+          if (this.modal) {
+            this.modal.classList.remove('hidden');
+            this.inputStage.classList.remove('hidden');
+            this.reviewStage.classList.add('hidden');
+            if (this.loading) this.loading.classList.add('hidden');
+          }
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        }
+
+        close() {
+          if (this.modal) {
+            this.modal.classList.add('hidden');
+          }
+        }
+
+        async runExtraction() {
+          const pastedText = this.syllabusTextarea ? this.syllabusTextarea.value.trim() : '';
+          const hasFile = !!this.selectedFile;
+          const apiKey = localStorage.getItem(this.GEMINI_KEY_STORAGE) || '';
+
+          if (!hasFile && !pastedText) {
+            showToast('Please upload a file or paste syllabus text first', false);
+            return;
+          }
+
+          // Show loading
+          if (this.loading) this.loading.classList.remove('hidden');
+          if (this.runBtn) this.runBtn.disabled = true;
+
+          try {
+            let extracted = [];
+
+            // Case A: Multimodal Gemini AI Vision if image & API Key present
+            if (hasFile && this.selectedFile.type.startsWith('image/') && apiKey && this.selectedFileDataUrl) {
+              extracted = await this.extractWithGeminiVision(this.selectedFileDataUrl, apiKey);
+            }
+            // Case B: Gemini Text API if key present and text available
+            else if (apiKey && (pastedText || this.selectedFileText)) {
+              const textContent = pastedText || this.selectedFileText;
+              extracted = await this.extractWithGeminiText(textContent, apiKey);
+            }
+            // Case C: Smart Client-Side NLP Engine (Offline, 0 API keys)
+            else {
+              const textContent = pastedText || this.selectedFileText || (this.selectedFile ? this.selectedFile.name : '');
+              if (!textContent && hasFile && this.selectedFile.type.startsWith('image/')) {
+                showToast('For screenshot images, please save a free Gemini API key in Tab 3 or paste the text directly.', false);
+                if (this.loading) this.loading.classList.add('hidden');
+                if (this.runBtn) this.runBtn.disabled = false;
+                return;
+              }
+              // Wait 600ms for smooth UX feedback
+              await new Promise(r => setTimeout(r, 650));
+              extracted = this.parseSyllabusTextOffline(textContent);
+            }
+
+            if (!Array.isArray(extracted) || extracted.length === 0) {
+              showToast('No deadlines could be identified. Try pasting text directly.', false);
+              return;
+            }
+
+            this.extractedTasks = extracted;
+            this.renderReviewList(extracted);
+
+            // Switch to review stage
+            this.inputStage.classList.add('hidden');
+            this.reviewStage.classList.remove('hidden');
+
+          } catch (err) {
+            console.error('Extraction error:', err);
+            showToast('AI extraction error: ' + (err.message || 'Check input text'), false);
+          } finally {
+            if (this.loading) this.loading.classList.add('hidden');
+            if (this.runBtn) this.runBtn.disabled = false;
+          }
+        }
+
+        // Smart Offline NLP Parser (0 API keys required)
+        parseSyllabusTextOffline(rawText) {
+          if (!rawText) return [];
+          const lines = rawText.split(/\r?\n/);
+          const results = [];
+
+          // Try to discover overarching subject / course from header lines
+          let detectedSubject = 'General';
+          for (let i = 0; i < Math.min(lines.length, 5); i++) {
+            const courseMatch = lines[i].match(/(?:Course|Class|Subject)?\s*[:\-]?\s*([A-Z]{2,4}\s*\d{2,4}[A-Z]?|Computer Science|Mathematics|Physics|Chemistry|History|Biology|Data Structures|Machine Learning|Algorithms)/i);
+            if (courseMatch) {
+              detectedSubject = courseMatch[1].trim();
+              break;
+            }
+          }
+
+          // Month name mapping
+          const monthMap = {
+            jan: 0, january: 0, feb: 1, february: 1, mar: 2, march: 2, apr: 3, april: 3,
+            may: 4, jun: 5, june: 5, jul: 6, july: 6, aug: 7, august: 7, sep: 8, september: 8,
+            oct: 9, october: 9, nov: 10, november: 10, dec: 11, december: 11
+          };
+
+          const now = new Date();
+          const currentYear = now.getFullYear();
+
+          let currentItem = null;
+
+          lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+
+            // Check if line represents a subtask/milestone of current item
+            const subtaskBullet = trimmed.match(/^[-*•]\s+(.+)$/);
+            if (subtaskBullet && currentItem) {
+              if (!currentItem.subtasks) currentItem.subtasks = [];
+              currentItem.subtasks.push({
+                id: 'st-ext-' + Math.random().toString(36).substr(2, 6),
+                title: subtaskBullet[1].trim(),
+                done: false
+              });
+              return;
+            }
+
+            // Check for date expressions
+            // Pattern 1: Month Day (e.g. Nov 05, 2026 or November 14)
+            const textDateMatch = trimmed.match(/\b(Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)[.,]?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?/i);
+            // Pattern 2: ISO or slash (YYYY-MM-DD or MM/DD/YYYY or DD/MM/YYYY)
+            const numDateMatch = trimmed.match(/\b(202\d)[-/](\d{1,2})[-/](\d{1,2})\b|\b(\d{1,2})[/.-](\d{1,2})[/.-](202\d)\b/);
+
+            let parsedDate = null;
+
+            if (textDateMatch) {
+              const mName = textDateMatch[1].toLowerCase();
+              const mIdx = monthMap[mName] !== undefined ? monthMap[mName] : 10;
+              const dNum = parseInt(textDateMatch[2], 10);
+              const yNum = textDateMatch[3] ? parseInt(textDateMatch[3], 10) : currentYear;
+
+              // Check for time: e.g. 11:59 PM or 10:00 AM
+              const timeMatch = trimmed.match(/\b(\d{1,2})(?::(\d{2}))?\s*(am|pm|AM|PM)\b/);
+              let h = 23, min = 59;
+              if (timeMatch) {
+                h = parseInt(timeMatch[1], 10);
+                min = timeMatch[2] ? parseInt(timeMatch[2], 10) : 0;
+                const isPm = timeMatch[3].toLowerCase() === 'pm';
+                if (isPm && h < 12) h += 12;
+                if (!isPm && h === 12) h = 0;
+              }
+
+              parsedDate = new Date(yNum, mIdx, dNum, h, min, 0);
+              if (parsedDate < now && !textDateMatch[3]) {
+                parsedDate.setFullYear(currentYear + 1);
+              }
+            } else if (numDateMatch) {
+              if (numDateMatch[1]) {
+                parsedDate = new Date(parseInt(numDateMatch[1], 10), parseInt(numDateMatch[2], 10) - 1, parseInt(numDateMatch[3], 10), 23, 59);
+              } else {
+                parsedDate = new Date(parseInt(numDateMatch[6], 10), parseInt(numDateMatch[4], 10) - 1, parseInt(numDateMatch[5], 10), 23, 59);
+              }
+            }
+
+            if (parsedDate && !isNaN(parsedDate.getTime())) {
+              // We have a deadline line!
+              // Determine clean title: remove date and prefixes
+              let title = trimmed
+                .replace(/^\d+[.)]\s*/, '')
+                .replace(/[-–—]?\s*(?:Due|Deadline|Date)?\s*[:\-]?\s*(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[^()]*/gi, '')
+                .replace(/\(.*?\)/g, '')
+                .trim();
+
+              if (!title || title.length < 3) {
+                title = 'Assignment Milestone';
+              }
+
+              // Determine assignment type
+              let type = 'Assignment';
+              if (/exam|midterm|final|quiz|test/i.test(trimmed)) type = 'Exam';
+              else if (/project|capstone/i.test(trimmed)) type = 'Project';
+              else if (/practical|lab/i.test(trimmed)) type = 'Practical';
+              else if (/presentation|viva/i.test(trimmed)) type = 'Presentation';
+
+              // Determine priority
+              let priority = 'Medium';
+              if (/high|urgent|crucial|critical|exam|final/i.test(trimmed)) priority = 'High';
+              else if (/low|optional|bonus/i.test(trimmed)) priority = 'Low';
+
+              // Sizing & Cognitive weight
+              let estimatedEffort = 3;
+              let cognitiveWeight = 'medium';
+              if (type === 'Exam') { estimatedEffort = 6; cognitiveWeight = 'deep'; }
+              else if (type === 'Project') { estimatedEffort = 8; cognitiveWeight = 'deep'; }
+              else if (type === 'Practical') { estimatedEffort = 3; cognitiveWeight = 'medium'; }
+
+              // Format date string for datetime-local: YYYY-MM-DDTHH:MM
+              const yyyy = parsedDate.getFullYear();
+              const mm = String(parsedDate.getMonth() + 1).padStart(2, '0');
+              const dd = String(parsedDate.getDate()).padStart(2, '0');
+              const hh = String(parsedDate.getHours()).padStart(2, '0');
+              const mins = String(parsedDate.getMinutes()).padStart(2, '0');
+              const formattedLocal = `${yyyy}-${mm}-${dd}T${hh}:${mins}`;
+
+              currentItem = {
+                title,
+                subject: detectedSubject,
+                type,
+                priority,
+                dueDate: formattedLocal,
+                estimatedEffort,
+                cognitiveWeight,
+                subtasks: []
+              };
+
+              results.push(currentItem);
+            }
+          });
+
+          return results;
+        }
+
+        // Gemini Vision API (Multimodal Screenshot extraction)
+        async extractWithGeminiVision(dataUrl, apiKey) {
+          const base64Data = dataUrl.split(',')[1];
+          const mimeType = dataUrl.split(';')[0].split(':')[1] || 'image/png';
+
+          const prompt = `You are an academic course schedule parser. Extract all assignments, homework, labs, exams, projects, and deadlines from this syllabus image.
+Return strictly a valid JSON array of objects with the following schema:
+[
+  {
+    "title": "string (name of assignment or exam)",
+    "subject": "string (course name or code like CS 101)",
+    "type": "Assignment" | "Exam" | "Project" | "Practical" | "Presentation",
+    "dueDate": "YYYY-MM-DDTHH:MM",
+    "priority": "Low" | "Medium" | "High",
+    "estimatedEffort": number (hours between 1 and 20),
+    "cognitiveWeight": "light" | "medium" | "deep",
+    "subtasks": [{"title": "step 1"}]
+  }
+]
+No markdown wrapping, just pure JSON array.`;
+
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [
+                  { text: prompt },
+                  { inlineData: { mimeType, data: base64Data } }
+                ]
+              }]
+            })
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson.error ? errJson.error.message : `API HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+          const cleanJson = text.replace(/```(?:json)?/g, '').trim();
+          return JSON.parse(cleanJson);
+        }
+
+        // Gemini Text API
+        async extractWithGeminiText(syllabusText, apiKey) {
+          const prompt = `You are an academic course schedule parser. Extract all assignments, exams, projects, quizzes, and deadlines from this syllabus text:
+"""
+${syllabusText}
+"""
+Return strictly a valid JSON array of objects with schema:
+[
+  {
+    "title": "string",
+    "subject": "string",
+    "type": "Assignment" | "Exam" | "Project" | "Practical" | "Presentation",
+    "dueDate": "YYYY-MM-DDTHH:MM",
+    "priority": "Low" | "Medium" | "High",
+    "estimatedEffort": 3,
+    "cognitiveWeight": "medium",
+    "subtasks": [{"title": "step 1"}]
+  }
+]
+No markdown wrapping, just pure JSON array.`;
+
+          const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+            })
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => ({}));
+            throw new Error(errJson.error ? errJson.error.message : `API HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+          const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+          const cleanJson = text.replace(/```(?:json)?/g, '').trim();
+          return JSON.parse(cleanJson);
+        }
+
+        renderReviewList(items) {
+          if (!this.cardsContainer) return;
+          this.cardsContainer.innerHTML = '';
+          if (this.countBadge) {
+            this.countBadge.textContent = `${items.length} deadline${items.length === 1 ? '' : 's'} found`;
+          }
+
+          items.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'p-3.5 rounded-[18px] bg-[#F9F8FD] border border-[#ECE8F4] space-y-2.5 text-xs'; card.setAttribute('data-extract-card', idx);
+            card.innerHTML = `
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center space-x-2.5 flex-1 min-w-0">
+                  <input type="checkbox" checked data-extract-index="${idx}" class="w-4 h-4 rounded text-[#1F8A7D] focus:ring-[#1F8A7D] cursor-pointer shrink-0">
+                  <input type="text" value="${escapeHtml(item.title)}" data-extract-field="title" data-extract-index="${idx}"
+                    class="font-extrabold text-sm text-[#1E1B2E] bg-white px-2.5 py-1 rounded-[10px] border border-[#ECE8F4] w-full focus:outline-none focus:ring-1 focus:ring-[#1F8A7D]" placeholder="Assignment Title">
+                </div>
+                <button type="button" data-extract-del="${idx}" class="p-1.5 text-[#6A6682] hover:text-[#F2546F] rounded-full transition" title="Exclude this deadline">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                <div>
+                  <label class="block text-[10px] font-bold text-[#6A6682] uppercase mb-0.5">Subject</label>
+                  <input type="text" value="${escapeHtml(item.subject || 'Course')}" data-extract-field="subject" data-extract-index="${idx}"
+                    class="w-full px-2 py-1 rounded-[10px] border border-[#ECE8F4] bg-white font-semibold text-[#1E1B2E] focus:outline-none">
+                </div>
+                <div>
+                  <label class="block text-[10px] font-bold text-[#6A6682] uppercase mb-0.5">Due Date & Time</label>
+                  <input type="datetime-local" value="${item.dueDate || ''}" data-extract-field="dueDate" data-extract-index="${idx}"
+                    class="w-full px-2 py-1 rounded-[10px] border border-[#ECE8F4] bg-white font-semibold text-[#1E1B2E] focus:outline-none">
+                </div>
+                <div class="flex space-x-2">
+                  <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-[#6A6682] uppercase mb-0.5">Type</label>
+                    <select data-extract-field="type" data-extract-index="${idx}" class="w-full px-1.5 py-1 rounded-[10px] border border-[#ECE8F4] bg-white font-semibold text-[#1E1B2E] focus:outline-none">
+                      <option value="Assignment" ${item.type === 'Assignment' ? 'selected' : ''}>Assignment</option>
+                      <option value="Exam" ${item.type === 'Exam' ? 'selected' : ''}>Exam</option>
+                      <option value="Project" ${item.type === 'Project' ? 'selected' : ''}>Project</option>
+                      <option value="Practical" ${item.type === 'Practical' ? 'selected' : ''}>Practical</option>
+                      <option value="Presentation" ${item.type === 'Presentation' ? 'selected' : ''}>Presentation</option>
+                    </select>
+                  </div>
+                  <div class="flex-1">
+                    <label class="block text-[10px] font-bold text-[#6A6682] uppercase mb-0.5">Priority</label>
+                    <select data-extract-field="priority" data-extract-index="${idx}" class="w-full px-1.5 py-1 rounded-[10px] border border-[#ECE8F4] bg-white font-semibold text-[#1E1B2E] focus:outline-none">
+                      <option value="Low" ${item.priority === 'Low' ? 'selected' : ''}>Low</option>
+                      <option value="Medium" ${item.priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                      <option value="High" ${item.priority === 'High' ? 'selected' : ''}>High</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              ${(item.subtasks && item.subtasks.length > 0) ? `
+                <div class="text-[11px] text-[#6A6682] flex items-center space-x-1.5 pt-0.5">
+                  <i data-lucide="check-square" class="w-3 h-3 text-[#1F8A7D]"></i>
+                  <span>Includes ${item.subtasks.length} milestones</span>
+                </div>
+              ` : ''}
+            `;
+            this.cardsContainer.appendChild(card);
+          });
+
+          // Delete row delegation
+          this.cardsContainer.addEventListener('click', (e) => {
+            const delBtn = e.target.closest('[data-extract-del]');
+            if (!delBtn) return;
+            const idx = parseInt(delBtn.getAttribute('data-extract-del'), 10);
+            if (!isNaN(idx)) {
+              this.extractedTasks.splice(idx, 1);
+              this.renderReviewList(this.extractedTasks);
+            }
+          });
+
+          // Checkbox toggle count update
+          this.cardsContainer.addEventListener('change', (e) => {
+            if (e.target.matches('input[type="checkbox"][data-extract-index]')) {
+              this.updateConfirmCount();
+            }
+          });
+
+          this.updateConfirmCount();
+          if (window.lucide && typeof lucide.createIcons === 'function') lucide.createIcons();
+        }
+
+        updateConfirmCount() {
+          const checked = this.cardsContainer ? this.cardsContainer.querySelectorAll('input[type="checkbox"][data-extract-index]:checked') : [];
+          const count = checked.length;
+          const confirmText = document.getElementById('aiConfirmBtnText');
+          if (confirmText) {
+            confirmText.textContent = `Import ${count} Deadline${count === 1 ? '' : 's'} to Schedule`;
+          }
+          if (this.confirmBtn) {
+            this.confirmBtn.disabled = count === 0;
+          }
+        }
+
+        confirmImport() {
+          if (!this.cardsContainer) return;
+          const checkedBoxes = Array.from(this.cardsContainer.querySelectorAll('input[type="checkbox"][data-extract-index]:checked'));
+          if (checkedBoxes.length === 0) {
+            showToast('No deadlines selected for import', false);
+            return;
+          }
+
+          const nowIso = new Date().toISOString();
+          let importedCount = 0;
+
+          checkedBoxes.forEach(chk => {
+            const idx = parseInt(chk.getAttribute('data-extract-index'), 10);
+            const baseItem = this.extractedTasks[idx];
+            if (!baseItem) return;
+
+            // Read live edited values from card DOM
+            const cardEl = chk.closest('[data-extract-card]');
+            const titleInput = cardEl.querySelector('[data-extract-field="title"]');
+            const subjectInput = cardEl.querySelector('[data-extract-field="subject"]');
+            const dateInput = cardEl.querySelector('[data-extract-field="dueDate"]');
+            const typeSelect = cardEl.querySelector('[data-extract-field="type"]');
+            const prioritySelect = cardEl.querySelector('[data-extract-field="priority"]');
+
+            const title = titleInput ? titleInput.value.trim() : baseItem.title;
+            const subject = subjectInput ? subjectInput.value.trim() : baseItem.subject;
+            const rawDue = dateInput ? dateInput.value : baseItem.dueDate;
+            const type = typeSelect ? typeSelect.value : baseItem.type;
+            const priority = prioritySelect ? prioritySelect.value : baseItem.priority;
+
+            const dueDateIso = (rawDue && !isNaN(new Date(rawDue).getTime()))
+              ? new Date(rawDue).toISOString()
+              : new Date(Date.now() + 7 * 86400000).toISOString();
+
+            const newId = (window.crypto && crypto.randomUUID)
+              ? crypto.randomUUID()
+              : 'task-ai-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
+
+            const newTask = {
+              id: newId,
+              title: title || 'Imported Assignment',
+              subject: subject || 'General',
+              type: type || 'Assignment',
+              priority: priority || 'Medium',
+              estimatedEffort: baseItem.estimatedEffort || 3,
+              cognitiveWeight: baseItem.cognitiveWeight || 'medium',
+              dueDate: dueDateIso,
+              notes: 'Imported from course syllabus via AI.',
+              completed: false,
+              totalFocusMinutes: 0,
+              subtasks: Array.isArray(baseItem.subtasks) ? baseItem.subtasks.map(s => ({
+                id: 'st-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+                title: s.title || s,
+                done: false
+              })) : [],
+              createdAt: nowIso,
+              updatedAt: nowIso
+            };
+
+            tasks.unshift(newTask);
+            importedCount++;
+          });
+
+          saveTasks(tasks);
+          if (!prefersReducedMotion()) {
+            burstConfetti(window.innerWidth / 2, window.innerHeight / 2);
+          }
+          showToast(`🎉 Successfully imported ${importedCount} deadlines from syllabus!`);
+
+          this.close();
+          renderDashboard(true);
+          if (window.location.hash === '#planner') {
+            renderPlannerView();
+          }
+        }
+      }
+
+      const aiImporter = new DueSyncAiImporter();
+      function openAiImportModal() {
+        aiImporter.open();
+      }
+      function closeAiImportModal() {
+        aiImporter.close();
+      }
+
+
       // Internal API exposed for integration and verification
       window.__dueSync = {
         getTasksKey,
@@ -4993,8 +6906,26 @@
         // Import Prompt API
         openImportPrompt,
         closeImportPrompt,
-        handleImportTasksChoice
+        handleImportTasksChoice,
+        // Pomodoro Focus Timer & Subtasks API
+        focusTimer,
+        audioEngine,
+        openFocusModal,
+        closeFocusModal,
+        startFocusTimer: () => focusTimer.start(),
+        pauseFocusTimer: () => focusTimer.pause(),
+        resetFocusTimer: () => focusTimer.reset(),
+        setFocusMode: (m) => focusTimer.setMode(m),
+        // AI Syllabus Importer API
+        aiImporter,
+        openAiImportModal,
+        closeAiImportModal,
+        parseSyllabusTextOffline: (t) => aiImporter.parseSyllabusTextOffline(t)
       };
+
+      // Initialize Focus Timer & AI Importer UI
+      focusTimer.initUI();
+      aiImporter.initUI();
 
       // Initial page setup: restore session if valid, otherwise guest mode
       currentSession = loadSession();
